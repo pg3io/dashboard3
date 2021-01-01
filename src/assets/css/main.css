@@ -1,0 +1,50 @@
+
+.feather {
+    width: 16px;
+    height: 16px;
+    vertical-align: text-bottom;
+ }
+
+ svg {
+    margin-bottom: 0;
+    margin-right: 0;
+  }
+
+  svg.feather {
+    margin-right: 5px;
+  }
+
+  .sidebar-sticky {
+    position: relative;
+    top: 0;
+    height: calc(100vh - 48px);
+    padding-top: .5rem;
+    overflow-x: hidden;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+  }
+
+  .nav-link {
+    padding: .1rem 1rem;
+  }
+
+  .table {
+    margin-top: 20px;
+  }
+
+  .form-signin {
+    margin-top: 30px !important;
+  }
+
+  .footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #f5f5f5;
+  }
+
+  .anim-enter-active, .anim-leave-active {
+    transition: opacity .5s;
+  }
+  .anim-enter, .anim-leave-to /* .anim-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
