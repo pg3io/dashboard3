@@ -1,9 +1,10 @@
 <template>
     <b-container fluid="sm" style="margin-top: 2%;">
+
         <table class="table table-striped table-hover">
             <thead>
                 <tr>
-                    <th># Ref</th>
+                    <th data-order='desc' data-field="id" data-sortable="true"># Ref</th>
                     <th>Nom</th>
                     <th>Date</th>
                     <th>Entreprise</th>
