@@ -17,8 +17,8 @@ Dashboard est un outil de listing de factures, basé sur le Headless CMS [Strapi
 
 # Prérequis
 * Strapi avec:
-  * le schéma => [ici (wiki)](https://github.com/pg3io/dashboard/wiki/Strapi-sch%C3%A9ma)
-  * la configuration => [ici (wiki)](https://github.com/pg3io/dashboard/wiki/Strapi-configuration)
+  * le schéma => [ici (wiki)](https://github.com/pg3io/dashboard3/wiki/Strapi-sch%C3%A9ma)
+  * la configuration => [ici (wiki)](https://github.com/pg3io/dashboard3/wiki/Strapi-configuration)
 * Le module graphQL de Strapi
 
 # Démarrage rapide
