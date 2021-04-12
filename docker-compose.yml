@@ -5,8 +5,4 @@ services:
     container_name: app-prod
     build: .
     ports:
-      - '80:80'  
-#networks:
-#  default:
-#    external:
-#      name: strapi
+      - '8080:80'

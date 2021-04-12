@@ -1,10 +1,12 @@
 FROM node:lts-alpine as build-stage
 WORKDIR /app
-ENV VUE_APP_API_URL='https://<STRAPI_URL>/graphql'
+ENV VUE_APP_API_URL='http://localhost:1337/graphql'
+
 COPY package.json ./
 RUN npm install
 COPY . .
 RUN npm run build
+
 
 # étape de production
 FROM nginx:stable-alpine as production-stage
