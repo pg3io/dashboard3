@@ -1,29 +1,16 @@
 <template>
     <b-container fluid="sm" style="margin-top: 2%;">
 
-        <table class="table table-striped table-hover">
-            <!--<thead>
-                <tr>
-                    <th data-order='desc' data-field="id" data-sortable="true" @click="goToDetails(facture.ref)"># Ref</th>
-                    <th @click="goToDetails(facture.ref)"> Nom</th>
-                    <th @click="goToDetails(facture.ref)">Date</th>
-                    <th @click="goToDetails(facture.ref)">Entreprise</th>
-                    <th @click="downloadPDF(facture.media[0].url, facture.ref)">Télécharger</th>
-                </tr>
-            </thead>-->
-            <!--<tbody>
-                <tr v-for="facture in factures" :key="facture.id" class="tdServer">
-                    <td @click="goToDetails(facture.ref)">{{ facture.ref }}</td>
-                    <td @click="goToDetails(facture.ref)">{{ facture.nom }}</td>
-                    <td @click="goToDetails(facture.ref)">{{ facture.date }}</td>
-                    <td @click="goToDetails(facture.ref)">{{ facture.entreprise }}</td>
-                    <td @click="downloadPDF(facture.media[0].url, facture.ref)"><b-icon icon="file-earmark-arrow-down-fill" style="transform: scale(1.25); margin-left: 20%;"></b-icon></td>
-                </tr>
-            </tbody>-->
-        </table>
+        <!--<table class="table table-striped table-hover">
+            <thead>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>-->
             <b-table
                 :items="factures"
                 :fields="fields"
+                :sort-compare="mySortCompare"
                 :sort-by.sync="sortBy"
                 :sort-desc.sync="sortDesc"
                 responsive="sm"
@@ -32,7 +19,7 @@
                 @row-selected="onRowSelected"
                 >
                 <template #cell(telecharger)="row">
-                    <b-button size="sm" @click="downloadPDF(row.item.media[0].url, row.item.ref)" class="mr-1">
+                    <b-button variant="link" size="sm" @click="downloadPDF(row.item.media[0].url, row.item.ref)" class="mr-1" style="color: inherit;">
                         <b-icon icon="file-earmark-arrow-down-fill" style="transform: scale(1.25);"></b-icon>
                     </b-button>
                 </template>
@@ -53,12 +40,6 @@ export default {
             sortBy: 'date',
             sortDesc: false,
             sortByFormatted: true,
-            formatter: (value, key, item) => {
-                console.log(item);
-                console.log(value);
-                console.log(key);
-                return item.first_name + ' ' + item.last_name;
-            },
             fields: [
           { key: 'ref', sortable: true },
           { key: 'nom', sortable: true },
@@ -74,6 +55,19 @@ export default {
         this.getFactures2();
     },
     methods: {
+        mySortCompare(itemA, itemB, key) {
+            if ( key !== 'date') {
+                return false
+            } else {
+                let a = itemA[key]
+                let b = itemB[key]
+                a = a.split('-')
+                b = b.split('-')
+                a = (parseInt(a[2], 10) * 10000) + (parseInt(a[1], 10) * 100) + parseInt(a[0])
+                b = (parseInt(b[2], 10) * 10000) + (parseInt(b[1], 10) * 100) + parseInt(b[0])
+                return a - b 
+            }
+        },
         onRowSelected(items) {
             console.log(items);
             this.goToDetails(items[0].ref);
@@ -155,18 +149,10 @@ export default {
             }).catch((error) => {
                 console.log(error)
             })
-
-
-
-
-
         }
     },
-
-
-
-
 }
+
 </script>
 
 <style scoped>
