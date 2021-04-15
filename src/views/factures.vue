@@ -8,6 +8,7 @@
             </tbody>
         </table>-->
             <b-table
+                striped hover
                 :items="factures"
                 :fields="fields"
                 :sort-compare="mySortCompare"
@@ -38,7 +39,7 @@ export default {
             factures: [],
             save: null,
             sortBy: 'date',
-            sortDesc: false,
+            sortDesc: true,
             sortByFormatted: true,
             fields: [
           { key: 'ref', sortable: true },
