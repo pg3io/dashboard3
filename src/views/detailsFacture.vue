@@ -18,9 +18,10 @@
                 <b-icon @click="$refs.factureRef.print()" icon="printer-fill" style="transform: scale(2); cursor: pointer; margin-left: 20%;"></b-icon>
                 <b-icon @click="downloadPDF(getPdfLink(facture.media[0].url))" icon="file-earmark-arrow-down-fill" style="transform: scale(2); cursor: pointer; margin-left: 20%;"></b-icon>
             </b-col>
-            <b-col class="mt-5 border border-secondary border-1" @click="goToPdf(facture.media[0].url)" style="cursor: pointer;">
+            <embed ref="factureRef" :src= getPdfLink(facture.media[0].url) width="65%" height="880" frameborder="0" allowfullscreen />
+            <!--<b-col class="mt-5 border border-secondary border-1">
                 <pdf ref="factureRef" :src="getPdfLink(facture.media[0].url)"></pdf>
-            </b-col>
+            </b-col>-->
         </b-row>
         <div v-else class="text-center pt-3">
             <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="search"></b-icon>
@@ -31,12 +32,12 @@
 
 <script>
 import { userId, facturesId, factureInfo, searchFacture } from '@/graphql/querys.js'
-import pdf from 'vue-pdf'
+//import pdf from 'vue-pdf'
 
 export default {
     name: "factureDetails",
     components: {
-        pdf
+    //    pdf
     },
     data() {
         return {
