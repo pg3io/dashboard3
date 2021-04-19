@@ -11,9 +11,9 @@
                                 <tr><th>Nom</th><td>{{ facture.nom }}</td></tr>
                                 <tr><th>Date</th><td>{{ facture.date }}</td></tr>
                                 <tr><th>Entreprise</th><td>{{ facture.entreprise }}</td></tr>
-                                <tr><th>Télécharger</th><td><b-icon @click="downloadPDF(getPdfLink(facture.media[0].url))" icon="file-earmark-arrow-down-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon></td></tr>
                             </tbody>
                         </table>
+                        <b-icon @click="downloadPDF(getPdfLink(facture.media[0].url))" icon="file-earmark-arrow-down-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
                     </div>
                 </b-row>
             </b-col>
