@@ -3,7 +3,7 @@
         <b-row class="align-items-start" v-if="facture && facture.media">
             <b-col cols="12"  lg="4">
                 <b-row class="text-left">
-                    <div class="p-5" style="transform: scale(1.2);">
+                    <div class="p-5" style="transform: scale(1.2); align-self: center; mmargin: auto;">
                         <h4 class="text-center">Infos</h4>
                         <table class="table table-sm table-hover" style="transform: scale(1.1);">
                             <tbody>
@@ -11,17 +11,13 @@
                                 <tr><th>Nom</th><td>{{ facture.nom }}</td></tr>
                                 <tr><th>Date</th><td>{{ facture.date }}</td></tr>
                                 <tr><th>Entreprise</th><td>{{ facture.entreprise }}</td></tr>
+                                <tr><th>Télécharger</th><td><b-icon @click="downloadPDF(getPdfLink(facture.media[0].url))" icon="file-earmark-arrow-down-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon></td></tr>
                             </tbody>
                         </table>
                     </div>
                 </b-row>
-                <b-icon @click="$refs.factureRef.print()" icon="printer-fill" style="transform: scale(2); cursor: pointer; margin-left: 20%;"></b-icon>
-                <b-icon @click="downloadPDF(getPdfLink(facture.media[0].url))" icon="file-earmark-arrow-down-fill" style="transform: scale(2); cursor: pointer; margin-left: 20%;"></b-icon>
             </b-col>
             <embed ref="factureRef" :src= getPdfLink(facture.media[0].url) width="65%" height="880" frameborder="0" allowfullscreen />
-            <!--<b-col class="mt-5 border border-secondary border-1">
-                <pdf ref="factureRef" :src="getPdfLink(facture.media[0].url)"></pdf>
-            </b-col>-->
         </b-row>
         <div v-else class="text-center pt-3">
             <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="search"></b-icon>
@@ -32,12 +28,10 @@
 
 <script>
 import { userId, facturesId, factureInfo, searchFacture } from '@/graphql/querys.js'
-//import pdf from 'vue-pdf'
 
 export default {
     name: "factureDetails",
     components: {
-    //    pdf
     },
     data() {
         return {
