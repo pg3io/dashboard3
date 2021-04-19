@@ -8,12 +8,12 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "alter": "^0.2.0",
     "axios": "latest",
     "bootstrap": "latest",
     "bootstrap-icons": "latest",
     "bootstrap-vue": "latest",
     "core-js": "latest",
+    "eslint-plugin-graphql": "^4.0.0",
     "jquery": "latest",
     "js-yaml": "latest",
     "popper.js": "latest",
@@ -34,7 +34,7 @@
     "@vue/cli-plugin-vuex": "latest",
     "@vue/cli-service": "latest",
     "babel-eslint": "latest",
-    "eslint": "latest",
+    "eslint": "^4.19.1",
     "eslint-plugin-vue": "latest",
     "graphql-tag": "latest",
     "vue-cli-plugin-apollo": "latest",

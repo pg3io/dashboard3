@@ -1,30 +1,23 @@
 <template>
     <b-container fluid="sm" style="margin-top: 2%;">
-
-        <!--<table class="table table-striped table-hover">
-            <thead>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>-->
-            <b-table
-                striped hover
-                :items="factures"
-                :fields="fields"
-                :sort-compare="mySortCompare"
-                :sort-by.sync="sortBy"
-                :sort-desc.sync="sortDesc"
-                responsive="sm"
-                ref="selectableTable"
-                selectable
-                @row-selected="onRowSelected"
-                >
-                <template #cell(telecharger)="row">
-                    <b-button variant="link" size="sm" @click="downloadPDF(row.item.media[0].url, row.item.ref)" class="mr-1" style="color: inherit;">
-                        <b-icon icon="file-earmark-arrow-down-fill" style="transform: scale(1.25);"></b-icon>
-                    </b-button>
-                </template>
-            </b-table>
+        <b-table
+            striped hover
+            :items="factures"
+            :fields="fields"
+            :sort-compare="mySortCompare"
+            :sort-by.sync="sortBy"
+            :sort-desc.sync="sortDesc"
+            responsive="sm"
+            ref="selectableTable"
+            selectable
+            @row-selected="onRowSelected"
+            >
+            <template #cell(telecharger)="row">
+                <b-button variant="link" size="sm" @click="downloadPDF(row.item.media[0].url, row.item.ref)" class="mr-1" style="color: inherit;">
+                    <b-icon icon="file-earmark-arrow-down-fill" style="transform: scale(1.25);"></b-icon>
+                </b-button>
+            </template>
+        </b-table>
     </b-container>
 </template>
 
@@ -46,7 +39,7 @@ export default {
           { key: 'nom', sortable: true },
           { key: 'date', sortable: true },
           { key: 'entreprise', sortable: true },
-          { key: 'telecharger', label: 'telecharger', sortable: false}
+          { key: 'telecharger', label: 'Télécharger', sortable: false}
             ]
         }
     },
