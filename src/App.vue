@@ -1,4 +1,4 @@
-<template>
+<template >
 <transition name="fade">
   <div id="app">
     <header>
@@ -48,6 +48,7 @@
         </b-row>
         <router-view v-if="$route.path == '/login'"></router-view>
         </b-container>
+        <!--<autologout></autologout>-->
       </body>
       <footer class="footer mt-auto py-3 bg-light">
         <div class="container">
@@ -63,8 +64,10 @@ import { mapGetters } from 'vuex'
 import { userId, userBase, getCustoms } from '@/graphql/querys.js'
 import Profile from '@/views/profile.vue'
 import Home from '@/views/home.vue'
+//import Autologout from '@/components/autologout.vue'
 
 export default {
+  name: "App",
   data() {
     return {
       actUserId: 0,
@@ -79,7 +82,8 @@ export default {
   },
   components: {
     Profile,
-    Home
+    Home,
+//    Autologout
   },
   methods: {
     goToPage(id) {
@@ -97,34 +101,34 @@ export default {
       })
     },
     getProfile() {
-        this.$apollo.mutate({
-            mutation: userBase,
-            variables: {'id': this.actUserId}
-        }).then((data) => {
-            this.userInfos = data['data']['users'][0]
-            this.userInfos.username = this.userInfos.username.charAt(0).toUpperCase() + this.userInfos.username.slice(1)
-            this.getDashboardInfos()
-        }).catch((error) => {
-            console.log(error)
-        })
+      this.$apollo.mutate({
+        mutation: userBase,
+        variables: {'id': this.actUserId}
+      }).then((data) => {
+        this.userInfos = data['data']['users'][0]
+        this.userInfos.username = this.userInfos.username.charAt(0).toUpperCase() + this.userInfos.username.slice(1)
+        this.getDashboardInfos()
+      }).catch((error) => {
+        console.log(error)
+      })
     },
     getUsrId() {
-        if (!this.isAuthenticated)
-          return
-        this.$apollo.query({
-            query: userId
-        }).then((data) => {
-            this.actUserId = data['data']['me']['id']
-            return this.getProfile();
-        }).catch((error) => {
-            console.log(error)
-        })
-    },
+      if (!this.isAuthenticated)
+        return
+      this.$apollo.query({
+          query: userId
+      }).then((data) => {
+        this.actUserId = data['data']['me']['id']
+          return this.getProfile();
+      }).catch((error) => {
+          console.log(error)
+      })
+    },  
     logOut() {
       this.$store.dispatch('logOut')
         .then(() => this.$router.push('/login'))
-    }
-  },
+      }
+    },
   computed: {
     ...mapGetters(['user', 'isAuthenticated'])
   }

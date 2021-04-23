@@ -54,9 +54,18 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('@/views/login.vue'),
     meta: {
       title: 'PG3 - Login',
+      //public: true,
+      //disableIfLoggedIn: true
+    },
+    component: () => import('@/views/login.vue'),
+    beforeEnter: (to, from, next) => {
+      if (store.getters.isAuthenticated == true) {
+        next("/");
+      } else {
+        next();
+      }
     }
   },
   {
@@ -87,7 +96,7 @@ if (to.matched.some(record => record.meta.requiresAuth)) {
 } else {
   document.title = to.meta.title
   next()
-}
+  }
 })
 
 export default router
