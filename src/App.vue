@@ -11,7 +11,7 @@
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto">
             <b-nav-item-dropdown right>
-              <template #button-content><b-icon-person-circle></b-icon-person-circle></template>
+              <template #button-content><img class="rounded-circle" :src="gravatar" alt="user profile image" style="width: 35px"/></template>
               <b-dropdown-item class="nav-link" @click="goToPage('profileLink')"><router-link hidden='true' id="profileLink" to="/profile"></router-link>Profile</b-dropdown-item>
               <b-dropdown-item class="nav-link" size="sm" variant="link" @click="logOut">Déconnexion</b-dropdown-item>
             </b-nav-item-dropdown>
@@ -63,7 +63,8 @@
 import { mapGetters } from 'vuex'
 import { userId, userBase, getCustoms } from '@/graphql/querys.js'
 import Profile from '@/views/profile.vue'
-import Home from '@/views/home.vue'
+import Home from '@/views/home.vue';
+import md5 from "md5";
 //import Autologout from '@/components/autologout.vue'
 
 export default {
@@ -84,6 +85,14 @@ export default {
     Profile,
     Home,
 //    Autologout
+  },
+  computed: {
+    ...mapGetters(['user', 'isAuthenticated']),
+
+    gravatar () {
+      const hash = md5(this.userInfos.email);
+      return `https://www.gravatar.com/avatar/${hash}`;
+    },
   },
   methods: {
     goToPage(id) {
@@ -129,9 +138,6 @@ export default {
         .then(() => this.$router.push('/login'))
       }
     },
-  computed: {
-    ...mapGetters(['user', 'isAuthenticated'])
-  }
 }
 </script>
 
