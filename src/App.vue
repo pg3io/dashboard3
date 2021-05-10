@@ -10,8 +10,8 @@
             <b-nav-item to="/factures">Factures</b-nav-item>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto">
+          <template><img class="rounded-circle" :src="gravatar" alt="user profile image" style="width: 35px"/></template>
             <b-nav-item-dropdown right>
-              <template #button-content><img class="rounded-circle" :src="gravatar" alt="user profile image" style="width: 35px"/></template>
               <b-dropdown-item class="nav-link" @click="goToPage('profileLink')"><router-link hidden='true' id="profileLink" to="/profile"></router-link>Profile</b-dropdown-item>
               <b-dropdown-item class="nav-link" size="sm" variant="link" @click="logOut">Déconnexion</b-dropdown-item>
             </b-nav-item-dropdown>
