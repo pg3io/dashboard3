@@ -48,7 +48,7 @@
         </b-row>
         <router-view v-if="$route.path == '/login'"></router-view>
         </b-container>
-        <!--<autologout></autologout>-->
+      <!--<autologout></autologout>-->
       </body>
       <footer class="footer mt-auto py-3 bg-light">
         <div class="container">
@@ -64,7 +64,7 @@ import { mapGetters } from 'vuex'
 import { userId, userBase, getCustoms } from '@/graphql/querys.js'
 import Profile from '@/views/profile.vue'
 import Home from '@/views/home.vue';
-import md5 from "md5";
+import md5 from 'md5';
 //import Autologout from '@/components/autologout.vue'
 
 export default {
@@ -84,11 +84,15 @@ export default {
   components: {
     Profile,
     Home,
-//    Autologout
-  },
+    //    Autologout
+  },  
+  /*async created() {
+    await this.$store.dispatch('getAuthUser');
+  },*/
   computed: {
     ...mapGetters(['user', 'isAuthenticated']),
 
+    // mettre en async (await md5) pour le warining illegal argument
     gravatar () {
       const hash = md5(this.userInfos.email);
       return `https://www.gravatar.com/avatar/${hash}`;
@@ -136,6 +140,7 @@ export default {
     logOut() {
       this.$store.dispatch('logOut')
         .then(() => this.$router.push('/login'))
+        console.log('ici ca log0ut')
       }
     },
 }

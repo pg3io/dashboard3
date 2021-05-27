@@ -85,6 +85,7 @@ export function createProvider () {
 export async function onLogin (apolloClient, token) {
   if (typeof localStorage !== 'undefined' && token) {
     localStorage.setItem(AUTH_TOKEN, token)
+    console.log('onLogin set AUTH_TOKEN')
   }
   if (apolloClient.wsClient) restartWebsockets(apolloClient.wsClient)
   try {
@@ -99,6 +100,7 @@ export async function onLogin (apolloClient, token) {
 export async function onLogout (apolloClient) {
   if (typeof localStorage !== 'undefined') {
     localStorage.removeItem(AUTH_TOKEN)
+    console.log('onLogout remove AUTH_TOKEN')
   }
   if (apolloClient.wsClient) restartWebsockets(apolloClient.wsClient)
   try {

@@ -1,14 +1,38 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import store from '@/store'
+//import LOGIN_USER from '@/store/index.js'
 import profile from '@/views/profile.vue'
 
 Vue.use(VueRouter)
+
+function guardMyroute(to, from, next)
+{
+  var connecter = false;
+
+  if(store.getters.authStatus == true) {
+    //store.mutate.LOGIN_USER();
+    connecter = true;
+    console.log('true connecter');
+  } else {
+    //store.mutate.LOGOUT_USER();
+    connecter = false;
+    console.log('false connecter');
+  }
+
+  if(connecter == true ) {
+    console.log('validation gaurdroute');
+    next();
+  } else {
+    next('/login');
+  }
+}
 
 const routes = [
   {
     path: '/',
     name: 'home',
+    beforeEnter : guardMyroute,
     component: () => import('@/views/home.vue'),
     meta: {
       title: 'PG3',
@@ -18,6 +42,7 @@ const routes = [
   {
     path: '/profile',
     name: 'profile',
+    beforeEnter : guardMyroute,
     component: profile,
     meta: {
       title: 'PG3 - profile',
@@ -27,6 +52,7 @@ const routes = [
   {
     path: '/factures',
     name: 'factures',
+    beforeEnter : guardMyroute,
     component: () => import('@/views/factures.vue'),
     meta: {
       title: 'PG3 - Factures',
@@ -36,6 +62,7 @@ const routes = [
   {
     path: '/factures/:id',
     name: 'factureDetails',
+    beforeEnter : guardMyroute,
     component: () => import('@/views/detailsFacture.vue'),
     meta: {
       title: 'Facture',
@@ -45,6 +72,7 @@ const routes = [
   {
     path: '/password',
     name: 'resetPassword',
+    beforeEnter : guardMyroute,
     component: () => import('@/views/password.vue'),
     meta: {
       title: 'Mot de passe'
@@ -56,8 +84,6 @@ const routes = [
     name: 'Login',
     meta: {
       title: 'PG3 - Login',
-      //public: true,
-      //disableIfLoggedIn: true
     },
     component: () => import('@/views/login.vue'),
     beforeEnter: (to, from, next) => {

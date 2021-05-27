@@ -112,7 +112,7 @@ export default {
     -moz-box-shadow: none;
     -webkit-box-shadow: none;
 }
-..inputError{
+.inputError{
     color: rgba(255, 0, 0, 0.6);
     font-style: italic;
     cursor: default;

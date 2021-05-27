@@ -1,7 +1,7 @@
 <template>
   <div class="container-sm text-center">
     <div v-if="!forgotPassword">
-      <form class="form-signin" action="POST" @submit.prevent="loginUser">
+      <form class="form-signin" action="POST" @submit.prevent="logIn">
       <img class="mb-4" :src="image" alt="" width="150">
       <h1 class="h3 mb-3 font-weight-normal">Connectez-vous</h1>
       <label for="identifier" class="sr-only">Nom d'utilisateur</label>
@@ -111,15 +111,22 @@ export default {
       document.getElementById("password").type = (this.showPassword) ? 'text' : 'password';
     },
     ...mapActions(['login']),
-    loginUser() {
+    logIn() {
       document.getElementById("errorMessage").style.display = "none"
       this.login(this.authDetails)
         .then(() => {
           if (document.getElementById("errorMessage").style.display != "block") {
+            console.log('ONPASSEICI last step  --->> direction home')
             window.location = "/"
           }
         })
     }
+    /*...mapActions(['logIn']),
+    async authenticateUser() {
+      await this.loginUser(this.authDetails),
+      window.location = "home"
+        }
+    }*/
   },
 }
 </script>
