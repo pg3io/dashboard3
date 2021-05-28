@@ -2,6 +2,8 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import axios from 'axios'
+import VueAxios from 'vue-axios'
 import { createProvider } from './vue-apollo'
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -14,6 +16,7 @@ import 'bootstrap-vue/dist/bootstrap-vue-icons.min.css'
 
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
+Vue.use(VueAxios, axios)
 
 Vue.config.productionTip = false
 
