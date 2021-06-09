@@ -3,7 +3,8 @@
         <h2>{{ userInfos.username }}</h2>
         <table class="table table-hover bg-light">
             <tbody>
-                <tr><th>E-mail</th><td>{{ userInfos.email }}</td></tr>
+                <tr><th><a href="https://fr.gravatar.com/" style="color:black"> Profile gravatar </a></th><td><img class="rounded-circle" :src="gravatar" alt="user profile image" /> </td></tr>
+                <tr><th>E-mail</th><td> {{ userInfos.email }} </td></tr>
                 <tr>
                     <th v-if="userInfos.entreprises && userInfos.entreprises.length > 1">Entreprises</th>
                     <th v-else>Entreprise</th>
@@ -61,6 +62,8 @@
 <script>
 import { changePassword } from '@/graphql/querys.js'
 import { mapActions } from 'vuex'
+import md5 from "js-md5";
+
 export default {
     name: 'profile',
     data() {
@@ -78,6 +81,12 @@ export default {
     },
     props: {
         userInfos: Object,
+    },
+    computed: {
+        gravatar () {
+            const hash = md5(this.userInfos.email);
+            return `https://www.gravatar.com/avatar/${hash}`;
+        },
     },
     methods: {
         checkValid() {

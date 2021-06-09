@@ -1,4 +1,4 @@
-<template>
+<template >
 <transition name="fade">
   <div id="app">
     <header>
@@ -10,8 +10,8 @@
             <b-nav-item to="/factures">Factures</b-nav-item>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto">
+          <template><img class="rounded-circle" :src="gravatar" alt="user profile image" style="width: 35px"/></template>
             <b-nav-item-dropdown right>
-              <template #button-content><b-icon-person-circle></b-icon-person-circle></template>
               <b-dropdown-item class="nav-link" @click="goToPage('profileLink')"><router-link hidden='true' id="profileLink" to="/profile"></router-link>Profile</b-dropdown-item>
               <b-dropdown-item class="nav-link" size="sm" variant="link" @click="logOut">Déconnexion</b-dropdown-item>
             </b-nav-item-dropdown>
@@ -48,6 +48,7 @@
         </b-row>
         <router-view v-if="$route.path == '/login'"></router-view>
         </b-container>
+      <!--<autologout></autologout>-->
       </body>
       <footer class="footer mt-auto py-3 bg-light">
         <div class="container">
@@ -62,9 +63,13 @@
 import { mapGetters } from 'vuex'
 import { userId, userBase, getCustoms } from '@/graphql/querys.js'
 import Profile from '@/views/profile.vue'
-import Home from '@/views/home.vue'
+import Home from '@/views/home.vue';
+import md5 from 'js-md5';
+
+//import Autologout from '@/components/autologout.vue'
 
 export default {
+  name: "App",
   data() {
     return {
       actUserId: 0,
@@ -79,7 +84,21 @@ export default {
   },
   components: {
     Profile,
-    Home
+    Home,
+    //    Autologout
+  },  
+  /*async created() {
+    await this.$store.dispatch('getAuthUser');
+  },*/
+  computed: {
+    ...mapGetters(['user', 'isAuthenticated']),
+
+    // mettre en async (await md5) pour le warning illegal argument
+    gravatar () {
+      const link = this.userInfos.email;
+      const hash = md5(link);
+      return (`https://www.gravatar.com/avatar/${hash}`);
+    },
   },
   methods: {
     goToPage(id) {
@@ -97,37 +116,35 @@ export default {
       })
     },
     getProfile() {
-        this.$apollo.mutate({
-            mutation: userBase,
-            variables: {'id': this.actUserId}
-        }).then((data) => {
-            this.userInfos = data['data']['users'][0]
-            this.userInfos.username = this.userInfos.username.charAt(0).toUpperCase() + this.userInfos.username.slice(1)
-            this.getDashboardInfos()
-        }).catch((error) => {
-            console.log(error)
-        })
+      this.$apollo.mutate({
+        mutation: userBase,
+        variables: {'id': this.actUserId}
+      }).then((data) => {
+        this.userInfos = data['data']['users'][0]
+        this.userInfos.username = this.userInfos.username.charAt(0).toUpperCase() + this.userInfos.username.slice(1)
+        this.getDashboardInfos()
+      }).catch((error) => {
+        console.log(error)
+      })
     },
     getUsrId() {
-        if (!this.isAuthenticated)
-          return
-        this.$apollo.query({
-            query: userId
-        }).then((data) => {
-            this.actUserId = data['data']['me']['id']
-            return this.getProfile();
-        }).catch((error) => {
-            console.log(error)
-        })
-    },
+      if (!this.isAuthenticated)
+        return
+      this.$apollo.query({
+          query: userId
+      }).then((data) => {
+        this.actUserId = data['data']['me']['id']
+          return this.getProfile();
+      }).catch((error) => {
+          console.log(error)
+      })
+    },  
     logOut() {
       this.$store.dispatch('logOut')
         .then(() => this.$router.push('/login'))
-    }
-  },
-  computed: {
-    ...mapGetters(['user', 'isAuthenticated'])
-  }
+        console.log('ici ca log0ut')
+      }
+    },
 }
 </script>
 
