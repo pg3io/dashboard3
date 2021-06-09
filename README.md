@@ -22,11 +22,11 @@ Dashboard est un outil de listing de factures, basé sur le Headless CMS [Strapi
 * Profile Gravatar
 * Mot de passe oublié
 * Détails d'une facture
-<ins> * Listing de factures par utilisateurs </ins> 
-- Tri automatique par date
-- Chaque colonne du tableau de facture peut être trié par ordre alphabétique montant ou descendant
-- La colonne date peut-être trié du plus vieux au plus récent / du plus récent au plus vieux
-- Une colonne 'télécharger' pour récupérer sa facture
+* Listing de factures par utilisateurs
+    * Tri automatique par date
+    * Chaque colonne du tableau de facture peut être trié par ordre alphabétique montant ou descendant
+    * La colonne date peut-être trié du plus vieux au plus récent / du plus récent au plus vieux
+    * Une colonne 'télécharger' pour récupérer sa facture
 
 
 # Prérequis
@@ -49,7 +49,7 @@ Puis
 ```
 npm run serve
 ```
-Rendez-vous ensuite sur le port renseigné
+Rendez-vous ensuite sur le port renseigné => https://localhost:8080/
 
 
 # Contributeurs
