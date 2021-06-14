@@ -11,9 +11,10 @@
                                 <tr><th>Nom</th><td>{{ facture.nom }}</td></tr>
                                 <tr><th>Date</th><td>{{ facture.date }}</td></tr>
                                 <tr><th>Entreprise</th><td>{{ facture.entreprise }}</td></tr>
-                                <tr><th>Télécharger</th><td><b-icon @click="downloadPDF(getPdfLink(facture.media[0].url))" icon="file-earmark-arrow-down-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon></td></tr>
+                                <tr><th>Etat</th><td>{{ facture.payer }}</td></tr>
                             </tbody>
                         </table>
+                        <b-icon @click="downloadPDF(getPdfLink(facture.media[0].url))" icon="file-earmark-arrow-down-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
                     </div>
                 </b-row>
             </b-col>
@@ -43,6 +44,21 @@ export default {
         this.getFactId();
     },
     methods: {
+        myPrintPayer() {
+            var temp = this.facture.payer
+
+            if (temp !== true) {
+                console.log("impayée")
+                this.facture.payer = "impayée"
+            } if (temp !== false) {
+                console.log('payée')
+                this.facture.payer = "payée"
+            }
+        },
+        changeDate() {
+            var temp = this.facture.date.split('-')
+            this.facture.date = temp[2] + '/' + temp[1] + '/' + temp[0]
+        },
         downloadPDF(myUrl) {
             this.axios({
                 url: myUrl,
@@ -66,10 +82,6 @@ export default {
             var link = temp.replace('/graphql', mediaUrl)
             return link
         },
-        changeDate() {
-            var temp = this.facture.date.split('-')
-            this.facture.date = temp[2] + '/' + temp[1] + '/' + temp[0]
-        },
         getFactureEntreprise(factId, entName) {
             if (!factId || factId <= 0)
                 return this.facture = null
@@ -81,6 +93,7 @@ export default {
                 this.facture = data['data']['factures'][0]
                 this.facture['entreprise'] = entName
                 this.changeDate();
+                this.myPrintPayer();
                 document.title = "PG3 - Facture " + this.facture.ref
                 this.search = false
             }).catch((error) => {
