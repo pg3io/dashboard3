@@ -1,4 +1,5 @@
 import gql from 'graphql-tag'
+export * from './querys'
 
 const userId = gql`query {me {id}}`
 
@@ -56,6 +57,7 @@ query getFactureInfos($id: ID!) {
     id
     info
     ref
+    payer
     media {
       url
     }
@@ -71,6 +73,7 @@ query getMinFactureInfos($id: [ID]!) {
     ref
     nom
     date
+    payer
     media {
       url
     }
