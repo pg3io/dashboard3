@@ -11,6 +11,7 @@
             ref="selectableTable"
             selectable
             @row-selected="onRowSelected"
+            :tbody-tr-class="rowClass"
             >
             <template #cell(telecharger)="row">
                 <b-button variant="link" size="sm" @click="downloadPDF(row.item.media[0].url, row.item.ref)" class="mr-1" style="color: inherit;">
@@ -35,12 +36,12 @@ export default {
             sortDesc: true,
             sortByFormatted: true,
             fields: [
-          { key: 'ref', sortable: true },
-          { key: 'nom', sortable: true },
-          { key: 'date', sortable: true },
-          { key: 'entreprise', sortable: true },
-          { key: 'payer', label: 'Statut', sortable: false },
-          { key: 'telecharger', label: 'Télécharger', sortable: false}
+          { key: 'ref', sortable: true, class: 'ref'},
+          { key: 'nom', sortable: true, class: 'nom' },
+          { key: 'date', sortable: true, class: 'date' },
+          { key: 'entreprise', sortable: true, class: 'entreprise' },
+          { key: 'payer', label: 'Statut', sortable: false, class: 'payer'},// id: 'Statut'
+          { key: 'telecharger', label: 'Télécharger', sortable: false, class: 'telecharger'}
             ]
         }
     },
@@ -61,6 +62,21 @@ export default {
                 a = (parseInt(a[2], 10) * 10000) + (parseInt(a[1], 10) * 100) + parseInt(a[0])
                 b = (parseInt(b[2], 10) * 10000) + (parseInt(b[1], 10) * 100) + parseInt(b[0])
                 return a - b
+            }
+        },
+        rowClass(item, type) {
+            if (item && type === 'row') {
+                if (item.payer === 'payée') {
+                    console.log(item.payer)
+                    // Peut rajouter des couleurs ou effet
+                    return 'payée'
+                } else {
+                    console.log(item.payer)
+                    // Peut rajouter des couleurs ou effet
+                    return 'impayée'
+                }
+            } else {
+                return null
             }
         },
         onRowSelected(items) {
