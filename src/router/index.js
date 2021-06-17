@@ -10,14 +10,10 @@ function guardMyroute(to, from, next)
 {
   var connecter = false;
 
-  if(store.getters.authStatus == true) {
-    //store.mutate.LOGIN_USER();
+  if(sessionStorage.getItem('apollo-token')) {
     connecter = true;
-    console.log('true connecter');
   } else {
-    //store.mutate.LOGOUT_USER();
     connecter = false;
-    console.log('false connecter');
   }
 
   if(connecter == true ) {

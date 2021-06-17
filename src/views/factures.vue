@@ -67,11 +67,9 @@ export default {
         rowClass(item, type) {
             if (item && type === 'row') {
                 if (item.payer === 'payée') {
-                    console.log(item.payer)
                     // Peut rajouter des couleurs ou effet
                     return 'payée'
                 } else {
-                    console.log(item.payer)
                     // Peut rajouter des couleurs ou effet
                     return 'impayée'
                 }

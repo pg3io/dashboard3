@@ -29,17 +29,18 @@ export default new Vuex.Store({
   mutations: {
     SET_TOKEN (state, payload) {
       state.token = payload.token;
-      console.log('on est dans SET_TOKEN')
+      console.log('SET_TOKEN')
     },
     LOGIN_USER (state, payload) {
-      console.log('on est dans LOGIN_USER');
+      console.log('LOGIN_USER');
       onLogin(apolloClient);
+      state.isAuthenticated = true;
       state.authStatus = true;
       state.user = payload.user;
     },
     LOGOUT_USER (state) {
       state.authStatus = '';
-      console.log('on est dans LOGOUT_USER');
+      console.log('LOGOUT_USER');
       state.isAuthenticated = false;
       state.authStatus = false;
       onLogout(apolloClient);
@@ -54,7 +55,6 @@ export default new Vuex.Store({
     })*/
     
     async login ({ commit }, authDetails) {
-      console.log('start login')
       try {
         var {data} = await apolloClient.mutate({
           mutation: gql`

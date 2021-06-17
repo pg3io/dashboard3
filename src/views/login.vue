@@ -116,17 +116,10 @@ export default {
       this.login(this.authDetails)
         .then(() => {
           if (document.getElementById("errorMessage").style.display != "block") {
-            console.log('ONPASSEICI last step  --->> direction home')
             window.location = "/"
           }
         })
     }
-    /*...mapActions(['logIn']),
-    async authenticateUser() {
-      await this.loginUser(this.authDetails),
-      window.location = "home"
-        }
-    }*/
   },
 }
 </script>

@@ -12,7 +12,12 @@
           <b-navbar-nav class="ml-auto">
           <template><img class="rounded-circle" :src="gravatar" alt="user profile image" style="width: 35px"/></template>
             <b-nav-item-dropdown right>
-              <b-dropdown-item class="nav-link" @click="goToPage('profileLink')"><router-link hidden='true' id="profileLink" to="/profile"></router-link>Profile</b-dropdown-item>
+              <b-dropdown-item class="nav-link" @click="goToPage('profileLink')">
+                <router-link to="/profile" custom v-slot="{ navigate }" hidden='true' id="profileLink">
+                  <span @click="navigate" @keypress.enter="navigate" role="link"/>
+                </router-link>
+              Profile
+              </b-dropdown-item>
               <b-dropdown-item class="nav-link" size="sm" variant="link" @click="logOut">Déconnexion</b-dropdown-item>
             </b-nav-item-dropdown>
           </b-navbar-nav>
@@ -27,10 +32,14 @@
               <div class="position-sticky pt-3 text-left">
                 <ul class="nav flex-column">
                   <li class="nav-item">
-                    <router-link to="/" class="nav-link" style="color: rgb(0, 0, 0)"><b-icon-house-door></b-icon-house-door> Home</router-link>
+                    <router-link to="/" class="nav-link" style="color: rgb(0, 0, 0)" ><b-icon-house-door></b-icon-house-door> 
+                      Home
+                    </router-link>
                   </li>
                   <li class="nav-item">
-                     <router-link to="/factures" class="nav-link" style="color: rgb(0, 0, 0)"><b-icon-file-text-fill></b-icon-file-text-fill> Factures</router-link>
+                    <router-link to="/factures" class="nav-link" style="color: rgb(0, 0, 0)" ><b-icon-file-text-fill></b-icon-file-text-fill>
+                      Factures
+                    </router-link>
                   </li>
                 </ul>
               </div>
@@ -86,10 +95,7 @@ export default {
     Profile,
     Home,
     //    Autologout
-  },  
-  /*async created() {
-    await this.$store.dispatch('getAuthUser');
-  },*/
+  },
   computed: {
     ...mapGetters(['user', 'isAuthenticated']),
 
