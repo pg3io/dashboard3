@@ -11,6 +11,7 @@
             ref="selectableTable"
             selectable
             @row-selected="onRowSelected"
+            :tbody-tr-class="rowClass"
             >
             <template #cell(telecharger)="row">
                 <b-button variant="link" size="sm" @click="downloadPDF(row.item.media[0].url, row.item.ref)" class="mr-1" style="color: inherit;">
@@ -35,11 +36,12 @@ export default {
             sortDesc: true,
             sortByFormatted: true,
             fields: [
-          { key: 'ref', sortable: true },
-          { key: 'nom', sortable: true },
-          { key: 'date', sortable: true },
-          { key: 'entreprise', sortable: true },
-          { key: 'telecharger', label: 'Télécharger', sortable: false}
+          { key: 'ref', sortable: true, class: 'ref'},
+          { key: 'nom', sortable: true, class: 'nom' },
+          { key: 'date', sortable: true, class: 'date' },
+          { key: 'entreprise', sortable: true, class: 'entreprise' },
+          { key: 'payer', label: 'Statut', sortable: false, class: 'payer'},// id: 'Statut'
+          { key: 'telecharger', label: 'Télécharger', sortable: false, class: 'telecharger'}
             ]
         }
     },
@@ -59,7 +61,20 @@ export default {
                 b = b.split('-')
                 a = (parseInt(a[2], 10) * 10000) + (parseInt(a[1], 10) * 100) + parseInt(a[0])
                 b = (parseInt(b[2], 10) * 10000) + (parseInt(b[1], 10) * 100) + parseInt(b[0])
-                return a - b 
+                return a - b
+            }
+        },
+        rowClass(item, type) {
+            if (item && type === 'row') {
+                if (item.payer === 'payée') {
+                    // Peut rajouter des couleurs ou effet
+                    return 'payée'
+                } else {
+                    // Peut rajouter des couleurs ou effet
+                    return 'impayée'
+                }
+            } else {
+                return null
             }
         },
         onRowSelected(items) {
@@ -103,11 +118,25 @@ export default {
                 console.log(error)
             })
         },
+        getFactures() {
+            if (!this.userId)
+                return setTimeout(this.getFactures, 100)
+            this.$apollo.mutate({
+                mutation: facturesId,
+                variables: {'id': this.userId}
+            }).then((data) => {
+                this.save = data['data']['users']
+            }).catch((error) => {
+                console.log(error)
+            })
+        },
         getFactures2() {
             if (!this.save)
                 return setTimeout(this.getFactures2, 100);
             this.factures = []
-            var myFactIds = [], temp = {}
+            var myFactIds = []
+            var temp = {}
+            var tmp = {}
             for (let x = 0; this.save[0]['entreprises'][x]; x++) {
                 for (let y = 0; this.save[0]['entreprises'][x]['factures'][y]; y++) {
                     myFactIds.push(this.save[0]['entreprises'][x]['factures'][y]['id'])
@@ -116,7 +145,8 @@ export default {
             this.$apollo.mutate({
                 mutation: minFactureInfo,
                 variables: {'id': myFactIds}
-            }).then((data) => {
+            })
+            .then((data) => {
                 for (let i = 0; data['data']['factures'][i]; i++) {
                     this.factures.push(data['data']['factures'][i])
                     for (let y = 0; this.save[0]['entreprises'][y]; y++) {
@@ -130,20 +160,17 @@ export default {
                     temp = this.factures[i].date.split('-')
                     this.factures[i].date = temp[2] + '-' + temp[1] + '-' + temp[0]
                 }
-            }).catch((error) => { console.log(error) })
-        },
-        getFactures() {
-            if (!this.userId)
-                return setTimeout(this.getFactures, 100)
-            this.$apollo.mutate({
-                mutation: facturesId,
-                variables: {'id': this.userId}
-            }).then((data) => {
-                this.save = data['data']['users']
-            }).catch((error) => {
-                console.log(error)
+                for (let i = 0; this.factures[i]; i++) {
+                    tmp = this.factures[i].payer
+                    if (tmp !== true) {
+                        this.factures[i].payer = "impayée"
+                    } if (tmp !== false) {
+                        this.factures[i].payer = "payée"
+                    }
+                }
             })
-        }
+            .catch((error) => { console.log(error) })
+        },
     },
 }
 

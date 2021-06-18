@@ -92,7 +92,6 @@ export async function onLogin (apolloClient, token) {
     console.log('IMP onLogin set AUTH_TOKEN')
   }
   if (apolloClient.wsClient) restartWebsockets(apolloClient.wsClient)
-  console.log('onLogin ca passe la ??')
   try {
     await apolloClient.resetStore()
   } catch (e) {
