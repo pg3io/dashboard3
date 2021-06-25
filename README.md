@@ -7,6 +7,8 @@ Dashboard
 # Introduction
 Dashboard est un outil de listing de factures, basé sur le Headless CMS [Strapi](https://github.com/strapi/strapi).
 
+![Image](dashboardforgit.png)
+
 # Fonctions
 
 # Backend
