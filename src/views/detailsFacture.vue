@@ -15,6 +15,8 @@
                             </tbody>
                         </table>
                         <b-icon @click="downloadPDF(getPdfLink(facture.media[0].url))" icon="file-earmark-arrow-down-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
+                        <b-icon @click="previousFacture()" icon="arrow-left-square-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
+                        <b-icon @click="followingFacture()" icon="arrow-right-square-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
                     </div>
                 </b-row>
             </b-col>
@@ -44,14 +46,25 @@ export default {
         this.getFactId();
     },
     methods: {
+        followingFacture() {
+            var test = this.facture
+
+            console.log(test)
+        },
+        previousFacture() {
+            var test = this.facture.id
+
+            console.log(test)
+        },
         myPayedFact() {
             var temp = this.facture.payer
 
             if (temp !== true) {
                 this.facture.payer = "impayée"
-            } 
-            if (temp !== false) {
+            } else if (temp !== false) {
                 this.facture.payer = "payée"
+            } else {
+                return null
             }
         },
         changeDate() {

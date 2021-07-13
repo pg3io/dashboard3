@@ -1,18 +1,21 @@
 <template>
     <b-container fluid="sm" style="margin-top: 2%;">
         <b-table
-            striped hover
             :items="factures"
             :fields="fields"
             :sort-compare="mySortCompare"
             :sort-by.sync="sortBy"
             :sort-desc.sync="sortDesc"
-            responsive="sm"
-            ref="selectableTable"
-            selectable
+            @row-contextmenu="rightClicked"
             @row-selected="onRowSelected"
             :tbody-tr-class="rowClass"
-            >
+            striped hover
+            responsive="sm"
+            ref="selectableTable"
+            selectable>
+            <template #cell(payer)="row"> <!--https://github.com/bootstrap-vue/bootstrap-vue/issues/3671-->
+                <span class="statut" style="color: green;" > {{ row.item.payer }} </span>
+            </template>
             <template #cell(telecharger)="row">
                 <b-button variant="link" size="sm" @click="downloadPDF(row.item.media[0].url, row.item.ref)" class="mr-1" style="color: inherit;">
                     <b-icon icon="file-earmark-arrow-down-fill" style="transform: scale(1.25);"></b-icon>
@@ -36,12 +39,12 @@ export default {
             sortDesc: true,
             sortByFormatted: true,
             fields: [
-          { key: 'ref', sortable: true, class: 'ref'},
+          { key: 'ref', sortable: true, class: 'ref' },
           { key: 'nom', sortable: true, class: 'nom' },
           { key: 'date', sortable: true, class: 'date' },
           { key: 'entreprise', sortable: true, class: 'entreprise' },
-          { key: 'payer', label: 'Statut', sortable: false, class: 'payer'},// id: 'Statut'
-          { key: 'telecharger', label: 'Télécharger', sortable: false, class: 'telecharger'}
+          { key: 'payer', label: 'Statut', sortable: false, class: 'statut'}, //"is-primary: payer = impayée", "is-success': 'payer' = 'payée"
+          { key: 'telecharger', label: 'Télécharger', sortable: false, class: 'telecharger' }
             ]
         }
     },
@@ -51,6 +54,9 @@ export default {
         this.getFactures2();
     },
     methods: {
+        rightClicked (item, index, evt) {
+            evt.preventDefault()
+        },
         mySortCompare(itemA, itemB, key) {
             if ( key !== 'date') {
                 return false
@@ -65,17 +71,13 @@ export default {
             }
         },
         rowClass(item, type) {
-            if (item && type === 'row') {
+            if (item && type === 'row')
                 if (item.payer === 'payée') {
-                    // Peut rajouter des couleurs ou effet
-                    return 'payée'
-                } else {
-                    // Peut rajouter des couleurs ou effet
-                    return 'impayée'
+                    return 'payee' // is-success // table-success
+                } else if (item.payer === 'impayée') {
+                    return 'impayee' // is-primary // table-primary
                 }
-            } else {
-                return null
-            }
+            return null
         },
         onRowSelected(items) {
             console.log(items);
@@ -92,7 +94,7 @@ export default {
                 fileLink.href = fileURL;
                 fileLink.setAttribute('download', ref+'.pdf');
                 document.body.appendChild(fileLink);
-                fileLink.click();
+                window.open(fileLink.click());
             });
         },
         goToDetails(ref) {
@@ -163,9 +165,9 @@ export default {
                 for (let i = 0; this.factures[i]; i++) {
                     tmp = this.factures[i].payer
                     if (tmp !== true) {
-                        this.factures[i].payer = "impayée"
-                    } if (tmp !== false) {
-                        this.factures[i].payer = "payée"
+                        this.factures[i].payer = "impayée";
+                    } else if (tmp !== false) {
+                        this.factures[i].payer = "payée";
                     }
                 }
             })
@@ -176,7 +178,10 @@ export default {
 
 </script>
 
-<style scoped>
+<style lang="css" scoped>
+.b-table-statut > td {
+    border-color: var(--primary) !important;
+}
 .tableServer {
     cursor: default;
 }
