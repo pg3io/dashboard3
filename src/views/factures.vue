@@ -13,8 +13,8 @@
             responsive="sm"
             ref="selectableTable"
             selectable>
-            <template #cell(payer)="row"> <!--https://github.com/bootstrap-vue/bootstrap-vue/issues/3671-->
-                <span class="statut" style="color: green;" > {{ row.item.payer }} </span>
+            <template #cell(payer)="row">
+                <span class="statut" style="" > {{ row.item.payer }} </span>
             </template>
             <template #cell(telecharger)="row">
                 <b-button variant="link" size="sm" @click="downloadPDF(row.item.media[0].url, row.item.ref)" class="mr-1" style="color: inherit;">
@@ -43,7 +43,7 @@ export default {
           { key: 'nom', sortable: true, class: 'nom' },
           { key: 'date', sortable: true, class: 'date' },
           { key: 'entreprise', sortable: true, class: 'entreprise' },
-          { key: 'payer', label: 'Statut', sortable: false, class: 'statut'}, //"is-primary: payer = impayée", "is-success': 'payer' = 'payée"
+          { key: 'payer', label: 'Statut', sortable: false, class: 'statut'},
           { key: 'telecharger', label: 'Télécharger', sortable: false, class: 'telecharger' }
             ]
         }
@@ -73,9 +73,9 @@ export default {
         rowClass(item, type) {
             if (item && type === 'row')
                 if (item.payer === 'payée') {
-                    return 'payee' // is-success // table-success
+                    return 'payee'
                 } else if (item.payer === 'impayée') {
-                    return 'impayee' // is-primary // table-primary
+                    return 'impayee'
                 }
             return null
         },
@@ -179,6 +179,20 @@ export default {
 </script>
 
 <style lang="css" scoped>
+.impayee .statut  {
+    color: blue;
+    border: 1px solid;
+    border-radius: 5px;
+    padding: 2px 5px;
+    background-color: lightblue;
+}
+.payee .statut {
+    color: green;
+    border: 1px solid;
+    border-radius: 5px;
+    padding: 2px 5px;
+    background-color: lightgreen;
+}
 .b-table-statut > td {
     border-color: var(--primary) !important;
 }
