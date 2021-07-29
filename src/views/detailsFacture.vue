@@ -15,8 +15,8 @@
                             </tbody>
                         </table>
                         <b-icon @click="downloadPDF(getPdfLink(facture.media[0].url))" icon="file-earmark-arrow-down-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
-                        <b-icon @click="previousFacture()" icon="arrow-left-square-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
-                        <b-icon @click="followingFacture()" icon="arrow-right-square-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
+                        <!--b-icon @click="previousFacture()" icon="arrow-left-square-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon-->
+                        <!--b-icon @click="nextFacture()" icon="arrow-right-square-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon-->
                     </div>
                 </b-row>
             </b-col>
@@ -47,14 +47,20 @@ export default {
     },
     methods: {
         followingFacture() {
-            var test = this.facture
-
-            console.log(test)
+            var link = document.createElement('following');
+            var url = 'factures/' + 'azertaze';
+            console.log(url);
+            document.body.appendChild(link);
+            link.href = url;
+            link.click();
         },
-        previousFacture() {
-            var test = this.facture.id
+        nextFacture(ref) {
+            var link = document.createElement('previous');
 
-            console.log(test)
+            var url = 'factures/' + ref[-1];
+            document.body.appendChild(link);
+            link.href = url;
+            link.click();
         },
         myPayedFact() {
             var temp = this.facture.payer
