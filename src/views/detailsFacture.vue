@@ -14,13 +14,13 @@
                                 <tr><th>Etat</th><td>{{ facture.payer }}</td></tr>
                             </tbody>
                         </table>
-                        <b-icon @click="downloadPDF(getPdfLink(facture.media[0].url))" icon="file-earmark-arrow-down-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
+                        <b-icon @click="downloadPDF(getPdfLink(facture.media.url))" icon="file-earmark-arrow-down-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
                         <!--b-icon @click="previousFacture()" icon="arrow-left-square-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon-->
                         <!--b-icon @click="nextFacture()" icon="arrow-right-square-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon-->
                     </div>
                 </b-row>
             </b-col>
-            <embed ref="factureRef" :src= getPdfLink(facture.media[0].url) width="65%" height="880" frameborder="0" allowfullscreen />
+            <embed ref="factureRef" :src= getPdfLink(facture.media.url) width="65%" height="880" frameborder="0" allowfullscreen />
         </b-row>
         <div v-else class="text-center pt-3">
             <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="search"></b-icon>
@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { userId, facturesId, factureInfo, searchFacture } from '@/graphql/querys.js'
+import { userId, getUserPerms, facturesId, factureInfo, searchFacture } from '@/graphql/querys.js'
 
 export default {
     name: "factureDetails",
@@ -39,13 +39,29 @@ export default {
     data() {
         return {
             search: true,
-            facture: []
+            facture: [],
+            userId: 0
         }
     },
     mounted() {
         this.getFactId();
+        //this.checkPerm();
     },
     methods: {
+        checkPerm() {
+            this.$apollo.mutate({
+                mutation: getUserPerms,
+                variables: {"id": this.userId}
+            }).then((data) => {
+                console.log(data);
+                if (!data.data.users[0].factures) {
+                    var link = document.createElement('a');
+                    document.body.appendChild(link);
+                    link.href = '/';
+                    link.click();
+                }
+            }).catch((error) => {console.log(error);});
+        },
         followingFacture() {
             var link = document.createElement('following');
             var url = 'factures/' + 'azertaze';
@@ -128,6 +144,12 @@ export default {
                 mutation: facturesId,
                 variables: { "id": usrId}
             }).then((data) => {
+                if (!data.data.users[0].factures) {
+                     var link = document.createElement('a');
+                    document.body.appendChild(link);
+                    link.href = '/';
+                    link.click();
+                }
                 temp = data['data']['users'][0]['entreprises']
                 for (let i = 0; temp[i] && lock == true; i++) {
                     entName = temp[i]['nom'];
@@ -160,6 +182,7 @@ export default {
             this.$apollo.query({
                 query: userId
             }).then((data) => {
+                this.userId = data.data.me.id;
                 return this.getTempId(data['data']['me']['id'])
             }).catch((error) => {
                 console.log(error)

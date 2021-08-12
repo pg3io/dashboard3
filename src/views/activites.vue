@@ -17,7 +17,7 @@
                 <span class="statut" style="" > {{ row.item.payer }} </span>
             </template>
             <template #cell(telecharger)="row">
-                <b-button variant="link" size="sm" @click="downloadPDF(row.item.media.url, row.item.ref)" class="mr-1" style="color: inherit;">
+                <b-button variant="link" size="sm" @click="downloadPDF(row.item.media[0].url, row.item.ref)" class="mr-1" style="color: inherit;">
                     <b-icon icon="file-earmark-arrow-down-fill" style="transform: scale(1.25);"></b-icon>
                 </b-button>
             </template>
@@ -94,7 +94,7 @@ export default {
                 fileLink.href = fileURL;
                 fileLink.setAttribute('download', ref+'.pdf');
                 document.body.appendChild(fileLink);
-                fileLink.click();
+                window.open(fileLink.click());
             });
         },
         goToDetails(ref) {
@@ -128,12 +128,6 @@ export default {
                 variables: {'id': this.userId}
             }).then((data) => {
                 this.save = data['data']['users']
-                if (!this.save[0].factures) {
-                     var link = document.createElement('a');
-                    document.body.appendChild(link);
-                    link.href = '/';
-                    link.click();
-                }
             }).catch((error) => {
                 console.log(error)
             })
@@ -157,7 +151,6 @@ export default {
             .then((data) => {
                 for (let i = 0; data['data']['factures'][i]; i++) {
                     this.factures.push(data['data']['factures'][i])
-                    console.log(`factures ${i}`, this.factures[i])
                     for (let y = 0; this.save[0]['entreprises'][y]; y++) {
                         for (let x = 0; this.save[0]['entreprises'][y]['factures'][x]; x++) {
                             if (this.save[0]['entreprises'][y]['factures'][x].id == this.factures[i].id)

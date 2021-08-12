@@ -6,6 +6,7 @@ const userId = gql`query {me {id}}`
 const facturesId = gql`
 query getFacturesId($id: ID!) {
   users(where: {id: $id}) {
+    factures
     entreprises {
       id
       nom
@@ -25,7 +26,12 @@ query getUserInfos($id: ID!) {
     provider
     info
     entreprises {
-      nom
+      nom,
+      geds {
+        media {
+          url
+        }
+      }
     }
   }
 }`
@@ -46,6 +52,11 @@ query getUserInfos($id: ID!) {
         ref
         nom
         date
+      }
+      geds {
+        media {
+          url
+        }
       }
     }
   }
@@ -126,6 +137,50 @@ mutation resetPassword($password: String!, $confirmPassword: String!, $code: Str
   }
 }`
 
+const getUserGeds = gql`
+query getUserGeds($id: ID!){
+  users(where: {id: $id}) {
+    ged
+    entreprises {
+      id
+      nom
+      geds {
+        id
+        nom
+        type
+        date
+        media {
+          url
+        }
+      }
+    }
+  }
+}
+`
+
+const getGedInfo = gql`
+query getGedInfo($id: ID!){
+  geds(where: {id: $id}) {
+    id
+    nom
+    type
+    date
+    media {
+      url
+    }
+  }
+}`
+
+const getUserPerms = gql`
+query getUserPerms($id: ID!){
+  users(where: {id: $id}) {
+    ged
+    factures
+    activites
+  }
+}
+`
+
 export {
   userId,
   userInfos,
@@ -137,5 +192,8 @@ export {
   getCustoms,
   changePassword,
   resetEmail,
-  resetPassword
+  resetPassword,
+  getGedInfo,
+  getUserGeds,
+  getUserPerms
 }

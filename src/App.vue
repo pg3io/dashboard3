@@ -41,15 +41,20 @@
                       Factures
                     </router-link>
                   </li>
+                  <li class="nav-item">
+                    <router-link to="/fichiers" class="nav-link" style="color: rgb(0, 0, 0)" ><b-icon-file-text-fill></b-icon-file-text-fill>
+                      Fichiers
+                    </router-link>
+                  </li>
                 </ul>
               </div>
             </nav>
           </b-col>
           <b-col v-if="$route.path=='/profile'" class="profile">
-              <Profile :userInfos=userInfos></Profile>
+              <Profile :userInfos="userInfos"></Profile>
           </b-col>
           <b-col class="home" v-else-if="$route.path=='/'">
-              <home :home=homeText></home>
+              <home :home="homeText"></home>
           </b-col>
           <b-col class="other" v-else>
               <router-view></router-view>
@@ -114,6 +119,7 @@ export default {
       this.$apollo.query({
         query: getCustoms,
       }).then((data) => {
+        console.log(data);
         this.name = data['data']['parametre']['title']
         this.homeText = data['data']['parametre']['home']
         this.footerText = data['data']['parametre']['footer']

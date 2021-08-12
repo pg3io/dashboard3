@@ -13,22 +13,23 @@ Dashboard est un outil de listing de factures, basé sur le Headless CMS [Strapi
 
 # Backend
 * Liste d'entreprise
-* Utilisteur par entreprise
-* Liste des Factures par entreprise
+* Utilisateur par entreprise
+* Liste des Factures et Contrats par entreprise
 * Authentification avec un jwt
 * AuthGuard de navigation
-
+* Permissions d'accès aux différents contenus
 
 # FrontEnd
 * Profile
 * Profile Gravatar
 * Mot de passe oublié
 * Détails d'une facture
-* Listing de factures par utilisateurs
+* Listing de factures et de fichiers par utilisateur
     * Tri automatique par date
     * Chaque colonne du tableau de facture peut être trié par ordre alphabétique montant ou descendant
     * La colonne date peut-être trié du plus vieux au plus récent / du plus récent au plus vieux
-    * Une colonne 'télécharger' pour récupérer sa facture
+    * Tous les fichiers sont téléchargeables
+* Système de GED
 
 
 # Prérequis
@@ -43,11 +44,11 @@ Déclarer l'url de votre API dans le Dockerfile => ``VUE_APP_API_URL``
 ```
 docker-compose up
 ```
-Ouvrer un nouveau terminale et lancer npm install
+Ouvrir un nouveau terminal et lancer :
 ```
 npm install
 ```
-Puis
+Puis :
 ```
 npm run serve
 ```
@@ -69,5 +70,5 @@ Rendez-vous ensuite sur le port renseigné => https://localhost:8080/
 Ce projet est sous licence [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) consulter le fichier [LICENSE](LICENSE) pour plus de détails.
 
 # Informations sur l'auteur
-Ce projet a été créé par [PG3](https://pg3.io) en decembre 2020.
-Et Maintenus par [PG3] (https://pg3.io) en 2021.
+Ce projet a été créé par [PG3](https://pg3.io) en décembre 2020.
+Et Maintenu par [PG3] (https://pg3.io) en 2021.
