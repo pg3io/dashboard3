@@ -17,7 +17,7 @@
                 <span class="statut" style="" > {{ row.item.payer }} </span>
             </template>
             <template #cell(telecharger)="row">
-                <b-button variant="link" size="sm" @click="downloadPDF(row.item.media.url, row.item.ref)" class="mr-1" style="color: inherit;">
+                <b-button variant="link" size="sm" @click="downloadPDF(row.item.media[0].url, row.item.ref)" class="mr-1" style="color: inherit;">
                     <b-icon icon="file-earmark-arrow-down-fill" style="transform: scale(1.25);"></b-icon>
                 </b-button>
             </template>
@@ -127,6 +127,7 @@ export default {
                 mutation: facturesId,
                 variables: {'id': this.userId}
             }).then((data) => {
+                console.log(data);
                 this.save = data['data']['users']
                 if (!this.save[0].factures) {
                      var link = document.createElement('a');

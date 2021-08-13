@@ -1,6 +1,6 @@
 <template>
     <b-container>
-        <b-row class="align-items-start" v-if="facture && facture.media">
+        <b-row class="align-items-start" v-if="facture && facture.media[0]">
             <b-col cols="12"  lg="4">
                 <b-row class="text-left">
                     <div class="p-5" style="transform: scale(1.2); align-self: center; mmargin: auto;">
@@ -14,13 +14,13 @@
                                 <tr><th>Etat</th><td>{{ facture.payer }}</td></tr>
                             </tbody>
                         </table>
-                        <b-icon @click="downloadPDF(getPdfLink(facture.media.url))" icon="file-earmark-arrow-down-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
+                        <b-icon @click="downloadPDF(getPdfLink(facture.media[0].url))" icon="file-earmark-arrow-down-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
                         <!--b-icon @click="previousFacture()" icon="arrow-left-square-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon-->
                         <!--b-icon @click="nextFacture()" icon="arrow-right-square-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon-->
                     </div>
                 </b-row>
             </b-col>
-            <embed ref="factureRef" :src= getPdfLink(facture.media.url) width="65%" height="880" frameborder="0" allowfullscreen />
+            <embed ref="factureRef" :src= getPdfLink(facture.media[0].url) width="65%" height="880" frameborder="0" allowfullscreen />
         </b-row>
         <div v-else class="text-center pt-3">
             <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="search"></b-icon>

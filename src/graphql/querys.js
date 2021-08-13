@@ -28,7 +28,7 @@ query getUserInfos($id: ID!) {
     entreprises {
       nom,
       geds {
-        media {
+        fichier {
           url
         }
       }
@@ -54,7 +54,7 @@ query getUserInfos($id: ID!) {
         date
       }
       geds {
-        media {
+        fichier {
           url
         }
       }
@@ -69,7 +69,7 @@ query getFactureInfos($id: ID!) {
     info
     ref
     payer
-    media {
+    fichier {
       url
     }
     nom
@@ -85,7 +85,7 @@ query getMinFactureInfos($id: [ID]!) {
     nom
     date
     payer
-    media {
+    fichier {
       url
     }
   }
@@ -149,7 +149,7 @@ query getUserGeds($id: ID!){
         nom
         type
         date
-        media {
+        fichier {
           url
         }
       }
@@ -165,7 +165,7 @@ query getGedInfo($id: ID!){
     nom
     type
     date
-    media {
+    fichier {
       url
     }
   }
