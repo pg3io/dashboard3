@@ -1,6 +1,6 @@
 <template>
     <b-container>
-        <b-row class="align-items-start" v-if="ged && ged.media">
+        <b-row class="align-items-start" v-if="ged && ged.fichier">
             <b-col cols="12"  lg="4">
                 <b-row class="text-left">
                     <div class="p-5" style="transform: scale(1.2); align-self: center; mmargin: auto;">
@@ -13,13 +13,13 @@
                                 <tr><th>Type</th><td>{{ ged.type }}</td></tr>
                             </tbody>
                         </table>
-                        <b-icon @click="downloadFile(getFileLink(ged.media.url), `${ged.nom}.${ged.type.toLowerCase()}`)" icon="file-earmark-arrow-down-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
+                        <b-icon @click="downloadFile(getFileLink(ged.fichier[0].url), `${ged.nom}.${ged.type.toLowerCase()}`)" icon="file-earmark-arrow-down-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
                         <!--b-icon @click="previousFacture()" icon="arrow-left-square-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon-->
                         <!--b-icon @click="nextFacture()" icon="arrow-right-square-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon-->
                     </div>
                 </b-row>
             </b-col>
-            <embed ref="factureRef" :src= getFileLink(ged.media.url) width="65%" height="880" frameborder="0" allowfullscreen />
+            <embed ref="factureRef" :src= getFileLink(ged.fichier[0].url) width="65%" height="880" frameborder="0" allowfullscreen />
         </b-row>
         <div v-else class="text-center pt-3">
             <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="search"></b-icon>

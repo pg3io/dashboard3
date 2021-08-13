@@ -1,6 +1,7 @@
 <template>
     <b-container fluid="sm" style="margin-top: 2%;">
         <b-table
+            v-if="hasFiles"
             :items="geds"
             :fields="fields"
             :sort-compare="mySortCompare"
@@ -16,11 +17,12 @@
                 <span class="statut" style="" > {{ row.item.payer }} </span>
             </template>
             <template #cell(telecharger)="row">
-                <b-button variant="link" size="sm" @click="downloadFile(row.item.media[0].url, `${row.item.nom}.${row.item.type.toLowerCase()}`)" class="mr-1" style="color: inherit;">
+                <b-button variant="link" size="sm" @click="downloadFile(row.item.fichier[0].url, `${row.item.nom}.${row.item.type.toLowerCase()}`)" class="mr-1" style="color: inherit;">
                     <b-icon icon="file-earmark-arrow-down-fill" style="transform: scale(1.25);"></b-icon>
                 </b-button>
             </template>
         </b-table>
+        <h2 style="margin-top: 2%; text-align: center;" v-else>Vous n'avez pas de fichiers dans le GED</h2>
     </b-container>
 </template>
 
@@ -36,6 +38,7 @@ export default {
             userId: 0,
             sortBy: 'date',
             sortDesc: false,
+            hasFiles: true,
             sortByFormatted: true,
             fields: [
           { key: 'nom', sortable: true, class: 'nom' },
@@ -82,7 +85,7 @@ export default {
                 fileLink.setAttribute('download', ref);
                 document.body.appendChild(fileLink);
                 fileLink.click();
-            });
+            }).catch((error) => {console.log(error)});
         },
         goToDetails(ref) {
             var link = document.createElement('a');
@@ -105,24 +108,33 @@ export default {
                 this.userId = myId
             }).catch((error) => {
                 console.log(error)
-            })
+            });
         },
         getGeds() {
             var tmp_data;
+            var counter = 0;
+            var i = 0;
             if (!this.userId)
                 return setTimeout(this.getGeds, 100);
             this.$apollo.mutate({
                 mutation: getUserGeds,
                 variables: {'id': this.userId}
             }).then((data) => {
+                console.log(data);
                 if (data.data.users[0].ged) {
                     tmp_data = data['data']['users'][0];
                     tmp_data = this.addEntrepriseName(tmp_data);
                     tmp_data['entreprises'].forEach((entreprise) => {
                         entreprise['geds'].forEach((ged) => {
+                            i++;
                             this.geds.push(ged);
                         });
+                        if (i == 0) {
+                            counter++;
+                            i = 0;
+                        }
                     });
+                    if (counter == tmp_data['entreprises'].length) this.hasFiles = false;
                 }
                 else {
                     var fileLink = document.createElement('a');

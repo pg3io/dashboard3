@@ -11,6 +11,9 @@ query getFacturesId($id: ID!) {
       id
       nom
       factures {
+        media {
+          url
+        }
         id
       }
     }
@@ -26,7 +29,7 @@ query getUserInfos($id: ID!) {
     provider
     info
     entreprises {
-      nom,
+      nom
       geds {
         fichier {
           url
@@ -69,7 +72,7 @@ query getFactureInfos($id: ID!) {
     info
     ref
     payer
-    fichier {
+    media {
       url
     }
     nom
@@ -85,7 +88,7 @@ query getMinFactureInfos($id: [ID]!) {
     nom
     date
     payer
-    fichier {
+    media {
       url
     }
   }
