@@ -42,7 +42,7 @@
                     </router-link>
                   </li>
                   <li class="nav-item">
-                    <router-link to="/fichiers" class="nav-link" style="color: rgb(0, 0, 0)" ><b-icon-file-text-fill></b-icon-file-text-fill>
+                    <router-link to="/fichiers" class="nav-link" style="color: rgb(0, 0, 0)" ><b-icon-folder></b-icon-folder>
                       Fichiers
                     </router-link>
                   </li>
