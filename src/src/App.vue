@@ -174,10 +174,14 @@ export default {
       });
     },
     updateSidebar () {
-      if (window.location.href.match(/^https:\/\/(([a-z0-9^/]\.)+)[a-z0-9^/]+\/factures.*$/))
+      if (window.location.href.match(/^https:\/\/(([a-z0-9^/]\.)+)[a-z0-9^/]+\/factures.*$/)
+      || window.location.href.match(/^http:\/\/localhost:8080\/factures.*$/)) {
           this.sidebarUpdator('#factureLink');
-      else if (window.location.href.match(/^https:\/\/(([a-z0-9^/]\.)+)[a-z0-9^/]+\/fichiers.*$/))
+      }
+      else if (window.location.href.match(/^https:\/\/(([a-z0-9^/]\.)+)[a-z0-9^/]+\/fichiers.*$/)
+      || window.location.href.match(/^http:\/\/localhost:8080\/fichiers.*$/)) {
         this.sidebarUpdator('#fichierLink');
+      }
       else {this.sidebarUpdator('#homeLink');}
     },
     getUserPermissions () {
