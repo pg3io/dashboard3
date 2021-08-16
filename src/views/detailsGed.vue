@@ -13,7 +13,7 @@
                                 <tr><th>Type</th><td>{{ ged.type }}</td></tr>
                             </tbody>
                         </table>
-                        <b-icon @click="downloadFile(getFileLink(ged.fichier[0].url), `${ged.nom}.${ged.type.toLowerCase()}`)" icon="file-earmark-arrow-down-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
+                        <b-icon @click="downloadFile(getFileLink(ged.fichier[0].url), `${ged.nom}.${ged.type.toLowerCase()}`)" icon="file-earmark-arrow-down" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
                         <!--b-icon @click="previousFacture()" icon="arrow-left-square-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon-->
                         <!--b-icon @click="nextFacture()" icon="arrow-right-square-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon-->
                     </div>

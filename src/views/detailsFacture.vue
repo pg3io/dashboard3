@@ -14,7 +14,7 @@
                                 <tr><th>Etat</th><td>{{ facture.payer }}</td></tr>
                             </tbody>
                         </table>
-                        <b-icon @click="downloadPDF(getPdfLink(facture.media.url))" icon="file-earmark-arrow-down-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
+                        <b-icon @click="downloadPDF(getPdfLink(facture.media.url))" icon="file-earmark-arrow-down" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
                         <!--b-icon @click="previousFacture()" icon="arrow-left-square-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon-->
                         <!--b-icon @click="nextFacture()" icon="arrow-right-square-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon-->
                     </div>
@@ -45,22 +45,27 @@ export default {
     },
     mounted() {
         this.getFactId();
-        //this.checkPerm();
+        this.checkPerm();
     },
     methods: {
         checkPerm() {
-            this.$apollo.mutate({
-                mutation: getUserPerms,
-                variables: {"id": this.userId}
-            }).then((data) => {
-                console.log(data);
-                if (!data.data.users[0].factures) {
-                    var link = document.createElement('a');
-                    document.body.appendChild(link);
-                    link.href = '/';
-                    link.click();
-                }
-            }).catch((error) => {console.log(error);});
+            if (!this.userId) {
+                return setTimeout(this.checkPerm, 100);
+            }
+            else {
+                this.$apollo.mutate({
+                    mutation: getUserPerms,
+                    variables: {"id": this.userId}
+                }).then((data) => {
+                    console.log(data.data.users);
+                    if (!data.data.users[0].factures) {
+                        var link = document.createElement('a');
+                        document.body.appendChild(link);
+                        link.href = '/';
+                        link.click();
+                    }
+                }).catch((error) => {console.log(error);});
+            }
         },
         followingFacture() {
             var link = document.createElement('following');

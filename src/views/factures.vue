@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-container fluid="sm" style="margin-top: 2%;" v-if="hasFactures">
+        <b-container fluid="sm" style="margin-top: 2%;" v-if="hasFactures && isLoaded && factures">
             <b-table
                 :items="factures"
                 :fields="fields"
@@ -19,12 +19,15 @@
                 </template>
                 <template #cell(telecharger)="row">
                     <b-button variant="link" size="sm" @click="downloadPDF(row.item.media.url, row.item.ref)" class="mr-1" style="color: inherit;">
-                        <b-icon icon="file-earmark-arrow-down-fill" style="transform: scale(1.25);"></b-icon>
+                        <b-icon icon="file-earmark-arrow-down" style="transform: scale(1.25);"></b-icon>
                     </b-button>
                 </template>
             </b-table>
         </b-container>
-        <h2 style="margin-top: 2%; text-align: center;" v-else>Vous n'avez pas de factures</h2>
+        <div v-else class="text-center pt-3">
+            <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded || !factures"></b-icon>
+            <h2 style="margin-top: 2%; text-align: center;" v-else>Vous n'avez pas de factures</h2>
+        </div>
     </div>
 </template>
 
@@ -37,7 +40,8 @@ export default {
             selectMode: 'single',
             userId: 0,
             factures: [],
-            hasFactures: true,
+            hasFactures: false,
+            isLoaded: false,
             save: null,
             sortBy: 'date',
             sortDesc: true,
@@ -55,8 +59,7 @@ export default {
     mounted() {
         this.getUserInfos();
         this.getFactures();
-        if (this.hasFactures)
-            this.getFactures2();
+        this.getFactures2();
     },
     methods: {
         rightClicked (item, index, evt) {
@@ -152,7 +155,8 @@ export default {
                     });
                     if (nEmpty === this.save[0].entreprises.length)
                         this.hasFactures = false;
-
+                    else this.hasFactures = true;
+                    this.isLoaded = true;
                 }
             }).catch((error) => {
                 console.log(error)
@@ -175,8 +179,7 @@ export default {
                 variables: {'id': myFactIds}
             }).then((data) => {
                 for (let i = 0; data['data']['factures'][i]; i++) {
-                    this.factures.push(data['data']['factures'][i])
-                    console.log(`factures ${i}`, this.factures[i]);
+                    this.factures.push(data['data']['factures'][i]);
                     for (let y = 0; this.save[0]['entreprises'][y]; y++) {
                         for (let x = 0; this.save[0]['entreprises'][y]['factures'][x]; x++) {
                             if (this.save[0]['entreprises'][y]['factures'][x].id == this.factures[i].id)

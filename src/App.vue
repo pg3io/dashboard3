@@ -3,11 +3,12 @@
   <div id="app">
     <header>
       <b-navbar toggleable="lg" type="dark" variant="dark" fixed="top" class="p-O" v-if="isAuthenticated">
-        <b-navbar-brand to="/" ><b-icon-briefcase></b-icon-briefcase> {{ name }} </b-navbar-brand>
+        <b-navbar-brand to="/"><b-icon-toggle-on></b-icon-toggle-on> {{ name }} </b-navbar-brand>
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
         <b-collapse id="nav-collapse" is-nav>
           <b-navbar-nav class="d-sm-block d-md-none">
             <b-nav-item to="/factures">Factures</b-nav-item>
+            <b-nav-item to="/fichiers">Fichiers</b-nav-item>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto">
           <template><img class="rounded-circle" :src="gravatar" alt="user profile image" style="width: 35px"/></template>
@@ -29,21 +30,21 @@
         <b-row v-if="isAuthenticated">
           <b-col cols="2" class="d-none d-md-block">
             <nav id="sidebarMenu" class="col-md-2 bg-light sidebar">
-              <div class="position-sticky pt-3 text-left">
-                <ul class="nav flex-column">
+              <div class="d-flex text-big flex-column flex-shrink-0 p-3 bg-light">
+                <ul class="nav flex-column nav-pills mb-auto mt-3 text-align-center">
                   <li class="nav-item">
-                    <router-link to="/" class="nav-link" style="color: rgb(0, 0, 0)" ><b-icon-house-door></b-icon-house-door> 
-                      Home
+                    <router-link to="/" class="nav-link mb-2" id="homeLink" style="color: rgb(0, 0, 0)" ><b-icon-house-door></b-icon-house-door> 
+                     <span class="ml-3 align-top" style="font-size:1.5rem;"> Home</span> 
                     </router-link>
                   </li>
-                  <li class="nav-item">
-                    <router-link to="/factures" class="nav-link" style="color: rgb(0, 0, 0)" ><b-icon-file-text-fill></b-icon-file-text-fill>
-                      Factures
+                  <li class="nav-item" v-if="perms.factures">
+                    <router-link to="/factures" class="nav-link mb-2"  id="factureLink" style="color: rgb(0, 0, 0)" ><b-icon-file-earmark-ruled></b-icon-file-earmark-ruled>
+                      <span class="ml-3 align-top" style="font-size:1.5rem;"> Factures</span> 
                     </router-link>
                   </li>
-                  <li class="nav-item">
-                    <router-link to="/fichiers" class="nav-link" style="color: rgb(0, 0, 0)" ><b-icon-folder></b-icon-folder>
-                      Fichiers
+                  <li class="nav-item" v-if="perms.ged">
+                    <router-link to="/fichiers" class="nav-link mb-2" id="fichierLink" style="color: rgb(0, 0, 0)" ><b-icon-folder></b-icon-folder>
+                       <span class="ml-3 align-top" style="font-size:1.5rem;"> Fichiers</span>
                     </router-link>
                   </li>
                 </ul>
@@ -75,10 +76,11 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { userId, userBase, getCustoms } from '@/graphql/querys.js'
+import { userId, userBase, getCustoms, getUserPerms } from '@/graphql/querys.js'
 import Profile from '@/views/profile.vue'
 import Home from '@/views/home.vue';
 import md5 from 'js-md5';
+import $ from 'jquery';
 
 //import Autologout from '@/components/autologout.vue'
 
@@ -90,11 +92,17 @@ export default {
       userInfos: {},
       name: "",
       homeText: "",
-      footerText: ""
+      footerText: "",
+      perms: {}
     }
   },
   mounted() {
     this.getUsrId();
+    this.getUserPermissions();
+    this.updateSidebar();
+  },
+  updated () {
+    this.updateSidebar();
   },
   components: {
     Profile,
@@ -155,8 +163,42 @@ export default {
       this.$store.dispatch('logOut')
         .then(() => this.$router.push('/login'))
         console.log('ici ca log0ut')
-      }
     },
+    sidebarUpdator (link) {
+      const tab = ['#homeLink', '#factureLink', '#fichierLink'];
+      tab.forEach((elem) => {
+        if (elem === link)
+          $(elem).addClass('active');
+        else
+          $(elem).removeClass('active');
+      });
+    },
+    updateSidebar () {
+      if (window.location.href.match(/^https:\/\/(([a-z0-9^/]\.)+)[a-z0-9^/]+\/factures.*$/)
+      || window.location.href.match(/^http:\/\/localhost:8080\/factures.*$/)) {
+          this.sidebarUpdator('#factureLink');
+      }
+      else if (window.location.href.match(/^https:\/\/(([a-z0-9^/]\.)+)[a-z0-9^/]+\/fichiers.*$/)
+      || window.location.href.match(/^http:\/\/localhost:8080\/fichiers.*$/)) {
+        this.sidebarUpdator('#fichierLink');
+      }
+      else {this.sidebarUpdator('#homeLink');}
+    },
+    getUserPermissions () {
+      if (!this.actUserId)
+        return setTimeout(this.getUserPermissions, 100);
+      else {
+        this.$apollo.mutate({
+          mutation: getUserPerms,
+          variables: {'id': this.actUserId}
+        }).then((data) => {
+          this.perms = data['data']['users'][0];
+        }).catch((error) => {
+          console.log(error)
+        });
+      }
+    }
+  }
 }
 </script>
 
@@ -170,7 +212,12 @@ export default {
     padding: 48px 0 0;
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
 }
-
+.text-big {
+  font-size: 1.5rem;
+}
+a.active {
+  background : #85ceed !important;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

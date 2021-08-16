@@ -1,7 +1,7 @@
 <template>
     <b-container fluid="sm" style="margin-top: 2%;">
         <b-table
-            v-if="hasFiles"
+            v-if="hasFiles && isLoaded && geds"
             :items="geds"
             :fields="fields"
             :sort-compare="mySortCompare"
@@ -18,11 +18,14 @@
             </template>
             <template #cell(telecharger)="row">
                 <b-button variant="link" size="sm" @click="downloadFile(row.item.fichier[0].url, `${row.item.nom}.${row.item.type.toLowerCase()}`)" class="mr-1" style="color: inherit;">
-                    <b-icon icon="file-earmark-arrow-down-fill" style="transform: scale(1.25);"></b-icon>
+                    <b-icon icon="file-earmark-arrow-down" style="transform: scale(1.25);"></b-icon>
                 </b-button>
             </template>
         </b-table>
-        <h2 style="margin-top: 2%; text-align: center;" v-else>Vous n'avez pas de fichiers dans le GED</h2>
+        <div v-else class="text-center pt-3">
+            <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded || !geds"></b-icon>
+            <h2 style="margin-top: 2%; text-align: center;" v-else>Vous n'avez pas de fichiers dans le GED</h2>
+        </div>
     </b-container>
 </template>
 
@@ -38,14 +41,15 @@ export default {
             userId: 0,
             sortBy: 'date',
             sortDesc: false,
-            hasFiles: true,
+            hasFiles: false,
+            isLoaded: false,
             sortByFormatted: true,
             fields: [
-          { key: 'nom', sortable: true, class: 'nom' },
-          { key: 'date', sortable: true, class: 'date' },
-          { key: 'entreprise', sortable: true, class: 'entreprise' },
-          { key: 'type', sortable: false, class: 'type' },
-          { key: 'telecharger', label: 'Télécharger', sortable: false, class: 'telecharger' }
+                { key: 'nom', sortable: true, class: 'nom' },
+                { key: 'date', sortable: true, class: 'date' },
+                { key: 'entreprise', sortable: true, class: 'entreprise' },
+                { key: 'type', sortable: false, class: 'type' },
+                { key: 'telecharger', label: 'Télécharger', sortable: false, class: 'telecharger' }
             ]
         }
     },
@@ -135,6 +139,8 @@ export default {
                         }
                     });
                     if (counter == tmp_data['entreprises'].length) this.hasFiles = false;
+                    else this.hasFiles = true;
+                    this.isLoaded = true;
                 }
                 else {
                     var fileLink = document.createElement('a');
