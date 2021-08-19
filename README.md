@@ -5,11 +5,11 @@ Dashboard
 [![Apache 2.0 Licence](https://img.shields.io/hexpm/l/plug.svg)](LICENCE)
 
 # Introduction
-Dashboard est un outil de listing de factures, basé sur le Headless CMS [Strapi](https://github.com/strapi/strapi).
+Dashboard3 est l'un des outils principaux dédiés aux clients de PG3 il est basé sur le Headless CMS [Strapi](https://github.com/strapi/strapi).
 
 ![Image](dashboardforgit.png)
 
-# Fonctions
+# Fonctionnalités
 
 # Backend
 * Liste d'entreprise
@@ -30,8 +30,11 @@ Dashboard est un outil de listing de factures, basé sur le Headless CMS [Strapi
     * La colonne date peut-être trié du plus vieux au plus récent / du plus récent au plus vieux
     * Tous les fichiers sont téléchargeables
 * Système de GED
-
-
+* 
+## A venir
+* Système de GED complet avec recherche et tags
+* Système de ticketing, lecture et écriture de ticket
+ 
 # Prérequis
 * Strapi avec:
   * le schéma => [ici (wiki)](https://github.com/pg3io/dashboard3/wiki/Strapi-sch%C3%A9ma)
