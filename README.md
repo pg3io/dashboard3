@@ -30,7 +30,7 @@ Dashboard3 est l'un des outils principaux dédiés aux clients de PG3 il est bas
     * La colonne date peut-être trié du plus vieux au plus récent / du plus récent au plus vieux
     * Tous les fichiers sont téléchargeables
 * Système de GED
-* 
+
 ## A venir
 * Système de GED complet avec recherche et tags
 * Système de ticketing, lecture et écriture de ticket
