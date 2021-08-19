@@ -1,28 +1,34 @@
 <template>
-    <b-container fluid="sm" style="margin-top: 2%;">
-        <b-table
-            :items="factures"
-            :fields="fields"
-            :sort-compare="mySortCompare"
-            :sort-by.sync="sortBy"
-            :sort-desc.sync="sortDesc"
-            @row-contextmenu="rightClicked"
-            @row-selected="onRowSelected"
-            :tbody-tr-class="rowClass"
-            striped hover
-            responsive="sm"
-            ref="selectableTable"
-            selectable>
-            <template #cell(payer)="row">
-                <span class="statut" style="" > {{ row.item.payer }} </span>
-            </template>
-            <template #cell(telecharger)="row">
-                <b-button variant="link" size="sm" @click="downloadPDF(row.item.media[0].url, row.item.ref)" class="mr-1" style="color: inherit;">
-                    <b-icon icon="file-earmark-arrow-down-fill" style="transform: scale(1.25);"></b-icon>
-                </b-button>
-            </template>
-        </b-table>
-    </b-container>
+    <div>
+        <b-container fluid="sm" style="margin-top: 2%;" v-if="hasFactures && isLoaded && factures">
+            <b-table
+                :items="factures"
+                :fields="fields"
+                :sort-compare="mySortCompare"
+                :sort-by.sync="sortBy"
+                :sort-desc.sync="sortDesc"
+                @row-contextmenu="rightClicked"
+                @row-selected="onRowSelected"
+                :tbody-tr-class="rowClass"
+                striped hover
+                responsive="sm"
+                ref="selectableTable"
+                selectable>
+                <template #cell(payer)="row">
+                    <span class="statut" style="" > {{ row.item.payer }} </span>
+                </template>
+                <template #cell(telecharger)="row">
+                    <b-button variant="link" size="sm" @click="downloadPDFs(row.item.media, row.item.ref)" class="mr-1" style="color: inherit;">
+                        <b-icon icon="file-earmark-arrow-down" style="transform: scale(1.25);"></b-icon>
+                    </b-button>
+                </template>
+            </b-table>
+        </b-container>
+        <div v-else class="text-center pt-3">
+            <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded || !factures"></b-icon>
+            <h2 style="margin-top: 2%; text-align: center;" v-else>Vous n'avez pas de factures</h2>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -34,6 +40,8 @@ export default {
             selectMode: 'single',
             userId: 0,
             factures: [],
+            hasFactures: false,
+            isLoaded: false,
             save: null,
             sortBy: 'date',
             sortDesc: true,
@@ -80,7 +88,7 @@ export default {
             return null
         },
         onRowSelected(items) {
-            console.log(items);
+            // console.log(items);
             this.goToDetails(items[0].ref);
         },
         downloadPDF(mediaUrl, ref) {
@@ -94,8 +102,16 @@ export default {
                 fileLink.href = fileURL;
                 fileLink.setAttribute('download', ref+'.pdf');
                 document.body.appendChild(fileLink);
-                window.open(fileLink.click());
+                fileLink.click();
             });
+        },
+        getFileType (mediaUrl) {
+            return mediaUrl.match(/uploads\/[^/]+\.([A-Za-z0-9]+)$/)[1];
+        },
+        downloadPDFs(medias, nom) {
+            medias.forEach((media, index) => {
+                this.downloadPDF(media.url, `${nom}_${index+1}`);
+            })
         },
         goToDetails(ref) {
             var link = document.createElement('a');
@@ -120,6 +136,12 @@ export default {
                 console.log(error)
             })
         },
+        redirectIndex() {
+        var link = document.createElement('a');
+            document.body.appendChild(link);
+            link.href = '/';
+            link.click();
+        },
         getFactures() {
             if (!this.userId)
                 return setTimeout(this.getFactures, 100)
@@ -127,7 +149,23 @@ export default {
                 mutation: facturesId,
                 variables: {'id': this.userId}
             }).then((data) => {
+                // console.log(data);
                 this.save = data['data']['users']
+                if (!this.save[0].factures) {
+                    this.redirectIndex();
+                }
+                else {
+                    var nEmpty = 0;
+                    this.save[0].entreprises.forEach((elem) => {
+                        if (elem.factures.length <= 0)
+                            nEmpty++;
+                        else return;
+                    });
+                    if (nEmpty === this.save[0].entreprises.length)
+                        this.hasFactures = false;
+                    else this.hasFactures = true;
+                    this.isLoaded = true;
+                }
             }).catch((error) => {
                 console.log(error)
             })
@@ -147,10 +185,9 @@ export default {
             this.$apollo.mutate({
                 mutation: minFactureInfo,
                 variables: {'id': myFactIds}
-            })
-            .then((data) => {
+            }).then((data) => {
                 for (let i = 0; data['data']['factures'][i]; i++) {
-                    this.factures.push(data['data']['factures'][i])
+                    this.factures.push(data['data']['factures'][i]);
                     for (let y = 0; this.save[0]['entreprises'][y]; y++) {
                         for (let x = 0; this.save[0]['entreprises'][y]['factures'][x]; x++) {
                             if (this.save[0]['entreprises'][y]['factures'][x].id == this.factures[i].id)

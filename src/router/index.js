@@ -3,8 +3,16 @@ import VueRouter from 'vue-router'
 import store from '@/store'
 //import LOGIN_USER from '@/store/index.js'
 import profile from '@/views/profile.vue'
-
+//import axios from 'axios'
 Vue.use(VueRouter)
+
+// const getUserGeds = `query getUserPerms($id: ID!){
+//   users(where: {id: $id}) {
+//     ged
+//     factures
+//     activites
+//   }
+// }`
 
 function guardMyroute(to, from, next)
 {
@@ -17,7 +25,7 @@ function guardMyroute(to, from, next)
   }
 
   if(connecter == true ) {
-    console.log('validation gaurdroute');
+    console.log('validation guardroute');
     next();
   } else {
     console.log('Redirection vers login');
@@ -92,8 +100,34 @@ const routes = [
     alias: '/password?code=:code'
   },
   {
-    path: '*',
-    redirect: '/'
+    path: '/fichiers',
+    name: 'fichiers',
+    beforeEnter : guardMyroute,
+    component: () => import('@/views/ged.vue'),
+    meta: {
+      title: 'PG3 - GED',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/fichiers/:id',
+    name: 'fichierDetails',
+    beforeEnter : guardMyroute,
+    component: () => import('@/views/detailsGed.vue'),
+    meta: {
+      title: 'Détail du fichier',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/tickets',
+    name: 'tickets',
+    beforeEnter : guardMyroute,
+    component: () => import('@/views/activites.vue'),
+    meta: {
+      title: 'Tickets',
+      requiresAuth: true
+    }
   }
 ]
 

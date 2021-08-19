@@ -14,13 +14,25 @@
                                 <tr><th>Etat</th><td>{{ facture.payer }}</td></tr>
                             </tbody>
                         </table>
-                        <b-icon @click="downloadPDF(getPdfLink(facture.media[0].url))" icon="file-earmark-arrow-down-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
-                        <!--b-icon @click="previousFacture()" icon="arrow-left-square-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon-->
-                        <!--b-icon @click="nextFacture()" icon="arrow-right-square-fill" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon-->
+                        <b-row v-if="facture.media.length > 1">
+                            <b-col v-for="(fichier, index) in facture.media" :key="index">
+                                <b-icon v-b-tooltip.hover.top="`${facture.nom} n° ${index+1}`" @click="downloadPDF(getPdfLink(fichier.url), `${facture.nom}_${index+1}.pdf`)" icon="file-earmark-arrow-down" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
+                            </b-col>
+                        </b-row>
+                        <b-icon v-else @click="downloadPDF(getPdfLink(facture.media[0].url), `${facture.nom}.${getFileType(facture.media[0].url)}`)" icon="file-earmark-arrow-down" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
                     </div>
                 </b-row>
             </b-col>
-            <embed ref="factureRef" :src= getPdfLink(facture.media[0].url) width="65%" height="880" frameborder="0" allowfullscreen />
+            <b-col cols="12" lg="8" class="mt-3" v-if="facture.media.length > 1">
+                <b-tabs>
+                    <b-tab :title="facture.nom+' n° '+(index+1)" v-for="(fichier, index) in facture.media" :key="index">
+                        <embed ref="factureRef" :src="getPdfLink(fichier.url)" width="100%" height="880" frameborder="0" allowfullscreen />
+                    </b-tab>
+                </b-tabs>
+            </b-col>
+            <b-col cols="12" lg="8" class="mt-3" v-else>
+                <embed ref="factureRef" :src="getPdfLink(facture.media[0].url)" width="100%" height="880" frameborder="0" allowfullscreen />
+            </b-col>
         </b-row>
         <div v-else class="text-center pt-3">
             <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="search"></b-icon>
@@ -30,7 +42,7 @@
 </template>
 
 <script>
-import { userId, facturesId, factureInfo, searchFacture } from '@/graphql/querys.js'
+import { userId, getUserPerms, facturesId, factureInfo, searchFacture, minFactureInfo } from '@/graphql/querys.js'
 
 export default {
     name: "factureDetails",
@@ -39,17 +51,104 @@ export default {
     data() {
         return {
             search: true,
-            facture: []
+            facture: [],
+            userId: 0,
+            factures: [],
+            save: null,
+            myFactIds: []
+
         }
     },
     mounted() {
         this.getFactId();
+        this.checkPerm();
+        this.getFactures();
+        this.getFactures2();
     },
     methods: {
+        checkPerm() {
+            if (!this.userId) {
+                return setTimeout(this.checkPerm, 100);
+            }
+            else {
+                this.$apollo.mutate({
+                    mutation: getUserPerms,
+                    variables: {"id": this.userId}
+                }).then((data) => {
+                    // console.log(data.data.users);
+                    if (!data.data.users[0].factures) {
+                        var link = document.createElement('a');
+                        document.body.appendChild(link);
+                        link.href = '/';
+                        link.click();
+                    }
+                }).catch((error) => {console.log(error);});
+            }
+        },
+        getFileType(mediaUrl) {
+            return mediaUrl.match(/uploads\/[^/]+\.([A-Za-z0-9]+)$/)[1];
+        },
+        getFactures() {
+            if (!this.userId)
+                return setTimeout(this.getFactures, 100)
+            this.$apollo.mutate({
+                mutation: facturesId,
+                variables: {'id': this.userId}
+            }).then((data) => {
+                this.save = data['data']['users']
+                if (!this.save[0].factures) {
+                    this.redirectIndex();
+                }
+                // console.log(this.save)
+            }).catch((error) => {
+                console.log(error)
+            })
+        },
+        getFactures2() {
+            if (!this.save)
+                return setTimeout(this.getFactures2, 100);
+            this.factures = []
+            var myFactIds = []
+            var temp = {}
+            var tmp = {}
+            // console.log("this.s2ave "+this.save)
+            for (let x = 0; this.save[0]['entreprises'][x]; x++) {
+                for (let y = 0; this.save[0]['entreprises'][x]['factures'][y]; y++) {
+                    myFactIds.push(this.save[0]['entreprises'][x]['factures'][y]['id'])
+                }
+            }
+            this.$apollo.mutate({
+                mutation: minFactureInfo,
+                variables: {'id': myFactIds}
+            }).then((data) => {
+                for (let i = 0; data['data']['factures'][i]; i++) {
+                    this.factures.push(data['data']['factures'][i]);
+                    for (let y = 0; this.save[0]['entreprises'][y]; y++) {
+                        for (let x = 0; this.save[0]['entreprises'][y]['factures'][x]; x++) {
+                            if (this.save[0]['entreprises'][y]['factures'][x].id == this.factures[i].id)
+                                this.factures[i]['entreprise'] = this.save[0]['entreprises'][y].nom
+                        }
+                    }
+                }
+                for (let i = 0; this.factures[i]; i++) {
+                    temp = this.factures[i].date.split('-')
+                    this.factures[i].date = temp[2] + '-' + temp[1] + '-' + temp[0]
+                }
+                for (let i = 0; this.factures[i]; i++) {
+                    tmp = this.factures[i].payer
+                    if (tmp !== true) {
+                        this.factures[i].payer = "impayée";
+                    } else if (tmp !== false) {
+                        this.factures[i].payer = "payée";
+                    }
+                }
+            })
+            .catch((error) => { console.log(error) })
+        },
         followingFacture() {
             var link = document.createElement('following');
             var url = 'factures/' + 'azertaze';
-            console.log(url);
+            // console.log(url);
             document.body.appendChild(link);
             link.href = url;
             link.click();
@@ -77,7 +176,7 @@ export default {
             var temp = this.facture.date.split('-')
             this.facture.date = temp[2] + '/' + temp[1] + '/' + temp[0]
         },
-        downloadPDF(myUrl) {
+        downloadPDF(myUrl, nom) {
             this.axios({
                 url: myUrl,
                 method: 'GET',
@@ -86,7 +185,7 @@ export default {
                 var fileURL = window.URL.createObjectURL(new Blob([response.data]));
                 var fileLink = document.createElement('a');
                 fileLink.href = fileURL;
-                fileLink.setAttribute('download', this.facture.ref+'.pdf');
+                fileLink.setAttribute('download', nom);
                 document.body.appendChild(fileLink);
                 fileLink.click();
             });
@@ -128,6 +227,13 @@ export default {
                 mutation: facturesId,
                 variables: { "id": usrId}
             }).then((data) => {
+                // console.log(data)
+                if (!data.data.users[0].factures) {
+                     var link = document.createElement('a');
+                    document.body.appendChild(link);
+                    link.href = '/';
+                    link.click();
+                }
                 temp = data['data']['users'][0]['entreprises']
                 for (let i = 0; temp[i] && lock == true; i++) {
                     entName = temp[i]['nom'];
@@ -149,6 +255,7 @@ export default {
                 mutation: searchFacture,
                 variables: {'search': search}
             }).then((data) => {
+                // console.log('tempid', data)
                 if (data['data'] && data['data']['factures'] && data['data']['factures'][0] && data['data']['factures'][0]['id'])
                     this.getFactInfos(usrId, data['data']['factures'][0]['id'])
                 else this.search = false;
@@ -160,6 +267,7 @@ export default {
             this.$apollo.query({
                 query: userId
             }).then((data) => {
+                this.userId = data.data.me.id;
                 return this.getTempId(data['data']['me']['id'])
             }).catch((error) => {
                 console.log(error)

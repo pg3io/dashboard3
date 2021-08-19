@@ -6,7 +6,7 @@ import { apolloClient } from '@/vue-apollo'
 import { onLogout } from '@/vue-apollo'
 import { onLogin } from '@/vue-apollo'
 import { LOGGED_IN_USER } from '@/graphql/login'
-import { LOGIN_USERS } from '@/graphql/login'
+import { LOGIN_USER } from '@/graphql/login'
 //import { TOKEN_USER} from '@/graphql/mutations'
 
 Vue.use(Vuex)
@@ -90,7 +90,7 @@ export default new Vuex.Store({
 
     async setUser ({ commit }) {
       const { data } = await apolloClient.query({ query: LOGGED_IN_USER })
-      commit(({ query: LOGIN_USERS }), data.me)
+      commit(({ query: LOGIN_USER }), data.me)
       console.log('setUser est terminer')
     }
   },
