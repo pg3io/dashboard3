@@ -33,20 +33,25 @@
               <div class="d-flex text-big flex-column flex-shrink-0 p-3 bg-light">
                 <ul class="nav flex-column nav-pills mb-auto mt-3 text-align-center">
                   <li class="nav-item">
-                    <router-link to="/" class="nav-link mb-2" id="homeLink" style="color: rgb(0, 0, 0)" ><b-icon-house-door></b-icon-house-door> 
+                    <router-link to="/" class="nav-link link mb-2" id="homeLink"  style="color: rgb(0, 0, 0)" ><b-icon-house-door></b-icon-house-door> 
                      <span class="ml-3 align-top" style="font-size:1.5rem;"> Home</span> 
                     </router-link>
                   </li>
                   <li class="nav-item" v-if="perms.factures">
-                    <router-link to="/factures" class="nav-link mb-2"  id="factureLink" style="color: rgb(0, 0, 0)" ><b-icon-file-earmark-ruled></b-icon-file-earmark-ruled>
+                    <router-link to="/factures" class="nav-link link mb-2 sec-link"  id="factureLink" style="color: rgb(0, 0, 0)" ><b-icon-file-earmark-ruled></b-icon-file-earmark-ruled>
                       <span class="ml-3 align-top" style="font-size:1.5rem;"> Factures</span> 
                     </router-link>
                   </li>
                   <li class="nav-item" v-if="perms.ged">
-                    <router-link to="/fichiers" class="nav-link mb-2" id="fichierLink" style="color: rgb(0, 0, 0)" ><b-icon-folder></b-icon-folder>
+                    <router-link to="/fichiers" class="nav-link link mb-2 sec-link"  id="fichierLink" style="color: rgb(0, 0, 0)" ><b-icon-folder></b-icon-folder>
                        <span class="ml-3 align-top" style="font-size:1.5rem;"> Fichiers</span>
                     </router-link>
                   </li>
+                <!--  <li class="nav-item">
+                    <router-link to="/tickets" class="nav-link link mb-2 sec-link"  id="fichierLink" style="color: rgb(0, 0, 0)" ><b-icon-bookmarks></b-icon-bookmarks>
+                       <span class="ml-3 align-top" style="font-size:1.5rem;"> Tickets</span>
+                    </router-link>
+                  </li> -->
                 </ul>
               </div>
             </nav>
@@ -99,10 +104,6 @@ export default {
   mounted() {
     this.getUsrId();
     this.getUserPermissions();
-    this.updateSidebar();
-  },
-  updated () {
-    this.updateSidebar();
   },
   components: {
     Profile,
@@ -174,9 +175,11 @@ export default {
       });
     },
     updateSidebar () {
-      if (window.location.href.match(/^https:\/\/(([a-z0-9^/]\.)+)[a-z0-9^/]+\/factures.*$/))
+      if (window.location.href.match(/^https:\/\/(([a-z0-9^/]\.)+)[a-z0-9^/]+\/factures.*$/)
+      || window.location.href.match(/^http:\/\/localhost:8080\/factures.*$/))
           this.sidebarUpdator('#factureLink');
-      else if (window.location.href.match(/^https:\/\/(([a-z0-9^/]\.)+)[a-z0-9^/]+\/fichiers.*$/))
+      else if (window.location.href.match(/^https:\/\/(([a-z0-9^/]\.)+)[a-z0-9^/]+\/fichiers.*$/)
+      || window.location.href.match(/^http:\/\/localhost:8080\/fichiers.*$/))
         this.sidebarUpdator('#fichierLink');
       else {this.sidebarUpdator('#homeLink');}
     },
@@ -211,7 +214,7 @@ export default {
 .text-big {
   font-size: 1.5rem;
 }
-a.active {
+a.active, a.sec-link.router-link-active, a.link.router-link-exact-active {
   background : #85ceed !important;
 }
 #app {

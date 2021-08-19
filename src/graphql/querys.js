@@ -110,6 +110,13 @@ query {
   }
 }`
 
+const getZammad = gql`
+query {
+  zammad {
+    token
+  }
+}`
+
 const changePassword = gql`
 mutation changePassword($id: ID!, $password: String!){
   updateUser(
@@ -198,5 +205,6 @@ export {
   resetPassword,
   getGedInfo,
   getUserGeds,
-  getUserPerms
+  getUserPerms,
+  getZammad
 }

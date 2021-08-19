@@ -26,7 +26,9 @@
 </template>
 
 <script>
-import { userId, facturesId, minFactureInfo } from '@/graphql/querys.js'
+import { userId, getZammad } from '@/graphql/querys.js'
+import { GetTicketsFromCorp } from '@/zammad/querys.js'
+
 export default {
     name: 'home',
     data() {
@@ -49,9 +51,7 @@ export default {
         }
     },
     mounted() {
-        this.getUserInfos();
-        this.getFactures();
-        this.getFactures2();
+        this.getTickets();
     },
     methods: {
         rightClicked (item, index, evt) {
@@ -120,59 +120,13 @@ export default {
                 console.log(error)
             })
         },
-        getFactures() {
-            if (!this.userId)
-                return setTimeout(this.getFactures, 100)
-            this.$apollo.mutate({
-                mutation: facturesId,
-                variables: {'id': this.userId}
-            }).then((data) => {
-                this.save = data['data']['users']
-            }).catch((error) => {
-                console.log(error)
-            })
-        },
-        getFactures2() {
-            if (!this.save)
-                return setTimeout(this.getFactures2, 100);
-            this.factures = []
-            var myFactIds = []
-            var temp = {}
-            var tmp = {}
-            for (let x = 0; this.save[0]['entreprises'][x]; x++) {
-                for (let y = 0; this.save[0]['entreprises'][x]['factures'][y]; y++) {
-                    myFactIds.push(this.save[0]['entreprises'][x]['factures'][y]['id'])
-                }
-            }
-            this.$apollo.mutate({
-                mutation: minFactureInfo,
-                variables: {'id': myFactIds}
-            })
-            .then((data) => {
-                for (let i = 0; data['data']['factures'][i]; i++) {
-                    this.factures.push(data['data']['factures'][i])
-                    for (let y = 0; this.save[0]['entreprises'][y]; y++) {
-                        for (let x = 0; this.save[0]['entreprises'][y]['factures'][x]; x++) {
-                            if (this.save[0]['entreprises'][y]['factures'][x].id == this.factures[i].id)
-                                this.factures[i]['entreprise'] = this.save[0]['entreprises'][y].nom
-                        }
-                    }
-                }
-                for (let i = 0; this.factures[i]; i++) {
-                    temp = this.factures[i].date.split('-')
-                    this.factures[i].date = temp[2] + '-' + temp[1] + '-' + temp[0]
-                }
-                for (let i = 0; this.factures[i]; i++) {
-                    tmp = this.factures[i].payer
-                    if (tmp !== true) {
-                        this.factures[i].payer = "impayée";
-                    } else if (tmp !== false) {
-                        this.factures[i].payer = "payée";
-                    }
-                }
-            })
-            .catch((error) => { console.log(error) })
-        },
+        getTickets() {
+            let token;
+            this.$apollo.query({query: getZammad}).then((data) => {
+                token = data.data.zammad.token;
+                console.log(GetTicketsFromCorp(token, this.axios));
+            });
+        }
     },
 }
 

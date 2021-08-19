@@ -14,7 +14,7 @@
             ref="selectableTable"
             selectable>
             <template #cell(payer)="row">
-                <span class="statut" style="" > {{ row.item.payer }} </span>
+                <span class="statut" style=""> {{ row.item.payer }} </span>
             </template>
             <template #cell(telecharger)="row">
                 <b-button variant="link" size="sm" @click="downloadFile(row.item.fichier[0].url, `${row.item.nom}.${row.item.type.toLowerCase()}`)" class="mr-1" style="color: inherit;">

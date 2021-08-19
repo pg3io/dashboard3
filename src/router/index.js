@@ -120,8 +120,14 @@ const routes = [
     }
   },
   {
-    path: '*',
-    redirect: '/'
+    path: '/tickets',
+    name: 'tickets',
+    beforeEnter : guardMyroute,
+    component: () => import('@/views/activites.vue'),
+    meta: {
+      title: 'Tickets',
+      requiresAuth: true
+    }
   }
 ]
 
