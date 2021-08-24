@@ -47,11 +47,11 @@
                        <span class="ml-3 align-top" style="font-size:1.5rem;"> Fichiers</span>
                     </router-link>
                   </li>
-                <!--  <li class="nav-item">
-                    <router-link to="/tickets" class="nav-link link mb-2 sec-link"  id="fichierLink" style="color: rgb(0, 0, 0)" ><b-icon-bookmarks></b-icon-bookmarks>
+                  <li class="nav-item" v-if="zammad">
+                    <router-link to="/tickets" class="nav-link link mb-2 sec-link"  id="ticketLink" style="color: rgb(0, 0, 0)" ><b-icon-bookmarks></b-icon-bookmarks>
                        <span class="ml-3 align-top" style="font-size:1.5rem;"> Tickets</span>
                     </router-link>
-                  </li> -->
+                  </li>
                 </ul>
               </div>
             </nav>
@@ -81,11 +81,10 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { userId, userBase, getCustoms, getUserPerms } from '@/graphql/querys.js'
+import { userId, userBase, getCustoms, getUserPerms, getZammad } from '@/graphql/querys.js'
 import Profile from '@/views/profile.vue'
 import Home from '@/views/home.vue';
 import md5 from 'js-md5';
-import $ from 'jquery';
 
 //import Autologout from '@/components/autologout.vue'
 
@@ -98,12 +97,14 @@ export default {
       name: "",
       homeText: "",
       footerText: "",
-      perms: {}
+      perms: {},
+      zammad: false
     }
   },
   mounted() {
     this.getUsrId();
     this.getUserPermissions();
+    this.hasZammad();
   },
   components: {
     Profile,
@@ -123,6 +124,17 @@ export default {
   methods: {
     goToPage(id) {
       document.getElementById(id).click()
+    },
+    hasZammad () {
+      this.$apollo.query({
+        query: getZammad
+      }).then((data) => {
+        if (data.data.zammad !== null) {
+          this.zammad = true;
+        } else {
+          this.zammad = false;
+        }
+      });
     },
     getDashboardInfos() {
       this.$apollo.query({
@@ -164,24 +176,6 @@ export default {
       this.$store.dispatch('logOut')
         .then(() => this.$router.push('/login'))
         console.log('ici ca log0ut')
-    },
-    sidebarUpdator (link) {
-      const tab = ['#homeLink', '#factureLink', '#fichierLink'];
-      tab.forEach((elem) => {
-        if (elem === link)
-          $(elem).addClass('active');
-        else
-          $(elem).removeClass('active');
-      });
-    },
-    updateSidebar () {
-      if (window.location.href.match(/^https:\/\/(([a-z0-9^/]\.)+)[a-z0-9^/]+\/factures.*$/)
-      || window.location.href.match(/^http:\/\/localhost:8080\/factures.*$/))
-          this.sidebarUpdator('#factureLink');
-      else if (window.location.href.match(/^https:\/\/(([a-z0-9^/]\.)+)[a-z0-9^/]+\/fichiers.*$/)
-      || window.location.href.match(/^http:\/\/localhost:8080\/fichiers.*$/))
-        this.sidebarUpdator('#fichierLink');
-      else {this.sidebarUpdator('#homeLink');}
     },
     getUserPermissions () {
       if (!this.actUserId)

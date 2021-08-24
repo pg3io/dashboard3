@@ -20,6 +20,14 @@
                             </b-col>
                         </b-row>
                         <b-icon v-else @click="downloadPDF(getPdfLink(facture.media[0].url), `${facture.nom}.${getFileType(facture.media[0].url)}`)" icon="file-earmark-arrow-down" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
+                        <b-row class="mt-3 d-flex justify-content-between">
+                            <b-col>
+                                <b-icon v-if="prevFacture" v-b-tooltip.hover.bottom="'Facture précédente'" @click="previousFacture()" icon="arrow-left-square" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
+                            </b-col>
+                            <b-col>
+                                <b-icon v-if="nxtFacture" @click="nextFacture()" v-b-tooltip.hover.bottom="'Facture suivante'" icon="arrow-right-square" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
+                            </b-col>
+                        </b-row>
                     </div>
                 </b-row>
             </b-col>
@@ -44,19 +52,33 @@
 <script>
 import { userId, getUserPerms, facturesId, factureInfo, searchFacture, minFactureInfo } from '@/graphql/querys.js'
 
+function exchangeDate (date) {
+    var arr = date.split('-');
+    const tmp = arr[0];
+    arr[0] = arr[1];
+    arr[1] = tmp;
+    return arr.join('-');
+}
+
+function sorter(a, b) {
+    var DateA = new Date(exchangeDate(a.date));
+    var DateB = new Date(exchangeDate(b.date));
+    return (DateA.getTime() - DateB.getTime())
+}
+
 export default {
     name: "factureDetails",
-    components: {
-    },
     data() {
         return {
             search: true,
-            facture: [],
+            facture: null,
             userId: 0,
-            factures: [],
+            factures: null,
             save: null,
-            myFactIds: []
-
+            myFactIds: [],
+            prevFacture: '',
+            nxtFacture: '',
+            factureIndex: null,
         }
     },
     mounted() {
@@ -64,8 +86,22 @@ export default {
         this.checkPerm();
         this.getFactures();
         this.getFactures2();
+        this.getFactureIndex();
+        this.setArrows();
     },
     methods: {
+        setArrows() {
+            if (this.factureIndex === null)
+                return setTimeout(this.setArrows, 100);
+            else {
+                if (this.factureIndex >= 0) {
+                    if (this.factureIndex > 0)
+                        this.prevFacture = this.factures[this.factureIndex-1].ref;
+                    if (this.factureIndex < this.factures.length - 1)
+                        this.nxtFacture = this.factures[this.factureIndex+1].ref;
+                }
+            }
+        },
         checkPerm() {
             if (!this.userId) {
                 return setTimeout(this.checkPerm, 100);
@@ -75,7 +111,6 @@ export default {
                     mutation: getUserPerms,
                     variables: {"id": this.userId}
                 }).then((data) => {
-                    // console.log(data.data.users);
                     if (!data.data.users[0].factures) {
                         var link = document.createElement('a');
                         document.body.appendChild(link);
@@ -83,6 +118,23 @@ export default {
                         link.click();
                     }
                 }).catch((error) => {console.log(error);});
+            }
+        },
+        getFactureIndex() {
+            if (!this.factures||!this.facture)
+                return setTimeout(this.getFactureIndex, 100);
+            else if (this.factures.length === 0) return setTimeout(this.getFactureIndex, 100);
+            else {
+                for (let i = 0; i < this.factures.length; i++) {
+                    var elem = this.factures[i];
+                    if (elem.ref === this.facture.ref) {
+                        this.factureIndex = i;
+                        break;
+                    }
+                    if (i === (this.factures.length - 1) && elem.ref !==  this.facture.ref) {
+                        this.factureIndex = -1;
+                    }
+                }
             }
         },
         getFileType(mediaUrl) {
@@ -99,7 +151,6 @@ export default {
                 if (!this.save[0].factures) {
                     this.redirectIndex();
                 }
-                // console.log(this.save)
             }).catch((error) => {
                 console.log(error)
             })
@@ -111,7 +162,6 @@ export default {
             var myFactIds = []
             var temp = {}
             var tmp = {}
-            // console.log("this.s2ave "+this.save)
             for (let x = 0; this.save[0]['entreprises'][x]; x++) {
                 for (let y = 0; this.save[0]['entreprises'][x]['factures'][y]; y++) {
                     myFactIds.push(this.save[0]['entreprises'][x]['factures'][y]['id'])
@@ -142,21 +192,21 @@ export default {
                         this.factures[i].payer = "payée";
                     }
                 }
+                this.factures.sort(sorter);
+                
             })
             .catch((error) => { console.log(error) })
         },
-        followingFacture() {
-            var link = document.createElement('following');
-            var url = 'factures/' + 'azertaze';
-            // console.log(url);
+        previousFacture() {
+            var link = document.createElement('a');
+            var url = this.prevFacture;
             document.body.appendChild(link);
             link.href = url;
             link.click();
         },
-        nextFacture(ref) {
-            var link = document.createElement('previous');
-
-            var url = 'factures/' + ref[-1];
+        nextFacture() {
+            var link = document.createElement('a');
+            var url = this.nxtFacture;
             document.body.appendChild(link);
             link.href = url;
             link.click();
@@ -227,7 +277,6 @@ export default {
                 mutation: facturesId,
                 variables: { "id": usrId}
             }).then((data) => {
-                // console.log(data)
                 if (!data.data.users[0].factures) {
                      var link = document.createElement('a');
                     document.body.appendChild(link);
@@ -255,7 +304,6 @@ export default {
                 mutation: searchFacture,
                 variables: {'search': search}
             }).then((data) => {
-                // console.log('tempid', data)
                 if (data['data'] && data['data']['factures'] && data['data']['factures'][0] && data['data']['factures'][0]['id'])
                     this.getFactInfos(usrId, data['data']['factures'][0]['id'])
                 else this.search = false;

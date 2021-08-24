@@ -123,9 +123,9 @@ const routes = [
     path: '/tickets',
     name: 'tickets',
     beforeEnter : guardMyroute,
-    component: () => import('@/views/activites.vue'),
+    component: () => import('@/views/tickets.vue'),
     meta: {
-      title: 'Tickets',
+      title: 'PG3 - Tickets',
       requiresAuth: true
     }
   }

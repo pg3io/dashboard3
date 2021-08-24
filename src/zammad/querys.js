@@ -1,23 +1,16 @@
-async function GetTicketsFromCorp (token, axios) {
-    var res;
-    console.log('token: ' + token);
-    axios( {
-        url : 'https://helpdesk.pg3.io/api/v1/tickets',
-        method: 'GET'
-    });
-    axios( {
-            url : 'https://helpdesk.pg3.io/api/v1/tickets',
-            method: 'GET',
-            headers: {
+async function GetTicketsFromCorp (token, axios, org) {
+    console.log("org", org);
+    var res = await axios({
+        url : `https://helpdesk.pg3.io/api/v1/tickets/search?query=organization.name:${encodeURI(org)}&expand=true`,
+        method: 'GET',
+        headers: {
             "Authorization": `Token token=${token}`,
             "Content-Type": 'application/json',
         }
-    }).then((response) => {
-        console.log(response);
-        res = response.data;
     });
-    console.log(res);
-    return res;
+    if (typeof(res) === Promise)
+        return res.resolve().data;
+    else return res.data;
 }
 
 export {
