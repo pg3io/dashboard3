@@ -8,7 +8,7 @@
             size="lg" switch>
             Tickets fermés
             </b-form-checkbox>
-            <a class="btn btn-primary" href="https://helpdesk.pg3.io/#ticket/view/my_organization_tickets">Tous les tickets</a>
+            <a class="btn btn-primary" :href="`${this.zammad_url}#ticket/view/my_organization_tickets`">Tous les tickets</a>
         </b-row>
         <b-modal ref="popup" size="lg">
             <template #modal-header="{ close }">
@@ -79,8 +79,8 @@ function diffFormatter (value) {
 }
 
 function striper (value) {
-    if (value === "Customer") return "bg-info mt-3 card rounded-3 text-left";
-    else return "bg-light card rounded-3 text-right mt-3";
+    if (value === "Customer") return "bg-info customer-message card rounded-3";
+    else return "bg-light card rounded-3 admin-message";
 }
 
 export default {
@@ -160,11 +160,11 @@ export default {
         onRowSelected(item) {
             console.log(item);
             if (item.state === "closed") 
-                item.badge = `<span style="color:white" class="badge rounded-pill bg-success">Fermé</span>`;
+                item.badge = `<span style="color:white" class="badge rounded-pill bg-success ml-3">Fermé</span>`;
             if (item.state === "open") 
-                item.badge = `<span style="color:white" class="badge rounded-pill bg-warning">Ouvert</span>`;
+                item.badge = `<span style="color:white" class="badge rounded-pill bg-warning ml-3">Ouvert</span>`;
             if (item.state === "new") 
-                item.badge = `<span style="color:white" class="badge rounded-pill bg-primary">Nouveau</span>`;
+                item.badge = `<span style="color:white" class="badge rounded-pill bg-primary ml-3">Nouveau</span>`;
             GetArticlesFromTicket(this.token, this.zammad_url, this.axios, item.id).then((data) => {
                 item.articles = data;
                 this.modal = item;
@@ -175,7 +175,7 @@ export default {
         goToDetails(ref) {
             var link = document.createElement('a');
             document.body.appendChild(link);
-            link.href = `https://helpdesk.pg3.io/#ticket/zoom/${ref}`;
+            link.href = `${this.zammad_url}#ticket/zoom/${ref}`;
             window.open(link.href);
         },
         downloadMedia: function(mediaUrl) {
@@ -282,5 +282,16 @@ export default {
 }
 td {
     cursor: pointer !important;
+}
+.customer-message {
+    margin-top: 3rem;
+    margin-right: 15%;
+}
+.admin-message {
+    margin-top: 3rem;
+    margin-left: 15%;
+}
+.admin-message h5 {
+    text-align: right;
 }
 </style>

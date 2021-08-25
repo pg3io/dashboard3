@@ -78,7 +78,6 @@ export default {
             this.goToDetails(items[0].id);
         },
         downloadFile(mediaUrl, ref) {
-            // console.log('media '+this.downloadMedia(mediaUrl))
             this.axios({
                 url: this.downloadMedia(mediaUrl),
                 method: 'GET',

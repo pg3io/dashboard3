@@ -128,6 +128,8 @@ export default {
       document.getElementById(id).click()
     },
     hasZammad () {
+      if (!this.isAuthenticated)
+          return
       this.$apollo.query({
         query: getZammad
       }).then((data) => {
@@ -150,6 +152,8 @@ export default {
       })
     },
     getProfile() {
+      if (!this.isAuthenticated)
+          return
       this.$apollo.mutate({
         mutation: userBase,
         variables: {'id': this.actUserId}

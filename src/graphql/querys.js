@@ -107,6 +107,8 @@ query {
     title
     footer
     home
+    logo {url}
+    login
   }
 }`
 
