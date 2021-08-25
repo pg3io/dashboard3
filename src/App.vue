@@ -48,8 +48,10 @@
                     </router-link>
                   </li>
                   <li class="nav-item" v-if="zammad">
-                    <router-link to="/tickets" class="nav-link link mb-2 sec-link"  id="ticketLink" style="color: rgb(0, 0, 0)" ><b-icon-bookmarks></b-icon-bookmarks>
-                       <span class="ml-3 align-top" style="font-size:1.2rem;"> Tickets</span>
+                    <router-link to="/tickets" class="nav-link link mb-2 sec-link"  id="ticketLink" style="color: rgb(0, 0, 0)" >
+                      <b-icon-bookmarks></b-icon-bookmarks>
+                      <span class="ml-3 align-top" style="font-size:1.2rem;">Tickets</span>
+                      <b-badge pill variant="secondary" class="align-center ml-3">beta</b-badge>
                     </router-link>
                   </li>
                 </ul>
