@@ -114,6 +114,7 @@ const getZammad = gql`
 query {
   zammad {
     token
+    url    
   }
 }`
 

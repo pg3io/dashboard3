@@ -142,7 +142,6 @@ export default {
       this.$apollo.query({
         query: getCustoms,
       }).then((data) => {
-        console.log(data);
         this.name = data['data']['parametre']['title']
         this.homeText = data['data']['parametre']['home']
         this.footerText = data['data']['parametre']['footer']
@@ -177,7 +176,6 @@ export default {
     logOut() {
       this.$store.dispatch('logOut')
         .then(() => this.$router.push('/login'))
-        console.log('ici ca log0ut')
     },
     getUserPermissions () {
       if (!this.actUserId)

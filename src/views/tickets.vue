@@ -37,7 +37,6 @@
             :sort-desc.sync="sortDesc"
             @row-contextmenu="rightClicked"
             @row-clicked="onRowSelected"
-            :tbody-tr-class="rowClass"
             striped hover
             responsive="sm"
             ref="selectableTable"
@@ -84,22 +83,6 @@ function striper (value) {
     else return "bg-light card rounded-3 text-right mt-3";
 }
 
-function genHeader (elem) {
-    var badge;
-
-    if (elem.state === 'closed')
-        badge = {text: "Fermé", color: "success"}
-    else if (elem.state === 'open')
-        badge = {text: "Ouvert", color: "warning"}
-    else if (elem.state === 'new')
-        badge = {text: "Nouveau", color: "primary"}
-    else console.log('')
-    return `<header class="modal-header">
-        <h5 class="modal-title">${elem.title} <b-badge variant="${badge.color}">${badge.text}</b-badge></h5>
-        <button type="button" aria-label="Close" class="close">×</button>
-    </header>`;
-}
-
 export default {
     name: 'home',
     data() {
@@ -120,7 +103,7 @@ export default {
             striper : striper,
             diffFormatter : diffFormatter,
             closed_tickets: false,
-            genHeader: genHeader,
+            zammad_url: "",
             fields: [
           { key: 'number', label: '#', sortable: true, class: 'number' },
           { key: 'title', label: 'Titre', sortable: true, class: 'title' },
@@ -174,28 +157,19 @@ export default {
                 return a - b
             }
         },
-        rowClass(item, type) {
-            if (item && type === 'row')
-                if (item.payer === 'payée') {
-                    return 'payee'
-                } else if (item.payer === 'impayée') {
-                    return 'impayee'
-                }
-            return null
-        },
         onRowSelected(item) {
             console.log(item);
             if (item.state === "closed") 
-                item.badge = `<span style="color:white" class="badge badge-lg bg-success">Fermé</span>`;
+                item.badge = `<span style="color:white" class="badge rounded-pill bg-success">Fermé</span>`;
             if (item.state === "open") 
-                item.badge = `<span style="color:white" class="badge badge-lg bg-warning">Ouvert</span>`;
+                item.badge = `<span style="color:white" class="badge rounded-pill bg-warning">Ouvert</span>`;
             if (item.state === "new") 
-                item.badge = `<span style="color:white" class="badge badge-lg bg-primary">Nouveau</span>`;
-            GetArticlesFromTicket(this.token, this.axios, item.id).then((data) => {
+                item.badge = `<span style="color:white" class="badge rounded-pill bg-primary">Nouveau</span>`;
+            GetArticlesFromTicket(this.token, this.zammad_url, this.axios, item.id).then((data) => {
                 item.articles = data;
                 this.modal = item;
                 this.$refs['popup'].show();
-            });
+            }).catch((e) => {console.log(e)});
 
         },
         goToDetails(ref) {
@@ -236,10 +210,13 @@ export default {
             if (!this.user)
                 return setTimeout(this.getTickets, 100);
             let token;
+            let url;
             let ticketsArray;
             this.$apollo.query({query: getZammad}).then((data) => {
                 token = data.data.zammad.token;
+                url = data.data.zammad.url;
                 this.token = token;
+                this.zammad_url = url;
                 if (token === null) {
                     var link = document.createElement('a');
                     link.href = '/';
@@ -248,7 +225,7 @@ export default {
                 }
                 else {
                     this.user.entreprises.forEach((corp, index) => {
-                        GetTicketsFromCorp(token, this.axios, corp.nom).then((data) => {
+                        GetTicketsFromCorp(token, url, this.axios, corp.nom).then((data) => {
                             ticketsArray = data;
                             if (ticketsArray.length > 0)
                                 this.tickets.push(ticketsArray);
@@ -274,9 +251,8 @@ export default {
                     this.tickets.forEach((elem, index) => {
                         if (moment().diff(moment(elem.last_contact_at), 'months') > 1 && elem.state === 'closed')
                             this.tickets.splice(index, 1);
-                        else if (elem.state === 'closed' && !this.closed_tickets) {
+                        else if (elem.state === 'closed' && !this.closed_tickets)
                             this.tickets.splice(index, 1);
-                        }
                         else if (moment().diff(moment(elem.last_contact_at), 'months') > 1)
                             elem._rowVariant = 'danger';
                         else if (elem.state === 'closed')

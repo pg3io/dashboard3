@@ -1,6 +1,6 @@
-async function GetTicketsFromCorp (token, axios, org) {
+async function GetTicketsFromCorp (token, url, axios, org) {
     var res = await axios({
-        url : `https://helpdesk.pg3.io/api/v1/tickets/search?query=organization.name:${encodeURI(org)}&limit=20&expand=true`,
+        url : `${url}api/v1/tickets/search?query=organization.name:${encodeURI(org)}&limit=20&expand=true`,
         method: 'GET',
         headers: {
             "Authorization": `Token token=${token}`,
@@ -12,9 +12,9 @@ async function GetTicketsFromCorp (token, axios, org) {
     else return res.data;
 }
 
-async function GetTicketsFromId (token, axios, id) {
+async function GetTicketsFromId (token, url, axios, id) {
     var res = await axios({
-        url : `https://helpdesk.pg3.io/api/v1/tickets/${encodeURI(id)}`,
+        url : `${url}api/v1/tickets/${encodeURI(id)}`,
         method: 'GET',
         headers: {
             "Authorization": `Token token=${token}`,
@@ -26,9 +26,9 @@ async function GetTicketsFromId (token, axios, id) {
     else return res.data;
 }
 
-async function GetArticlesFromTicket (token, axios, id) {
+async function GetArticlesFromTicket (token, url, axios, id) {
     var res = await axios({
-        url : `https://helpdesk.pg3.io/api/v1/ticket_articles/by_ticket/${id}`,
+        url : `${url}api/v1/ticket_articles/by_ticket/${id}`,
         method: 'GET',
         headers: {
             "Authorization": `Token token=${token}`,
