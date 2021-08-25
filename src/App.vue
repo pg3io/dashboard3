@@ -34,22 +34,22 @@
                 <ul class="nav flex-column nav-pills mb-auto mt-3 text-align-center">
                   <li class="nav-item">
                     <router-link to="/" class="nav-link link mb-2" id="homeLink"  style="color: rgb(0, 0, 0)" ><b-icon-house-door></b-icon-house-door> 
-                     <span class="ml-3 align-top" style="font-size:1.5rem;"> Home</span> 
+                     <span class="ml-3 align-top" style="font-size:1.2rem;"> Home</span> 
                     </router-link>
                   </li>
                   <li class="nav-item" v-if="perms.factures">
                     <router-link to="/factures" class="nav-link link mb-2 sec-link"  id="factureLink" style="color: rgb(0, 0, 0)" ><b-icon-file-earmark-ruled></b-icon-file-earmark-ruled>
-                      <span class="ml-3 align-top" style="font-size:1.5rem;"> Factures</span> 
+                      <span class="ml-3 align-top" style="font-size:1.2rem;"> Factures</span> 
                     </router-link>
                   </li>
                   <li class="nav-item" v-if="perms.ged">
                     <router-link to="/fichiers" class="nav-link link mb-2 sec-link"  id="fichierLink" style="color: rgb(0, 0, 0)" ><b-icon-folder></b-icon-folder>
-                       <span class="ml-3 align-top" style="font-size:1.5rem;"> Fichiers</span>
+                       <span class="ml-3 align-top" style="font-size:1.2rem;"> Fichiers</span>
                     </router-link>
                   </li>
                   <li class="nav-item" v-if="zammad">
                     <router-link to="/tickets" class="nav-link link mb-2 sec-link"  id="ticketLink" style="color: rgb(0, 0, 0)" ><b-icon-bookmarks></b-icon-bookmarks>
-                       <span class="ml-3 align-top" style="font-size:1.5rem;"> Tickets</span>
+                       <span class="ml-3 align-top" style="font-size:1.2rem;"> Tickets</span>
                     </router-link>
                   </li>
                 </ul>
@@ -195,8 +195,9 @@ export default {
 }
 </script>
 
-<style>
-#sidebarMenu {
+<style lang="css">
+#sidebarMenu
+{
     position: fixed;
     top: 0;
     bottom: 0;
@@ -205,13 +206,20 @@ export default {
     padding: 48px 0 0;
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
 }
-.text-big {
-  font-size: 1.5rem;
+#sidebarMenu a.nav-link {
+  padding: 0.5rem
+}
+.text-big
+{
+  font-size: 1.2rem;
 }
 a.active, a.sec-link.router-link-active, a.link.router-link-exact-active {
-  background : #85ceed !important;
+  background : #343a40 !important;
+  color: #f8f9fa !important;
 }
-#app {
+
+#app
+{
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -219,24 +227,29 @@ a.active, a.sec-link.router-link-active, a.link.router-link-exact-active {
   color: #2c3e50;
 }
 
-#nav {
+#nav
+{
   padding: 30px;
 }
 
-#nav a {
+#nav a
+{
   font-weight: bold;
   color: #2c3e50;
 }
 
-#nav a.router-link-exact-active {
+#nav a.router-link-exact-active 
+{
   color: #42b983;
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active, .fade-leave-active
+{
   transition: opacity .5s;
 }
 
-.fade-enter, .fade-leave-to {
+.fade-enter, .fade-leave-to
+{
   opacity: 0;
 }
 </style>
