@@ -33,25 +33,31 @@
               <div class="d-flex text-big flex-column flex-shrink-0 p-3 bg-light">
                 <ul class="nav flex-column nav-pills mb-auto mt-3 text-align-center">
                   <li class="nav-item">
-                    <router-link to="/" class="nav-link link mb-2" id="homeLink"  style="color: rgb(0, 0, 0)" ><b-icon-house-door></b-icon-house-door> 
+                    <router-link to="/" class="nav-link link" id="homeLink"  style="color: rgb(0, 0, 0)" ><b-icon-house-door></b-icon-house-door> 
                      <span class="ml-3 align-top" style="font-size:1.2rem;"> Home</span> 
                     </router-link>
                   </li>
                   <li class="nav-item" v-if="perms.factures">
-                    <router-link to="/factures" class="nav-link link mb-2 sec-link"  id="factureLink" style="color: rgb(0, 0, 0)" ><b-icon-file-earmark-ruled></b-icon-file-earmark-ruled>
+                    <router-link to="/factures" class="nav-link link sec-link"  id="factureLink" style="color: rgb(0, 0, 0)" ><b-icon-file-earmark-ruled></b-icon-file-earmark-ruled>
                       <span class="ml-3 align-top" style="font-size:1.2rem;"> Factures</span> 
                     </router-link>
                   </li>
                   <li class="nav-item" v-if="perms.ged">
-                    <router-link to="/fichiers" class="nav-link link mb-2 sec-link"  id="fichierLink" style="color: rgb(0, 0, 0)" ><b-icon-folder></b-icon-folder>
+                    <router-link to="/fichiers" class="nav-link link sec-link"  id="fichierLink" style="color: rgb(0, 0, 0)" ><b-icon-folder></b-icon-folder>
                        <span class="ml-3 align-top" style="font-size:1.2rem;"> Fichiers</span>
                     </router-link>
                   </li>
                   <li class="nav-item" v-if="zammad">
-                    <router-link to="/tickets" class="nav-link link mb-2 sec-link"  id="ticketLink" style="color: rgb(0, 0, 0)" >
+                    <router-link to="/tickets" class="nav-link link sec-link"  id="ticketLink" style="color: rgb(0, 0, 0)" >
                       <b-icon-bookmarks></b-icon-bookmarks>
                       <span class="ml-3 align-top" style="font-size:1.2rem;">Tickets</span>
                       <b-badge pill variant="secondary" class="align-center ml-3">beta</b-badge>
+                    </router-link>
+                  </li>
+                  <li class="nav-item" v-if="grafana">
+                    <router-link to="/graph" class="nav-link link sec-link"  id="graphLink" style="color: rgb(0, 0, 0)" >
+                      <b-icon-graph-up></b-icon-graph-up>
+                      <span class="ml-3 align-top" style="font-size:1.2rem;">Graph</span>
                     </router-link>
                   </li>
                 </ul>
@@ -83,12 +89,11 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { userId, userBase, getCustoms, getUserPerms, getZammad } from '@/graphql/querys.js'
+import { userId, userBase, getCustoms, getUserPerms, getZammad, getGrafana } from '@/graphql/querys.js'
 import Profile from '@/views/profile.vue'
 import Home from '@/views/home.vue';
 import md5 from 'js-md5';
-
-//import Autologout from '@/components/autologout.vue'
+import gql from 'graphql-tag'
 
 export default {
   name: "App",
@@ -100,13 +105,15 @@ export default {
       homeText: "",
       footerText: "",
       perms: {},
-      zammad: false
+      zammad: false,
+      grafana: false
     }
   },
   mounted() {
     this.getUsrId();
     this.getUserPermissions();
     this.hasZammad();
+    this.hasGrafana();
   },
   components: {
     Profile,
@@ -131,14 +138,48 @@ export default {
       if (!this.isAuthenticated)
           return
       this.$apollo.query({
-        query: getZammad
+        query: gql`query{parametre{zammad}}`
       }).then((data) => {
-        if (data.data.zammad !== null) {
-          this.zammad = true;
-        } else {
-          this.zammad = false;
-        }
-      });
+          if (data.data.parametre.zammad)
+            this.$apollo.query({
+              query: getZammad
+            }).then((data) => {
+              if (data.data.zammad !== null) {
+                this.zammad = true;
+              } else {
+                this.zammad = false;
+              }
+            }).catch((e) => {console.log(e);});
+      }).catch((err) => {console.log(err)})
+    },
+    hasGrafana () {
+      if (!this.isAuthenticated)
+          return
+      if (!this.actUserId) return setTimeout(this.hasGrafana, 100);
+      this.$apollo.query({
+        query: gql`query{parametre{grafana}}`
+      }).then((data) => {
+          if (data.data.parametre.grafana) {
+            this.$apollo.query({ 
+              query : getGrafana,
+              variables : {"id":this.actUserId}
+              }).then((data) => {
+                var flag = true;
+                var lastIndex = null;
+                const corps = data.data.users[0].entreprises;
+                corps.forEach((corp, index) => {
+                  lastIndex = index;
+                  if (index === corps.length - 1 && corp.grafana_id) {
+                    flag = false;
+                    return;
+                  }
+                  if (corp.grafana_id) return;
+                })
+                if (!flag || (lastIndex != null && lastIndex < data.f))
+                  this.grafana = true;
+              }).catch((e) => {console.log(e)});
+          }
+      }).catch((e) => {console.log(e);});
     },
     getDashboardInfos() {
       this.$apollo.query({
@@ -176,7 +217,7 @@ export default {
       }).catch((error) => {
           console.log(error)
       })
-    },  
+    },
     logOut() {
       this.$store.dispatch('logOut')
         .then(() => this.$router.push('/login'))

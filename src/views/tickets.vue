@@ -274,21 +274,15 @@ export default {
 .b-table-statut > td {
     border-color: var(--primary) !important;
 }
-.tableServer {
-    cursor: default;
-}
-.tdServer {
-    cursor: pointer;
-}
 td {
     cursor: pointer !important;
 }
 .customer-message {
-    margin-top: 3rem;
+    margin-top: 2rem;
     margin-right: 15%;
 }
 .admin-message {
-    margin-top: 3rem;
+    margin-top: 2rem;
     margin-left: 15%;
 }
 .admin-message h5 {

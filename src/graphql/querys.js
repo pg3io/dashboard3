@@ -194,6 +194,17 @@ query getUserPerms($id: ID!){
 }
 `
 
+const getGrafana = gql`
+query getUserGrafana($id: ID!){
+  users(where: {id: $id}) {
+    entreprises {
+      nom
+      grafana_id
+    }
+  }
+}
+`
+
 export {
   userId,
   userInfos,
@@ -209,5 +220,6 @@ export {
   getGedInfo,
   getUserGeds,
   getUserPerms,
-  getZammad
+  getZammad,
+  getGrafana
 }
