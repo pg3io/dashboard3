@@ -194,12 +194,12 @@ query getUserPerms($id: ID!){
 }
 `
 
-const getGrafana = gql`
-query getUserGrafana($id: ID!){
+const getEntreprisesTags = gql`
+query getEntreprisesTags($id: ID!){
   users(where: {id: $id}) {
     entreprises {
       nom
-      grafana_id
+      tags
     }
   }
 }
@@ -221,5 +221,5 @@ export {
   getUserGeds,
   getUserPerms,
   getZammad,
-  getGrafana
+  getEntreprisesTags
 }

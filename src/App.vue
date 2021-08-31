@@ -7,8 +7,10 @@
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
         <b-collapse id="nav-collapse" is-nav>
           <b-navbar-nav class="d-sm-block d-md-none">
-            <b-nav-item to="/factures">Factures</b-nav-item>
-            <b-nav-item to="/fichiers">Fichiers</b-nav-item>
+            <b-nav-item to="/factures" v-if="perms.factures">Factures</b-nav-item>
+            <b-nav-item to="/fichiers" v-if="perms.ged">Fichiers</b-nav-item>
+            <b-nav-item to="/tickets" v-if="zammad">Tickets</b-nav-item>
+            <b-nav-item to="/graph" v-if="graph">Monitoring</b-nav-item>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto">
           <template><img class="rounded-circle" :src="gravatar" alt="user profile image" style="width: 35px"/></template>
@@ -19,7 +21,7 @@
                 </router-link>
               Profile
               </b-dropdown-item>
-              <b-dropdown-item class="nav-link" size="sm" variant="link" @click="logOut">Déconnexion</b-dropdown-item>
+              <b-dropdown-item class="nav-link" size="sm" variant="link" id="logout" @click="logOut">Déconnexion</b-dropdown-item>
             </b-nav-item-dropdown>
           </b-navbar-nav>
         </b-collapse>
@@ -37,27 +39,27 @@
                      <span class="ml-3 align-top" style="font-size:1.2rem;"> Home</span> 
                     </router-link>
                   </li>
-                  <li class="nav-item" v-if="perms.factures">
+                  <li class="nav-item factures" v-if="perms.factures">
                     <router-link to="/factures" class="nav-link link sec-link"  id="factureLink" style="color: rgb(0, 0, 0)" ><b-icon-file-earmark-ruled></b-icon-file-earmark-ruled>
                       <span class="ml-3 align-top" style="font-size:1.2rem;"> Factures</span> 
                     </router-link>
                   </li>
-                  <li class="nav-item" v-if="perms.ged">
+                  <li class="nav-item ged" v-if="perms.ged">
                     <router-link to="/fichiers" class="nav-link link sec-link"  id="fichierLink" style="color: rgb(0, 0, 0)" ><b-icon-folder></b-icon-folder>
                        <span class="ml-3 align-top" style="font-size:1.2rem;"> Fichiers</span>
                     </router-link>
                   </li>
-                  <li class="nav-item" v-if="zammad">
+                  <li class="nav-item tickets" v-if="zammad">
                     <router-link to="/tickets" class="nav-link link sec-link"  id="ticketLink" style="color: rgb(0, 0, 0)" >
                       <b-icon-bookmarks></b-icon-bookmarks>
                       <span class="ml-3 align-top" style="font-size:1.2rem;">Tickets</span>
                       <b-badge pill variant="secondary" class="align-center ml-3">beta</b-badge>
                     </router-link>
                   </li>
-                  <li class="nav-item" v-if="grafana">
+                  <li class="nav-item graph" v-if="graph">
                     <router-link to="/graph" class="nav-link link sec-link"  id="graphLink" style="color: rgb(0, 0, 0)" >
                       <b-icon-graph-up></b-icon-graph-up>
-                      <span class="ml-3 align-top" style="font-size:1.2rem;">Graph</span>
+                      <span class="ml-3 align-top" style="font-size:1.2rem;">Monitoring</span>
                     </router-link>
                   </li>
                 </ul>
@@ -89,11 +91,11 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { userId, userBase, getCustoms, getUserPerms, getZammad, getGrafana } from '@/graphql/querys.js'
+import { userId, userBase, getCustoms, getUserPerms, getZammad } from '@/graphql/querys.js'
 import Profile from '@/views/profile.vue'
 import Home from '@/views/home.vue';
 import md5 from 'js-md5';
-import gql from 'graphql-tag'
+import gql from 'graphql-tag';
 
 export default {
   name: "App",
@@ -106,14 +108,14 @@ export default {
       footerText: "",
       perms: {},
       zammad: false,
-      grafana: false
+      graph: false
     }
   },
   mounted() {
     this.getUsrId();
     this.getUserPermissions();
     this.hasZammad();
-    this.hasGrafana();
+    this.hasGraph();
   },
   components: {
     Profile,
@@ -152,34 +154,16 @@ export default {
             }).catch((e) => {console.log(e);});
       }).catch((err) => {console.log(err)})
     },
-    hasGrafana () {
+    hasGraph () {
       if (!this.isAuthenticated)
           return
-      if (!this.actUserId) return setTimeout(this.hasGrafana, 100);
+      if (!this.actUserId) return setTimeout(this.hasGraph, 100);
       this.$apollo.query({
-        query: gql`query{parametre{grafana}}`
+        query: gql`query{parametre{graph}}`
       }).then((data) => {
-          if (data.data.parametre.grafana) {
-            this.$apollo.query({ 
-              query : getGrafana,
-              variables : {"id":this.actUserId}
-              }).then((data) => {
-                var flag = true;
-                var lastIndex = null;
-                const corps = data.data.users[0].entreprises;
-                corps.forEach((corp, index) => {
-                  lastIndex = index;
-                  if (index === corps.length - 1 && corp.grafana_id) {
-                    flag = false;
-                    return;
-                  }
-                  if (corp.grafana_id) return;
-                })
-                if (!flag || (lastIndex != null && lastIndex < data.f))
-                  this.grafana = true;
-              }).catch((e) => {console.log(e)});
-          }
-      }).catch((e) => {console.log(e);});
+        if (data.data.parametre.graph)
+          this.graph = true;
+      }).catch((e) => {console.log(e)});
     },
     getDashboardInfos() {
       this.$apollo.query({
