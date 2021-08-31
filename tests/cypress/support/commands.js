@@ -10,8 +10,25 @@
 //
 //
 // -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
-//
+Cypress.Commands.add('login', (login, password) => {
+    const loginQuery = "mutation ($identifier: String!, $password: String!) {\n  login(input: {identifier: $identifier, password: $password}) {\n    jwt\n    __typename\n  }\n}\n"
+    cy.request({
+        method: 'POST',
+        url: Cypress.env('api')+'/graphql',
+        body: {operationName: null, query: loginQuery, variables: {identifier: login, password: password}}
+    });
+})
+
+Cypress.Commands.add('uilogin', (login, password) => {
+    cy.location().then((location) => {
+        if (location.pathname === '/login') {
+            cy.get('input#identifier').type(login);
+            cy.get('input#password').type(password);
+            cy.contains('Connexion').click();
+        }
+    })
+})
+
 //
 // -- This is a child command --
 // Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
