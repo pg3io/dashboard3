@@ -5,9 +5,12 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "test-ui": "cd tests && npm start",
+    "test": "cd tests && npm test"
   },
   "dependencies": {
+    "@influxdata/influxdb-client": "^1.17.0",
     "@types/jsonwebtoken": "^8.5.1",
     "axios": "^0.21.0",
     "bootstrap": "^4.5.2",

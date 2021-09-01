@@ -30,6 +30,11 @@ Dashboard est un outil de listing de factures, basé sur le Headless CMS [Strapi
     * La colonne date peut-être trié du plus vieux au plus récent / du plus récent au plus vieux
     * Une colonne 'télécharger' pour récupérer sa facture
 
+# Tests
+* Des tests automatisés via Cypress sont disponibles dans le dossiers 'tests'.
+  * la configuration => [ici (wiki)](https://github.com/pg3io/dashboard3/wiki/Tests-Automatis%C3%A9s)
+
+
 
 # Prérequis
 * Strapi avec:

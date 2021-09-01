@@ -15,8 +15,19 @@
 /**
  * @type {Cypress.PluginConfig}
  */
-// eslint-disable-next-line no-unused-vars
-module.exports = (on, config) => {
-  // `on` is used to hook into various events Cypress emits
-  // `config` is the resolved Cypress config
-}
+ const path = require('path')
+ 
+  const dlFolder = path.join(__dirname, '..', 'downloads')
+ 
+  const check = async (pdfName) => {
+  const FilePath = path.join(dlFolder, pdfName);
+  return FilePath;
+ }
+ 
+ module.exports = (on, config) => {
+   on('task', {
+     checkDownload (pdfName) {
+       return check(pdfName)
+     }
+   })
+ }

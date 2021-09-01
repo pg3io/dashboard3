@@ -1,75 +1,64 @@
 const url = Cypress.env('site');
-const api = Cypress.env('api');
 const login = Cypress.env('identifier');
 const passwd = Cypress.env('password');
+var rows = [];
 
-const minFacturesInfo = `query getMinFactureInfos($id: [ID]!) { factures(where: {id: $id}) { id ref nom date payer media { url } } }`;
-const UserFactures = `query getFacturesId($id: ID!) { users(where: {id: $id}) { factures entreprises { id nom factures { media { url } id } } } }`;
-var token;
-var UserId;
-var facturesInfo = [];
-var facturesId = [];
-
-function ExchangeDate (date) {
-    var array = date.split('-');
-    array = array.reverse();
-    return array.join('-');
-}
-
-describe('Test du tableau', () => {
-    before (() => {
-        cy.request({
-            method: 'POST',
-            url: api+"/auth/local",
-            body: {identifier: login, password: passwd}
-        }).then((response) => {
-            token = response.body.jwt;
-            UserId = response.body.user.id;
-            cy.request({
-                method: 'POST',
-                url: api+"/graphql",
-                headers: {Authorization: `Bearer ${token}`},
-                body: {operationName: 'getFacturesId', query: UserFactures, variables: {id: UserId}}
-            }).then((response) => {         
-                const corps = response.body.data.users[0].entreprises;
-                corps.forEach((corp) => {
-                    corp.factures.forEach((facture) => {
-                        facturesId.push(facture.id);
-                        facturesInfo.push({id: facture.id, entreprise: corp.nom});
-                    });
-                });
-                cy.wait(1000);
-                cy.request({
-                    method: 'POST',
-                    url: api+'/graphql',
-                    headers: {Authorization: `Bearer ${token}`},
-                    body: {operationName: 'getMinFactureInfos', query: minFacturesInfo, variables: {id: facturesId}}
-                }).then((response) => {
-                    response.body.data.factures.forEach((facture) => {
-                        facturesInfo.forEach((factureInfo) => {
-                            if (factureInfo.id === facture.id) {
-                                factureInfo.date = facture.date;
-                                factureInfo.nom = facture.nom;
-                                factureInfo.ref = facture.ref;
-                                factureInfo.payer = facture.payer;
-                            }
-                        })
-                    });
-                })
-            })
-        })
-    });
-    it('Check Table ref', () => {
+describe('Test de la partie Facture', () => {
+    it('Test du tableau', () => {
         cy.visit(url+"/factures");
         cy.uilogin(login, passwd);
-        facturesInfo.forEach((facture) => {
-            cy.get('tbody').children('.'+facture.ref).then((row) => {
-                expect(row.children('.ref').text()).to.equal(facture.ref);
-                expect(row.children('.nom').text()).to.equal(facture.nom);
-                expect(row.children('.date').text()).to.equal(ExchangeDate(facture.date));
-                expect(row.children('.entreprise').text()).to.equal(facture.entreprise);
-                expect(row[0].attributes.class.value).to.contains(facture.payer ? 'payee' : 'impayee')
-            });
-        })
+        for (let i = 0; i < 3; i++) {
+            cy.get('tbody').children(`.facture${i}`).then((row) => {
+                expect(row).to.exist;
+                rows.push({
+                    ref: row.children('.ref').text(),
+                    nom: row.children('.nom').text(),
+                    date: row.children('.date').text(),
+                    entreprise: row.children('.entreprise').text()
+                });
+            })
+        }
+        rows.sort((a, b) => {
+            let epochA = new Date(a.date).getTime();
+            let epochB = new Date(b.date).getTime();
+            return epochA - epochB;
+        });
     });
+    it ('Test du détail', () => {
+        cy.visit(url+`/factures/${rows[0].ref}`);
+        cy.uilogin(login, passwd);
+        cy.get('tbody').then(tab => {
+            expect(tab.text()).to.contains(rows[0].ref);
+            expect(tab.text()).to.contains(rows[0].nom);
+            expect(tab.text()).to.contains(rows[0].date.replaceAll('-', '/'));
+            expect(tab.text()).to.contains(rows[0].entreprise);
+        });
+        cy.expect('svg#arrowForward').to.exist;
+        cy.get('svg#arrowForward').click();
+        cy.location().then((location) => {
+            cy.expect(location.pathname).to.equal('/factures/'+rows[1].ref);
+            cy.expect('svg#arrowForward').to.exist;
+            cy.expect('svg#arrowBackward').to.exist;
+            cy.get('svg#arrowForward').click();
+            cy.location().then((location) => {
+                cy.expect(location.pathname).to.equal('/factures/'+rows[2].ref);
+                cy.expect('svg#arrowBackward').to.exist;
+                cy.get('svg#arrowBackward').click();
+                cy.location().then((location) => {
+                    cy.expect(location.pathname).to.equal('/factures/'+rows[1].ref);
+                    cy.expect('svg#arrowForward').to.exist;
+                    cy.expect('svg#arrowBackward').to.exist;
+                    cy.get('svg#arrowBackward').click();
+                    cy.location().then((location) => {
+                        cy.expect(location.pathname).to.equal('/factures/'+rows[0].ref);
+                        cy.get('svg.download').click();
+                        cy.task('checkDownload', rows[0].ref+'.pdf').then(path => {
+                            console.log("File downloaded : ", path);
+                            expect(path).to.contains(rows[0].ref);
+                        })
+                    })
+                })
+            })    
+        })
+    })
 });

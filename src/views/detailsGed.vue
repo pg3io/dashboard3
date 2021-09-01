@@ -8,7 +8,7 @@
                         <table class="table table-sm table-hover" style="transform: scale(1.1);">
                             <tbody>
                                 <tr><th>Nom</th><td>{{ ged.nom }}</td></tr>
-                                <tr><th>Date</th><td>{{ ged.date }}</td></tr>
+                                <tr><th>Date</th><td>{{ ChangeDate(ged.date) }}</td></tr>
                                 <tr><th>Entreprise</th><td>{{ ged.entreprise }}</td></tr>
                                 <tr><th>Type</th><td>{{ ged.type }}</td></tr>
                             </tbody>
@@ -50,7 +50,7 @@ export default {
     data() {
         return {
             search: true,
-            ged: [],
+            ged: null,
             userId: 0,
             entreprise: ''
         }
@@ -63,25 +63,8 @@ export default {
         this.getGed();
     },
     methods: {
-        // followingFacture() {
-        //     var link = document.createElement('following');
-        //     var url = 'factures/' + 'azertaze';
-        //     console.log(url);
-        //     document.body.appendChild(link);
-        //     link.href = url;
-        //     link.click();
-        // },
-        // nextFacture(ref) {
-        //     var link = document.createElement('previous');
-
-        //     var url = 'factures/' + ref[-1];
-        //     document.body.appendChild(link);
-        //     link.href = url;
-        //     link.click();
-        // },
-        changeDate() {
-            var temp = this.ged.date.split('-')
-            this.ged.date = temp[2] + '/' + temp[1] + '/' + temp[0]
+        ChangeDate(date) {
+            return date.split('-').reverse().join('/');
         },
         downloadFile(mediaUrl, ref) {
             this.axios({

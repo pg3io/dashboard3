@@ -1,8 +1,11 @@
 .DS_Store
 node_modules
+tests/node_modules
 /dist
 
-
+tests/cypress/screenshots
+tests/cypress/videos
+tests/cypress/integration/deep-entry-tests.spec.js
 # local env files
 .env.local
 .env.*.local
@@ -21,3 +24,5 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+dist/
