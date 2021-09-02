@@ -33,6 +33,8 @@
 
 <script>
 import { userId, facturesId, minFactureInfo } from '@/graphql/querys.js'
+import $ from 'jquery'
+
 export default {
     name: 'home',
     data() {
@@ -46,6 +48,7 @@ export default {
             sortBy: 'date',
             sortDesc: true,
             sortByFormatted: true,
+            factureGang: 0,
             fields: [
           { key: 'ref', sortable: true, class: 'ref' },
           { key: 'nom', sortable: true, class: 'nom' },
@@ -60,8 +63,16 @@ export default {
         this.getUserInfos();
         this.getFactures();
         this.getFactures2();
+        this.addClasses();
     },
     methods: {
+        addClasses () {
+            if (this.factures.length > 0 && this.isLoaded)
+                this.factures.forEach((f, index) => {
+                    $(`tr.${f.ref}`).addClass('facture'+index);
+                });
+            else return setTimeout(this.addClasses, 100);
+        },
         rightClicked (item, index, evt) {
             evt.preventDefault()
         },
@@ -79,12 +90,15 @@ export default {
             }
         },
         rowClass(item, type) {
-            if (item && type === 'row')
+            if (item && type === 'row')  {
                 if (item.payer === 'payée') {
-                    return 'payee'
+                    const classe = `payee ${item.ref}`;
+                    return classe;
                 } else if (item.payer === 'impayée') {
-                    return 'impayee'
+                    const classe = `impayee ${item.ref}`;
+                    return classe;
                 }
+            }
             return null
         },
         onRowSelected(items) {

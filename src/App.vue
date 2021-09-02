@@ -7,8 +7,10 @@
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
         <b-collapse id="nav-collapse" is-nav>
           <b-navbar-nav class="d-sm-block d-md-none">
-            <b-nav-item to="/factures">Factures</b-nav-item>
-            <b-nav-item to="/fichiers">Fichiers</b-nav-item>
+            <b-nav-item to="/factures" v-if="perms.factures">Factures</b-nav-item>
+            <b-nav-item to="/fichiers" v-if="perms.ged">Fichiers</b-nav-item>
+            <b-nav-item to="/tickets" v-if="zammad">Tickets</b-nav-item>
+            <b-nav-item to="/graph" v-if="graph">Monitoring</b-nav-item>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto">
           <template><img class="rounded-circle" :src="gravatar" alt="user profile image" style="width: 35px"/></template>
@@ -19,7 +21,7 @@
                 </router-link>
               Profile
               </b-dropdown-item>
-              <b-dropdown-item class="nav-link" size="sm" variant="link" @click="logOut">Déconnexion</b-dropdown-item>
+              <b-dropdown-item class="nav-link" size="sm" variant="link" id="logout" @click="logOut">Déconnexion</b-dropdown-item>
             </b-nav-item-dropdown>
           </b-navbar-nav>
         </b-collapse>
@@ -33,23 +35,31 @@
               <div class="d-flex text-big flex-column flex-shrink-0 p-3 bg-light">
                 <ul class="nav flex-column nav-pills mb-auto mt-3 text-align-center">
                   <li class="nav-item">
-                    <router-link to="/" class="nav-link link mb-2" id="homeLink"  style="color: rgb(0, 0, 0)" ><b-icon-house-door></b-icon-house-door> 
-                     <span class="ml-3 align-top" style="font-size:1.5rem;"> Home</span> 
+                    <router-link to="/" class="nav-link link" id="homeLink"  style="color: rgb(0, 0, 0)" ><b-icon-house-door></b-icon-house-door> 
+                     <span class="ml-3 align-top" style="font-size:1.2rem;"> Home</span> 
                     </router-link>
                   </li>
-                  <li class="nav-item" v-if="perms.factures">
-                    <router-link to="/factures" class="nav-link link mb-2 sec-link"  id="factureLink" style="color: rgb(0, 0, 0)" ><b-icon-file-earmark-ruled></b-icon-file-earmark-ruled>
-                      <span class="ml-3 align-top" style="font-size:1.5rem;"> Factures</span> 
+                  <li class="nav-item factures" v-if="perms.factures">
+                    <router-link to="/factures" class="nav-link link sec-link"  id="factureLink" style="color: rgb(0, 0, 0)" ><b-icon-file-earmark-ruled></b-icon-file-earmark-ruled>
+                      <span class="ml-3 align-top" style="font-size:1.2rem;"> Factures</span> 
                     </router-link>
                   </li>
-                  <li class="nav-item" v-if="perms.ged">
-                    <router-link to="/fichiers" class="nav-link link mb-2 sec-link"  id="fichierLink" style="color: rgb(0, 0, 0)" ><b-icon-folder></b-icon-folder>
-                       <span class="ml-3 align-top" style="font-size:1.5rem;"> Fichiers</span>
+                  <li class="nav-item ged" v-if="perms.ged">
+                    <router-link to="/fichiers" class="nav-link link sec-link"  id="fichierLink" style="color: rgb(0, 0, 0)" ><b-icon-folder></b-icon-folder>
+                       <span class="ml-3 align-top" style="font-size:1.2rem;"> Fichiers</span>
                     </router-link>
                   </li>
-                  <li class="nav-item" v-if="zammad">
-                    <router-link to="/tickets" class="nav-link link mb-2 sec-link"  id="ticketLink" style="color: rgb(0, 0, 0)" ><b-icon-bookmarks></b-icon-bookmarks>
-                       <span class="ml-3 align-top" style="font-size:1.5rem;"> Tickets</span>
+                  <li class="nav-item tickets" v-if="zammad">
+                    <router-link to="/tickets" class="nav-link link sec-link"  id="ticketLink" style="color: rgb(0, 0, 0)" >
+                      <b-icon-bookmarks></b-icon-bookmarks>
+                      <span class="ml-3 align-top" style="font-size:1.2rem;">Tickets</span>
+                      <b-badge pill variant="secondary" class="align-center ml-3">beta</b-badge>
+                    </router-link>
+                  </li>
+                  <li class="nav-item graph" v-if="graph">
+                    <router-link to="/graph" class="nav-link link sec-link"  id="graphLink" style="color: rgb(0, 0, 0)" >
+                      <b-icon-graph-up></b-icon-graph-up>
+                      <span class="ml-3 align-top" style="font-size:1.2rem;">Monitoring</span>
                     </router-link>
                   </li>
                 </ul>
@@ -85,8 +95,7 @@ import { userId, userBase, getCustoms, getUserPerms, getZammad } from '@/graphql
 import Profile from '@/views/profile.vue'
 import Home from '@/views/home.vue';
 import md5 from 'js-md5';
-
-//import Autologout from '@/components/autologout.vue'
+import gql from 'graphql-tag';
 
 export default {
   name: "App",
@@ -98,13 +107,15 @@ export default {
       homeText: "",
       footerText: "",
       perms: {},
-      zammad: false
+      zammad: false,
+      graph: false
     }
   },
   mounted() {
     this.getUsrId();
     this.getUserPermissions();
     this.hasZammad();
+    this.hasGraph();
   },
   components: {
     Profile,
@@ -126,21 +137,38 @@ export default {
       document.getElementById(id).click()
     },
     hasZammad () {
+      if (!this.isAuthenticated)
+          return
       this.$apollo.query({
-        query: getZammad
+        query: gql`query{parametre{zammad}}`
       }).then((data) => {
-        if (data.data.zammad !== null) {
-          this.zammad = true;
-        } else {
-          this.zammad = false;
-        }
-      });
+          if (data.data.parametre.zammad)
+            this.$apollo.query({
+              query: getZammad
+            }).then((data) => {
+              if (data.data.zammad !== null) {
+                this.zammad = true;
+              } else {
+                this.zammad = false;
+              }
+            }).catch((e) => {console.log(e);});
+      }).catch((err) => {console.log(err)})
+    },
+    hasGraph () {
+      if (!this.isAuthenticated)
+          return
+      if (!this.actUserId) return setTimeout(this.hasGraph, 100);
+      this.$apollo.query({
+        query: gql`query{parametre{graph}}`
+      }).then((data) => {
+        if (data.data.parametre.graph)
+          this.graph = true;
+      }).catch((e) => {console.log(e)});
     },
     getDashboardInfos() {
       this.$apollo.query({
         query: getCustoms,
       }).then((data) => {
-        console.log(data);
         this.name = data['data']['parametre']['title']
         this.homeText = data['data']['parametre']['home']
         this.footerText = data['data']['parametre']['footer']
@@ -149,6 +177,8 @@ export default {
       })
     },
     getProfile() {
+      if (!this.isAuthenticated)
+          return
       this.$apollo.mutate({
         mutation: userBase,
         variables: {'id': this.actUserId}
@@ -171,11 +201,10 @@ export default {
       }).catch((error) => {
           console.log(error)
       })
-    },  
+    },
     logOut() {
       this.$store.dispatch('logOut')
         .then(() => this.$router.push('/login'))
-        console.log('ici ca log0ut')
     },
     getUserPermissions () {
       if (!this.actUserId)
@@ -195,8 +224,9 @@ export default {
 }
 </script>
 
-<style>
-#sidebarMenu {
+<style lang="css">
+#sidebarMenu
+{
     position: fixed;
     top: 0;
     bottom: 0;
@@ -205,13 +235,20 @@ export default {
     padding: 48px 0 0;
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
 }
-.text-big {
-  font-size: 1.5rem;
+#sidebarMenu a.nav-link {
+  padding: 0.5rem
+}
+.text-big
+{
+  font-size: 1.2rem;
 }
 a.active, a.sec-link.router-link-active, a.link.router-link-exact-active {
-  background : #85ceed !important;
+  background : #343a40 !important;
+  color: #f8f9fa !important;
 }
-#app {
+
+#app
+{
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -219,24 +256,29 @@ a.active, a.sec-link.router-link-active, a.link.router-link-exact-active {
   color: #2c3e50;
 }
 
-#nav {
+#nav
+{
   padding: 30px;
 }
 
-#nav a {
+#nav a
+{
   font-weight: bold;
   color: #2c3e50;
 }
 
-#nav a.router-link-exact-active {
+#nav a.router-link-exact-active 
+{
   color: #42b983;
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active, .fade-leave-active
+{
   transition: opacity .5s;
 }
 
-.fade-enter, .fade-leave-to {
+.fade-enter, .fade-leave-to
+{
   opacity: 0;
 }
 </style>

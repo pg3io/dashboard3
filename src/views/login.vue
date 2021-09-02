@@ -2,7 +2,7 @@
   <div class="container-sm text-center">
     <div v-if="!forgotPassword">
       <form class="form-signin" action="POST" @submit.prevent="logIn">
-      <img class="mb-4" src="ours_small.png" alt="" width="150">
+      <img class="mb-4" v-if="image" :src="image" alt="" width="150">
       <h1 class="h3 mb-3 font-weight-normal">Connectez-vous</h1>
       <label for="identifier" class="sr-only">Nom d'utilisateur</label>
       <input type="text" id="identifier" class="form-control" placeholder="Utilisateur" v-model="authDetails.identifier" required autocomplete="off">
@@ -23,7 +23,7 @@
         <span class="forgotPWD" @click="forgotPassword = true">Mot de passe oublié</span>
         <button class="btn btn-lg btn-primary btn-block" type="submit">Connexion</button>
       </form>
-      <p>Pour tout problème technique contactez le support : support@pg3.fr</p>
+      <p v-if="loginMessage">{{ loginMessage }}</p>
     </div>
     <transition name="slide-fade">
       <div v-if="forgotPassword" class="form-signin">
@@ -34,7 +34,7 @@
         <div v-if="emailSent">
           <p>Un mail vous a été envoyé.</p>
           <p>S'il n'apparait pas dans votre boîte principale vérifiez dans vos "spam"</p>
-          <p>Pour tout problème technique contactez le support : support@pg3.fr</p>
+          <p v-if="loginMessage">{{ loginMessage }}</p>
         </div>
         <br>
         <div>
@@ -61,22 +61,28 @@ export default {
       emailSent: false,
       emailReset: '',
       emailError: '',
+      support : '',
       showPassword: false,
       authDetails: {
         identifier: '',
         password: ''
       },
-      image: Object
+      image: '',
+      loginMessage: ''
     }
+  },
+  created() {
+    this.getImage();
   },
   methods: {
     getImage() {
       var temp = process.env.VUE_APP_API_URL || 'http://localhost:1337/graphql'
       this.$apollo.query({
-        query: gql`query {parametre {logo {url}}}`
+        query: gql`query {parametre {logo {url} login}}`
       }).then((data) => {
         var link = temp.replace('/graphql', data['data']['parametre']['logo']['url'])
         this.image = link
+        this.loginMessage = data.data.parametre.login;
       }).catch((error) => {
         console.log(error)
       })

@@ -7,6 +7,7 @@
             :sort-compare="mySortCompare"
             :sort-by.sync="sortBy"
             :sort-desc.sync="sortDesc"
+            :tbody-tr-class="rowClass"
             @row-contextmenu="rightClicked"
             @row-selected="onRowSelected"
             striped hover
@@ -31,6 +32,11 @@
 
 <script>
 import { userId, getUserGeds } from '@/graphql/querys.js'
+import $ from 'jquery'
+
+function dateFormatter (date) {
+    return date.split('-').reverse().join('-');
+}
 
 export default {
     name: 'home',
@@ -46,7 +52,7 @@ export default {
             sortByFormatted: true,
             fields: [
                 { key: 'nom', sortable: true, class: 'nom' },
-                { key: 'date', sortable: true, class: 'date' },
+                { key: 'date', sortable: true, class: 'date', formatter: dateFormatter },
                 { key: 'entreprise', sortable: true, class: 'entreprise' },
                 { key: 'type', sortable: false, class: 'type' },
                 { key: 'telecharger', label: 'Télécharger', sortable: false, class: 'telecharger' }
@@ -56,8 +62,19 @@ export default {
     mounted() {
         this.getUserInfos();
         this.getGeds();
+        this.addClasses();
     },
     methods: {
+        addClasses () {
+            if (this.geds.length > 0 && this.isLoaded)
+                this.geds.forEach((g, index) => {
+                    $(`tr.${g.nom.replaceAll(' ', '-')}`).addClass('fichier'+index);
+                });
+            else return setTimeout(this.addClasses, 100);
+        },
+        rowClass (item) {
+            return item.nom.replaceAll(' ', '-');
+        },
         rightClicked (item, index, evt) {
             evt.preventDefault()
         },
@@ -78,7 +95,6 @@ export default {
             this.goToDetails(items[0].id);
         },
         downloadFile(mediaUrl, ref) {
-            // console.log('media '+this.downloadMedia(mediaUrl))
             this.axios({
                 url: this.downloadMedia(mediaUrl),
                 method: 'GET',

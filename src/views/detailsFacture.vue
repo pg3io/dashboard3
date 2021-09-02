@@ -16,16 +16,16 @@
                         </table>
                         <b-row v-if="facture.media.length > 1">
                             <b-col v-for="(fichier, index) in facture.media" :key="index">
-                                <b-icon v-b-tooltip.hover.top="`${facture.nom} n° ${index+1}`" @click="downloadPDF(getPdfLink(fichier.url), `${facture.nom}_${index+1}.pdf`)" icon="file-earmark-arrow-down" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
+                                <b-icon class="download" v-b-tooltip.hover.top="`${facture.nom} n° ${index+1}`" @click="downloadPDF(getPdfLink(fichier.url), `${facture.nom}_${index+1}.pdf`)" icon="file-earmark-arrow-down" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
                             </b-col>
                         </b-row>
-                        <b-icon v-else @click="downloadPDF(getPdfLink(facture.media[0].url), `${facture.nom}.${getFileType(facture.media[0].url)}`)" icon="file-earmark-arrow-down" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
+                        <b-icon  class="download" v-else @click="downloadPDF(getPdfLink(facture.media[0].url), `${facture.nom}.${getFileType(facture.media[0].url)}`)" icon="file-earmark-arrow-down" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
                         <b-row class="mt-3 d-flex justify-content-between">
                             <b-col>
-                                <b-icon v-if="prevFacture" v-b-tooltip.hover.bottom="'Facture précédente'" @click="previousFacture()" icon="arrow-left-square" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
+                                <b-icon id="arrowBackward" v-if="prevFacture" v-b-tooltip.hover.bottom="'Facture précédente'" @click="previousFacture()" icon="arrow-left-square" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
                             </b-col>
                             <b-col>
-                                <b-icon v-if="nxtFacture" @click="nextFacture()" v-b-tooltip.hover.bottom="'Facture suivante'" icon="arrow-right-square" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
+                                <b-icon id="arrowForward" v-if="nxtFacture" @click="nextFacture()" v-b-tooltip.hover.bottom="'Facture suivante'" icon="arrow-right-square" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
                             </b-col>
                         </b-row>
                     </div>

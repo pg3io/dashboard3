@@ -128,6 +128,16 @@ const routes = [
       title: 'PG3 - Tickets',
       requiresAuth: true
     }
+  },
+  {
+    path: '/graph',
+    name: 'graph',
+    beforeEnter : guardMyroute,
+    component: () => import('@/views/graph.vue'),
+    meta: {
+      title: 'PG3 - Graph',
+      requiresAuth: true
+    }
   }
 ]
 

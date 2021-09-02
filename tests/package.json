@@ -1,0 +1,18 @@
+{
+  "name": "dashboard-cypress",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx cypress open",
+    "test": "npx cypress run"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "cypress": "^8.3.1"
+  },
+  "dependencies": {
+    "pdf-parse": "^1.1.1"
+  }
+}

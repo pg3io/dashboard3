@@ -107,6 +107,8 @@ query {
     title
     footer
     home
+    logo {url}
+    login
   }
 }`
 
@@ -114,6 +116,7 @@ const getZammad = gql`
 query {
   zammad {
     token
+    url    
   }
 }`
 
@@ -191,6 +194,17 @@ query getUserPerms($id: ID!){
 }
 `
 
+const getEntreprisesTags = gql`
+query getEntreprisesTags($id: ID!){
+  users(where: {id: $id}) {
+    entreprises {
+      nom
+      tags
+    }
+  }
+}
+`
+
 export {
   userId,
   userInfos,
@@ -206,5 +220,6 @@ export {
   getGedInfo,
   getUserGeds,
   getUserPerms,
-  getZammad
+  getZammad,
+  getEntreprisesTags
 }
