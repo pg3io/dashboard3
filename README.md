@@ -31,7 +31,7 @@ Dashboard est un outil de listing de factures, basé sur le Headless CMS [Strapi
     * Une colonne 'télécharger' pour récupérer sa facture
 
 # Tests
-* Des tests automatisés via Cypress sont disponibles dans le dossiers 'tests'.
+* Des tests automatisés via [Cypress](https://cypress.io) sont disponibles dans le dossiers 'tests'.
   * la configuration => [ici (wiki)](https://github.com/pg3io/dashboard3/wiki/Tests-Automatis%C3%A9s)
 
 
@@ -48,7 +48,7 @@ Déclarer l'url de votre API dans le Dockerfile => ``VUE_APP_API_URL``
 ```
 docker-compose up
 ```
-Ouvrer un nouveau terminale et lancer npm install
+Ouvrer un nouveau terminal et lancer npm install
 ```
 npm install
 ```
