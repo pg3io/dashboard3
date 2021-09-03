@@ -3,11 +3,11 @@
         <b-container fluid="sm" style="margin-top: 2%;">
             <b-tabs v-if="watchedUrls.length > 1 && values.length > 0 && this.isLoaded">
                 <b-tab :title="corp.nom" v-for="(corp, index) in watchedUrls" :key="index">
-                    <line-chart :library='{"plotOptions": {"series": {"marker" :{"enabled": false}}}, "title": {"text": "Temps de réponse"}}' legend="bottom" :data="values[index]" width="100%" height="500px" :min="0" :max="maxValue[index]+1" suffix="s" :xmin="new Date(Object.keys(values[index][0].data)[0])" :xmax="new Date(Date.now())"/>
+                    <line-chart :library='{"plotOptions": {"series": {"marker" :{"enabled": false}}}, "title": {"text": "Temps de réponse"}}' legend="bottom" :data="values[index]" width="100%" height="500px" :min="0" :max="maxValue[index]" suffix="s" :xmin="new Date(Object.keys(values[index][0].data)[0])" :xmax="new Date(Date.now())"/>
                 </b-tab>
             </b-tabs>
             <b-row v-else-if="watchedUrls.length > 0 && values.length > 0 && this.isLoaded">
-                <line-chart :library='{"plotOptions": {"series": {"marker" :{"enabled": false}}}, "title": {"text": "Temps de réponse"}}' legend="bottom" :data="values[0]" width="100%" height="500px" :min="0" :max="maxValue[0]+1" suffix="s" :xmin="new Date(Object.keys(values[0][0].data)[0])" :xmax="new Date(Date.now())"/>
+                <line-chart :library='{"plotOptions": {"series": {"marker" :{"enabled": false}}}, "title": {"text": "Temps de réponse"}}' legend="bottom" :data="values[0]" width="100%" height="500px" :min="0" :max="maxValue[0]" suffix="s" :xmin="new Date(Object.keys(values[0][0].data)[0])" :xmax="new Date(Date.now())"/>
             </b-row>
         </b-container>
     </transition>
@@ -75,7 +75,7 @@ export default {
                     if (index > 0 || i > 0)
                         self.dataQuery[index] += ` or r["host"] == "${url}"`
                     if (i === (corp.urls.length - 1))
-                        self.dataQuery[index] += ')  |> aggregateWindow(every: 5m, fn: last, createEmpty: false) |> yield(name: "last")';
+                        self.dataQuery[index] += ')  |> aggregateWindow(every: 15m, fn: mean, createEmpty: false) |> yield(name: "mean")';
                 })
             });
         },
@@ -84,7 +84,7 @@ export default {
                 for (let index = 0; index < this.dataQuery.length; index++) {
                     this.maxValue.push(0)
                     this.values.push([])
-                    if (!this.dataQuery[index].endsWith('|> yield(name: "last")')) {
+                    if (!this.dataQuery[index].endsWith('|> yield(name: "mean")')) {
                         return setTimeout(this.getSitesData, 1000);
                     }
                     else {
@@ -109,6 +109,7 @@ export default {
                             self.n_complete++;
                             if (self.n_complete === self.watchedUrls.length)
                                 self.isLoaded = true;
+                            console.log(self.values)
                         }
                     })
                     }
