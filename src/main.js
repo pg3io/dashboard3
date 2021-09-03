@@ -6,18 +6,20 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import { createProvider } from './vue-apollo'
 import 'bootstrap'
-// import 'bootstrap/dist/css/bootstrap.min.css'
 import { BootstrapVue } from 'bootstrap-vue'
-// import 'bootstrap/dist/css/bootstrap.css'
-// import 'bootstrap-vue/dist/bootstrap-vue.css'
 import './assets/custom.scss'
 import './assets/css/main.css'
 import { BootstrapVueIcons } from 'bootstrap-vue'
 import 'bootstrap-vue/dist/bootstrap-vue-icons.min.css'
+import Chartkick from 'vue-chartkick'
+import Highcharts from 'highcharts'
+
+Vue.use(Chartkick.use(Highcharts))
 
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
 Vue.use(VueAxios, axios)
+
 
 Vue.config.productionTip = false
 
