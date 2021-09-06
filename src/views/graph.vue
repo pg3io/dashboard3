@@ -1,13 +1,8 @@
 <template>
     <transition name="fade">
         <b-container fluid="sm" style="margin-top: 2%;">
-            <b-tabs v-if="watchedUrls.length > 1 && values.length > 0 && this.isLoaded">
-                <b-tab :title="corp.nom" v-for="(corp, index) in watchedUrls" :key="index">
-                    <line-chart :library='{"plotOptions": {"series": {"marker" :{"enabled": false}}}, "title": {"text": "Temps de réponse"}}' legend="bottom" :data="values[index]" width="100%" height="500px" :min="0" :max="maxValue[index]" suffix="s" :xmin="new Date(Object.keys(values[index][0].data)[0])" :xmax="new Date(Date.now())"/>
-                </b-tab>
-            </b-tabs>
-            <b-row v-else-if="watchedUrls.length > 0 && values.length > 0 && this.isLoaded">
-                <line-chart :library='{"plotOptions": {"series": {"marker" :{"enabled": false}}}, "title": {"text": "Temps de réponse"}}' legend="bottom" :data="values[0]" width="100%" height="500px" :min="0" :max="maxValue[0]" suffix="s" :xmin="new Date(Object.keys(values[0][0].data)[0])" :xmax="new Date(Date.now())"/>
+            <b-row v-if="watchedUrls.length > 0 && values.length > 0 && this.isLoaded">
+                <line-chart :library='{"plotOptions": {"series": {"marker" :{"enabled": false}}}, "title": {"text": "Temps de réponse"}}' legend="bottom" :data="values" width="100%" height="500px" :min="0" :max="maxValue" suffix="s" :xmin="new Date(Object.keys(values[0].data)[0])" :xmax="new Date(Date.now())"/>
             </b-row>
         </b-container>
     </transition>
@@ -29,13 +24,12 @@ function findUrl(elem) {
 export default {
     data () {
         return {
-            maxValue: [],
+            maxValue: 0,
             actUserId: 0,
             watchedUrls: [],
             urlsTags: null,
             values: [],
-            dataQuery: [],
-            n_complete: 0,
+            dataQuery: '',
             isLoaded: false,
             InfluxDB: null,
             queryAPI: null
@@ -46,7 +40,6 @@ export default {
         this.getUsrId();
         this.sortUrlsTags();
         this.getWatchedUrls();
-        this.printWatchedUrls();
         this.getDataQuery();
         this.getSitesData();
     },
@@ -64,55 +57,49 @@ export default {
         printWatchedUrls () {
             if (this.watchedUrls.length === 0)
                 return setTimeout(this.printWatchedUrls, 100);
+            console.log("urls", this.watchedUrls)
         },
         getDataQuery () {
             if (this.watchedUrls.length === 0)
                 return setTimeout(this.getDataQuery, 100);
             self = this;
+            this.dataQuery = `from(bucket: "${self.InfluxDB.bucket}")|> range(start: -12h) |> filter(fn: (r) => r["_measurement"] == "server_response") |> filter(fn: (r) => r["_field"] == "timereq") |> filter(fn: (r) => r["host"] == "${this.watchedUrls[0].urls[0]}"`;
             this.watchedUrls.forEach((corp, index) => {
-                self.dataQuery.push(`from(bucket: "${self.InfluxDB.bucket}")|> range(start: -12h) |> filter(fn: (r) => r["_measurement"] == "server_response") |> filter(fn: (r) => r["_field"] == "timereq") |> filter(fn: (r) => r["host"] == "${this.watchedUrls[index].urls[0]}"`);
                 corp.urls.forEach((url, i) => {
                     if (index > 0 || i > 0)
-                        self.dataQuery[index] += ` or r["host"] == "${url}"`
-                    if (i === (corp.urls.length - 1))
-                        self.dataQuery[index] += ')  |> aggregateWindow(every: 15m, fn: mean, createEmpty: false) |> yield(name: "mean")';
+                        self.dataQuery += ` or r["host"] == "${url}"`
+                    if (i === (corp.urls.length - 1) && index === (self.watchedUrls.length - 1))
+                        self.dataQuery += ')  |> aggregateWindow(every: 15m, fn: mean, createEmpty: false) |> yield(name: "mean")';
                 })
             });
         },
         getSitesData () {
-            if (this.watchedUrls.length > 0 && !(this.dataQuery.length < this.watchedUrls.length) && this.InfluxDB !== null && this.queryAPI !== null) {
-                for (let index = 0; index < this.dataQuery.length; index++) {
-                    this.maxValue.push(0)
-                    this.values.push([])
-                    if (!this.dataQuery[index].endsWith('|> yield(name: "mean")')) {
-                        return setTimeout(this.getSitesData, 1000);
-                    }
-                    else {
-                        let self = this
-                        this.queryAPI.queryRows(this.dataQuery[index], {
+            if (this.watchedUrls.length > 0 && this.InfluxDB !== null && this.queryAPI !== null) {
+                if (!this.dataQuery.endsWith('|> yield(name: "mean")')) {
+                    return setTimeout(this.getSitesData, 1000);
+                }
+                else {
+                    let self = this
+                    this.queryAPI.queryRows(this.dataQuery, {
                         next(row, tableMeta) {
                             const o = tableMeta.toObject(row)
-                            const elemIndex = self.values[index].findIndex(findUrl, o);
-                            if (o._value > self.maxValue[index])
-                                self.maxValue[index] = o._value;
+                            const elemIndex = self.values.findIndex(findUrl, o);
+                            if (o._value > self.maxValue)
+                                self.maxValue = o._value;
                             if (elemIndex >= 0) {
-                                self.values[index][elemIndex].data[o._time] = o._value;
+                                self.values[elemIndex].data[o._time] = o._value;
                             }
                             else {
-                                self.values[index].push(JSON.parse(`{"name": "${o.host}", "data" : {"${o._time}": ${o._value}}}`));
+                                self.values.push(JSON.parse(`{"name": "${o.host}", "data" : {"${o._time}": ${o._value}}}`));
                             }
                         },
                         error(error) {
                             console.error(error)
                         },
                         complete() {
-                            self.n_complete++;
-                            if (self.n_complete === self.watchedUrls.length)
-                                self.isLoaded = true;
-                            console.log(self.values)
+                            self.isLoaded = true;
                         }
                     })
-                    }
                 }
             } else return setTimeout(this.getSitesData, 100);
         },
