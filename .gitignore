@@ -4,7 +4,7 @@ tests/node_modules
 package-lock.json
 tests/package-lock.json
 /dist
-
+tests/cypress.env.json
 tests/cypress/screenshots
 tests/cypress/videos
 tests/cypress/downloads

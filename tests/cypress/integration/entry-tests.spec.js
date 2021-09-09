@@ -18,6 +18,8 @@ describe("Test de la porte d'entrée", () => {
                 cy.get('input#password').type(passwd);
                 cy.contains('Connexion').click();
             }
+            cy.wait(1000)
+            cy.location().then(loc => { cy.expect(loc.pathname).to.equal('/'); })
         })
     });
 });
