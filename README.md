@@ -79,5 +79,4 @@ Rendez-vous ensuite sur le port renseigné => https://localhost:8080/
 Ce projet est sous licence [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) consulter le fichier [LICENSE](LICENSE) pour plus de détails.
 
 # Informations sur l'auteur
-Ce projet a été créé par [PG3](https://pg3.io) en decembre 2020.
-Et Maintenus par [PG3] (https://pg3.io) en 2021.
+Ce projet a été créé par [PG3](https://pg3.io) en decembre 2020 et maintenu par [PG3](https://pg3.io) en 2021.
