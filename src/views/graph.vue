@@ -1,9 +1,21 @@
 <template>
     <transition name="fade">
         <b-container fluid="sm" style="margin-top: 2%;">
-            <b-row v-if="watchedUrls.length > 0 && values.length > 0 && this.isLoaded">
-                <line-chart :library='{"plotOptions": {"series": {"marker" :{"enabled": false}}}, "title": {"text": "Temps de réponse"}}' legend="bottom" :data="values" width="100%" height="500px" :min="0" :max="maxValue" suffix="s" :xmin="new Date(Object.keys(values[0].data)[0])" :xmax="new Date(Date.now())"/>
+            <div class="text-center">
+                <span class="align-baseline h4">Historique du temps de réponse sur </span>
+                <b-button-group class="ml-2" size="md">
+                    <b-button v-for="(btn, idx) in buttons" :key="idx"  @click="selectRange(btn, buttons)" :pressed="btn.state" variant="dark">
+                        {{ btn.caption }}
+                    </b-button>
+                </b-button-group>
+            </div>
+            <b-row class="" v-if="watchedUrls.length > 0 && values.length > 0 && this.isLoaded">
+                <line-chart :library='{"plotOptions": {"series": {"marker" :{"enabled": false}}}}' legend="bottom" :data="values" width="100%" height="500px" :min="0" :max="maxValue" suffix="s" :xmin="new Date(Object.keys(values[0].data)[0])" :xmax="new Date(Date.now())"/>
             </b-row>
+            <div v-else class="text-center pt-3">
+                <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded"></b-icon>
+                <h2 style="margin-top: 2%; text-align: center;" v-if="isLoaded">Vous n'avez aucun site à monitorer.</h2>
+            </div>
         </b-container>
     </transition>
 </template>
@@ -32,7 +44,13 @@ export default {
             dataQuery: '',
             isLoaded: false,
             InfluxDB: null,
-            queryAPI: null
+            queryAPI: null,
+            buttons: [
+                { caption: '1 jour', state: false, value: '1d' },
+                { caption: '1 semaine', state: true, value: '7d' },
+                { caption: '1 mois', state: false, value: '30d' },
+                { caption: '1 an', state: false, value: '1y'}
+            ],
         }
     },
     created () {
@@ -40,10 +58,27 @@ export default {
         this.getUsrId();
         this.sortUrlsTags();
         this.getWatchedUrls();
-        this.getDataQuery();
+        this.getDataQuery('7d');
         this.getSitesData();
     },
     methods : {
+        selectRange (button, buttons) {
+            buttons.forEach(($btn) => {
+                if ($btn.value !== button.value) 
+                    $btn.state = false 
+                else $btn.state = true
+            });
+            button.state = true;
+            this.rangeChanger(button.value);
+        },
+        rangeChanger (range) {
+            this.maxValue = 0;
+            this.values = [];
+            this.dataQuery = '';
+            this.isLoaded = false;
+            this.getDataQuery(range);
+            this.getSitesData();
+        },
         getInfluxCredentials () {
             this.$apollo.query({
                 query: gql`query{crawlurl{url token org bucket}}`
@@ -59,17 +94,26 @@ export default {
                 return setTimeout(this.printWatchedUrls, 100);
             console.log("urls", this.watchedUrls)
         },
-        getDataQuery () {
+        getDataQuery (range) {
+            var aggr = '1h';
+            if (range === undefined)
+                range = '7d';
+            else if (range === '1d')
+                aggr = '15m';
+            else if (range === '30d')
+                aggr = '3h';
+            else if (range === '1y')
+                aggr = '12h';
             if (this.watchedUrls.length === 0)
                 return setTimeout(this.getDataQuery, 100);
             self = this;
-            this.dataQuery = `from(bucket: "${self.InfluxDB.bucket}")|> range(start: -12h) |> filter(fn: (r) => r["_measurement"] == "server_response") |> filter(fn: (r) => r["_field"] == "timereq") |> filter(fn: (r) => r["host"] == "${this.watchedUrls[0].urls[0]}"`;
+            this.dataQuery = `from(bucket: "${self.InfluxDB.bucket}")|> range(start: -${range}) |> filter(fn: (r) => r["_measurement"] == "server_response") |> filter(fn: (r) => r["_field"] == "timereq") |> filter(fn: (r) => r["host"] == "${this.watchedUrls[0].urls[0]}"`;
             this.watchedUrls.forEach((corp, index) => {
                 corp.urls.forEach((url, i) => {
                     if (index > 0 || i > 0)
                         self.dataQuery += ` or r["host"] == "${url}"`
                     if (i === (corp.urls.length - 1) && index === (self.watchedUrls.length - 1))
-                        self.dataQuery += ')  |> aggregateWindow(every: 15m, fn: mean, createEmpty: false) |> yield(name: "mean")';
+                        self.dataQuery += `)  |> aggregateWindow(every: ${aggr}, fn: mean, createEmpty: false) |> yield(name: "mean")`;
                 })
             });
         },
