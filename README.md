@@ -74,6 +74,7 @@ Rendez-vous ensuite sur le port renseigné => https://localhost:8080/
 * [Graphql](https://graphql.org/)
 * [Nodejs](https://nodejs.org/en/)
 * [npm](https://www.npmjs.com/)
+* [Cypress](https://cypress.io/)
 
 # License
 Ce projet est sous licence [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) consulter le fichier [LICENSE](LICENSE) pour plus de détails.
