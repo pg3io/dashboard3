@@ -10,8 +10,8 @@
             </b-form-checkbox>
             <a class="btn btn-primary" :href="`${this.zammad_url}#ticket/view/my_organization_tickets`">Tous les tickets</a>
         </b-row>
-        <b-modal ref="popup" size="lg">
-            <template #modal-header="{ close }">
+        <b-modal ref="popup" size="lg" centered scrollable>
+            <template #modal-header="{ close }" class="ticket-header">
                 <h5>{{ modal.title }} <span v-html="modal.badge"></span></h5>
                 <a @click="close()">
                     <b-icon-x-square style="transform: scale(1.5); cursor: pointer; margin-right: 20%; margin-top: 20%;"></b-icon-x-square>
@@ -79,7 +79,7 @@ function diffFormatter (value) {
 }
 
 function striper (value) {
-    if (value === "Customer") return "bg-info customer-message card rounded-3";
+    if (value === "Customer") return "bg-light customer-message card rounded-3";
     else return "bg-light card rounded-3 admin-message";
 }
 
@@ -158,10 +158,9 @@ export default {
             }
         },
         onRowSelected(item) {
-            console.log(item);
-            if (item.state === "closed") 
+            if (item.state === "closed")
                 item.badge = `<span style="color:white" class="badge rounded-pill bg-success ml-3">Fermé</span>`;
-            if (item.state === "open") 
+            if (item.state === "open")
                 item.badge = `<span style="color:white" class="badge rounded-pill bg-warning ml-3">Ouvert</span>`;
             if (item.state === "new") 
                 item.badge = `<span style="color:white" class="badge rounded-pill bg-primary ml-3">Nouveau</span>`;
@@ -229,7 +228,6 @@ export default {
                             ticketsArray = data;
                             if (ticketsArray.length > 0)
                                 this.tickets.push(ticketsArray);
-                            else console.log(ticketsArray)
                             ticketsArray = null;
                             if (index === this.user.entreprises.length - 1 && this.tickets.length > 0) this.hasTickets = true;
                             if (index === this.user.entreprises.length - 1) this.isLoaded = true;
@@ -279,13 +277,14 @@ td {
 }
 .customer-message {
     margin-top: 2rem;
-    margin-right: 15%;
+    margin-left: 15%;
 }
 .admin-message {
     margin-top: 2rem;
-    margin-left: 15%;
+    margin-right: 15%;
 }
-.admin-message h5 {
+.customer-message h5 {
     text-align: right;
 }
+
 </style>

@@ -60,6 +60,7 @@
                     <router-link to="/graph" class="nav-link link sec-link"  id="graphLink" style="color: rgb(0, 0, 0)" >
                       <b-icon-graph-up></b-icon-graph-up>
                       <span class="ml-3 align-top" style="font-size:1.2rem;">Monitoring</span>
+                      <b-badge pill variant="secondary" class="align-center ml-3">beta</b-badge>
                     </router-link>
                   </li>
                 </ul>
