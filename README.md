@@ -30,8 +30,8 @@ Dashboard est un outil de listing de factures, basé sur le Headless CMS [Strapi
     * Chaque colonne du tableau de facture peut être trié par ordre alphabétique montant ou descendant
     * La colonne date peut-être trié du plus vieux au plus récent / du plus récent au plus vieux
     * Une colonne 'télécharger' pour récupérer sa facture
-  * Système de GED basique
-  * Listing des tickets
+* Système de GED basique
+* Listing des tickets
 * Rendu des données du projet [crawlurl](https://github.com/pg3io/crawlurl) dans un graphique.
 
 
