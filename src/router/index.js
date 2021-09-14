@@ -87,6 +87,16 @@ const routes = [
     }
   },
   {
+    path: '/password',
+    name: 'resetPassword',
+    beforeEnter : guardMyroute,
+    component: () => import('@/views/password.vue'),
+    meta: {
+      title: 'Mot de passe'
+    },
+    alias: '/password?code=:code'
+  },
+  {
     path: '/factures/:id',
     name: 'factureDetails',
     beforeEnter : guardMyroute,
