@@ -201,7 +201,7 @@ export default {
                     query: userInfos,
                     variables: {'id': this.userId}
                 }).then((data) => {
-                    this.user = data.data.['users'][0]
+                    this.user = data.data['users'][0]
                 }).catch((err) => {console.log(err)});
             }
         },  

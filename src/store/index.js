@@ -53,7 +53,25 @@ export default new Vuex.Store({
     /*const refreshToken = sign({ userId: user.id }, 'azertyhbvcghjk', {
       expiresIn:"7d",
     })*/
-    
+    async testLogin({ commit }, authDetails) {
+      try {
+        console.log("Deatails", authDetails)
+        var {data} = await apolloClient.mutate({
+          mutation: gql`
+            mutation($identifier: String!, $password: String!) {
+              login(input: { identifier: $identifier, password: $password }) {
+                  jwt
+              }
+          }`,
+          variables: authDetails
+        })
+        sessionStorage.setItem('valid-password', true)
+        console.log(data, commit)
+      } catch (e) {
+        console.error(e)
+        throw(e)
+      }
+    },
     async login ({ commit }, authDetails) {
       try {
         var {data} = await apolloClient.mutate({

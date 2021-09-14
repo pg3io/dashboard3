@@ -189,7 +189,6 @@ query getUserPerms($id: ID!){
   users(where: {id: $id}) {
     ged
     factures
-    activites
   }
 }
 `
