@@ -55,7 +55,6 @@ export default new Vuex.Store({
     })*/
     async testLogin({ commit }, authDetails) {
       try {
-        console.log("Deatails", authDetails)
         var {data} = await apolloClient.mutate({
           mutation: gql`
             mutation($identifier: String!, $password: String!) {

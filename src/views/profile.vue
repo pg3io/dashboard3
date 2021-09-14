@@ -140,7 +140,7 @@ export default {
                     this.oldError = ""
                     this.changePassword();
                 }).catch(() => {
-                    this.oldError = "Votre mot de passe n'est pas correct"
+                    this.oldError = "Votre mot de passe est incorrect"
                 })
         },
     },
