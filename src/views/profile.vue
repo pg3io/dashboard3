@@ -19,6 +19,7 @@
         </table>
         <span  class="changepwd" @click="editPwd" style="cursor: pointer; margin-left: 2%;">Changer le mot de passe</span>
         <b-modal size="xl" id="changePassword" :no-close-on-esc=true :no-close-on-backdrop=true title='Changer le mot de passe' hide-footer>
+        <form>
             <label for='oldPassword'>Entrez votre mot de passe actuel</label>
             <b-input-group>
                 <b-form-input v-model="oldPassword" name="oldPassword" id="oldPassword" type="password"></b-form-input>
@@ -55,6 +56,7 @@
             <br>
             <b-button class="float-right" variant="success" style="margin-right: 5%;" @click="checkValid">Valider</b-button>
             <b-button class="float-right" variant="secondary" style="margin-right: 1%;" @click="$bvModal.hide('changePassword')">Annuler</b-button>
+        </form>
         </b-modal>
     </b-container>
 </template>
@@ -96,9 +98,8 @@ export default {
             if (this.confirmNewPassword != this.newPassword)
                 this.confirmError = 'Les deux mot de passe entrés ne sont pas identique'
             else this.confirmError = ''
-            if (!(this.newError == '' && this.confirmError == ''))
-                return
-            this.checkOld()
+            if (this.newError == '' && this.confirmError == '')
+                return this.checkOld()
         },
         changePassword() {
             this.$apollo.mutate({
@@ -133,6 +134,7 @@ export default {
         ...mapActions(['testLogin']),
         checkOld() {
             var auths = {identifier: this.userInfos.username.toLowerCase(), password: this.oldPassword}
+            console.log(auths)
             this.testLogin(auths)
                 .then(() => {
                     this.oldError = ""
