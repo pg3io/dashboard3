@@ -27,7 +27,7 @@
     </div>
     <transition name="slide-fade">
       <div v-if="forgotPassword" class="form-signin">
-        <img class="mb-4" src="ours_small.png" alt="" width="150">
+        <img class="mb-4" v-if="image" :src="image" alt="" width="150">
         <h5 style="text-align: left; margin-left: 2%;">Entrez votre email</h5>
         <b-input v-model="emailReset" placeholder="Email" type="email" @focus="emailError = ''"></b-input>
         <span class="inputError" v-if="emailError && emailError.length">{{ emailError }}<br></span>

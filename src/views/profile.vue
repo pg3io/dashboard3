@@ -94,7 +94,7 @@ export default {
                 this.newError = (this.newPassword.length == 0) ? 'Veuillez entrer un mot de passe' : 'Votre mot de passe est trop court'
             else this.newError = ''
             if (this.confirmNewPassword != this.newPassword)
-                this.confirmError = 'Les deux mot de passe entrés ne sont pas identique'
+                this.confirmError = 'Les mots de passe ne correspondent pas'
             else this.confirmError = ''
             if (!(this.newError == '' && this.confirmError == ''))
                 return

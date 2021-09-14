@@ -149,29 +149,21 @@ export default {
                 mutation: getUserGeds,
                 variables: {'id': this.userId}
             }).then((data) => {
-                // console.log(data);
-                if (data.data.users[0].ged) {
-                    tmp_data = data['data']['users'][0];
-                    tmp_data = this.addEntrepriseName(tmp_data);
-                    tmp_data['entreprises'].forEach((entreprise) => {
-                        entreprise['geds'].forEach((ged) => {
-                            i++;
-                            this.geds.push(ged);
-                        });
-                        if (i == 0) {
-                            counter++;
-                            i = 0;
-                        }
+                tmp_data = data['data']['users'][0];
+                tmp_data = this.addEntrepriseName(tmp_data);
+                tmp_data['entreprises'].forEach((entreprise) => {
+                    entreprise['geds'].forEach((ged) => {
+                        i++;
+                        this.geds.push(ged);
                     });
-                    if (counter == tmp_data['entreprises'].length) this.hasFiles = false;
-                    else this.hasFiles = true;
-                    this.isLoaded = true;
-                }
-                else {
-                    var fileLink = document.createElement('a');
-                    fileLink.href = '/';
-                    fileLink.click();
-                }
+                    if (i == 0) {
+                        counter++;
+                        i = 0;
+                    }
+                });
+                if (counter == tmp_data['entreprises'].length) this.hasFiles = false;
+                else this.hasFiles = true;
+                this.isLoaded = true;
             }).catch((error) => {
                 console.log(error)
             })

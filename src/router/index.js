@@ -3,6 +3,9 @@ import VueRouter from 'vue-router'
 import store from '@/store'
 //import LOGIN_USER from '@/store/index.js'
 import profile from '@/views/profile.vue'
+import { apolloClient } from '@/vue-apollo'
+import { getUserPerms } from '@/graphql/querys.js'
+import gql from 'graphql-tag'
 //import axios from 'axios'
 Vue.use(VueRouter)
 
@@ -25,12 +28,16 @@ function guardMyroute(to, from, next)
   }
 
   if(connecter == true ) {
-    console.log('validation guardroute');
-    next();
-  } else {
-    console.log('Redirection vers login');
-    next('/login');
-  }
+    if (to.name === 'factures' || to.name === 'fichiers') {
+      apolloClient.query({query: gql`query { me { id }}`}).then((data) => {
+        apolloClient.query({query: getUserPerms, variables: {id: data.data.me.id}}).then(($data) => {
+          if (!$data.data.users[0].factures && to.name === 'factures') {window.location.href='/'; next('/')}
+          if (!$data.data.users[0].ged && to.name === 'fichiers') {window.location.href='/'; next('/')}
+          else next()
+        }).catch((err) => {console.log(err)});
+      }).catch((err) => {console.log(err);});
+    }
+  } else { next('/login'); }
 }
 
 const routes = [
@@ -88,16 +95,6 @@ const routes = [
       title: 'Facture',
       requiresAuth: true
     }
-  },
-  {
-    path: '/password',
-    name: 'resetPassword',
-    beforeEnter : guardMyroute,
-    component: () => import('@/views/password.vue'),
-    meta: {
-      title: 'Mot de passe'
-    },
-    alias: '/password?code=:code'
   },
   {
     path: '/fichiers',

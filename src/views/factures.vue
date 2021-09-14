@@ -163,23 +163,17 @@ export default {
                 mutation: facturesId,
                 variables: {'id': this.userId}
             }).then((data) => {
-                // console.log(data);
                 this.save = data['data']['users']
-                if (!this.save[0].factures) {
-                    this.redirectIndex();
-                }
-                else {
-                    var nEmpty = 0;
-                    this.save[0].entreprises.forEach((elem) => {
-                        if (elem.factures.length <= 0)
-                            nEmpty++;
-                        else return;
-                    });
-                    if (nEmpty === this.save[0].entreprises.length)
-                        this.hasFactures = false;
-                    else this.hasFactures = true;
-                    this.isLoaded = true;
-                }
+                var nEmpty = 0;
+                this.save[0].entreprises.forEach((elem) => {
+                    if (elem.factures.length <= 0)
+                        nEmpty++;
+                    else return;
+                });
+                if (nEmpty === this.save[0].entreprises.length)
+                    this.hasFactures = false;
+                else this.hasFactures = true;
+                this.isLoaded = true;
             }).catch((error) => {
                 console.log(error)
             })
