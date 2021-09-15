@@ -109,6 +109,8 @@ query {
     home
     logo {url}
     login
+    zammad
+    graph
   }
 }`
 

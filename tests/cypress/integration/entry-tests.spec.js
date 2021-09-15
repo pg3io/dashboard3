@@ -35,8 +35,21 @@ describe('Test du Home', () => {
         cy.uilogin(login, passwd)
         cy.wait(1000);
         cy.get('ul.nav.flex-column.nav-pills').then((SidebarUL) => {
-            expect(SidebarUL.children('li.factures').children('a#factureLink')).to.exist
-            expect(SidebarUL.children('li.ged').children('a#fichierLink')).to.exist
+            const factureLink = SidebarUL.children('li.factures').children('a#factureLink')
+            const fichierLink = SidebarUL.children('li.ged').children('a#fichierLink')
+            expect(factureLink).to.exist
+            expect(fichierLink).to.exist
+            cy.get(factureLink).click()
+            cy.wait(1000)
+            cy.location().then(loc => { 
+                cy.expect(loc.pathname).to.equal('/factures');
+            })
+            cy.get(SidebarUL.children().children('a#homeLink')).click()
+            cy.get(fichierLink).click()
+            cy.wait(1000)
+            cy.location().then(loc => { 
+                cy.expect(loc.pathname).to.equal('/fichiers');
+            })
         })
     })
 });
@@ -51,7 +64,7 @@ describe('Test du changement de mot de passe', () => {
         cy.get('input#newPassword').type(passwd);
         cy.get('input#confirmNewPassword').type(passwd);
         cy.get('button.btn.float-right.btn-success').click();
-        cy.expect(cy.contains('Mot de passe incorrect')).to.exist
+        cy.expect(cy.contains('Votre mot de passe est incorrect')).to.exist
     })
     it('Les mots de passe ne correspondent pas', () => {
         cy.visit(url+'/profile')

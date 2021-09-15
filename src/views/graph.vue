@@ -33,11 +33,18 @@ function findUrl(elem) {
     else return false;
 }
 
+
+function findEntreprise(elem) {
+    if  (elem.nom === this.nom) return true;
+    else return false;
+}
+
 export default {
     data () {
         return {
             maxValue: 0,
             actUserId: 0,
+            userCorps : [],
             watchedUrls: [],
             urlsTags: null,
             values: [],
@@ -45,6 +52,7 @@ export default {
             isLoaded: false,
             InfluxDB: null,
             queryAPI: null,
+            hasSliced: true,
             buttons: [
                 { caption: '1 jour', state: false, value: '1d' },
                 { caption: '1 semaine', state: true, value: '7d' },
@@ -56,10 +64,12 @@ export default {
     created () {
         this.getInfluxCredentials();
         this.getUsrId();
+        this.getUserCorps();
         this.sortUrlsTags();
         this.getWatchedUrls();
         this.getDataQuery('7d');
         this.getSitesData();
+        setTimeout(function() {if (this.watchedUrls.length === 0 && !this.isLoaded) this.isLoaded = true}, 30000)
     },
     methods : {
         selectRange (button, buttons) {
@@ -72,12 +82,14 @@ export default {
             this.rangeChanger(button.value);
         },
         rangeChanger (range) {
-            this.maxValue = 0;
-            this.values = [];
-            this.dataQuery = '';
-            this.isLoaded = false;
-            this.getDataQuery(range);
-            this.getSitesData();
+            if (this.watchedUrls.length > 0) {
+                this.maxValue = 0;
+                this.values = [];
+                this.dataQuery = '';
+                this.isLoaded = false;
+                this.getDataQuery(range);
+                this.getSitesData();
+            }
         },
         getInfluxCredentials () {
             this.$apollo.query({
@@ -87,7 +99,12 @@ export default {
                 const client = new InfluxDB({url: influx.url, token: influx.token})
                 this.queryAPI = client.getQueryApi(influx.org)
                 this.InfluxDB = influx;
-            }).catch((err) => {console.log(err)});
+            }).catch((err) => {
+                console.log(err)
+                var a = document.createElement('a')
+                a.href = '/'
+                a.click()
+            });
         },
         printWatchedUrls () {
             if (this.watchedUrls.length === 0)
@@ -105,16 +122,41 @@ export default {
             else if (range === '1y')
                 aggr = '12h';
             if (this.watchedUrls.length === 0)
-                return setTimeout(this.getDataQuery, 100);
+                return setTimeout(this.getDataQuery, 100, range);
             self = this;
             this.dataQuery = `from(bucket: "${self.InfluxDB.bucket}")|> range(start: -${range}) |> filter(fn: (r) => r["_measurement"] == "server_response") |> filter(fn: (r) => r["_field"] == "timereq") |> filter(fn: (r) => r["host"] == "${this.watchedUrls[0].urls[0]}"`;
             this.watchedUrls.forEach((corp, index) => {
-                corp.urls.forEach((url, i) => {
-                    if (index > 0 || i > 0)
-                        self.dataQuery += ` or r["host"] == "${url}"`
-                    if (i === (corp.urls.length - 1) && index === (self.watchedUrls.length - 1))
-                        self.dataQuery += `)  |> aggregateWindow(every: ${aggr}, fn: mean, createEmpty: false) |> yield(name: "mean")`;
-                })
+                if (corp.urls.length > 1) {
+                    corp.urls.forEach((url, i) => {
+                        if (index > 0 || i > 0)
+                            self.dataQuery += ` or r["host"] == "${url}"`
+                        if ((i === (corp.urls.length - 1) || corp.urls.length === 0) && index === (self.watchedUrls.length - 1))
+                            self.dataQuery += `)  |> aggregateWindow(every: ${aggr}, fn: mean, createEmpty: false) |> yield(name: "mean")`;
+                    })
+                } else if (index === self.watchedUrls.length - 1)
+                    self.dataQuery += `)  |> aggregateWindow(every: ${aggr}, fn: mean, createEmpty: false) |> yield(name: "mean")`;
+            });
+        },
+        getUserCorps () {
+            if (!this.actUserId) return setTimeout(this.getUserCorps, 100)
+            this.$apollo.query({
+                query: getEntreprisesTags,
+                variables: {"id": this.actUserId}
+            }).then((data) => {
+                let $elf = this;
+                var corps = data.data.users[0].entreprises;
+                const len = corps.length
+                var index = 0;
+                for (let i = 0; i < len; i++) {
+                    if (corps[index].tags === null || corps[index].tags === undefined) {
+                        corps.splice(corps.findIndex(findEntreprise, corps[index]), 1)
+                    }
+                    else if (!corps[index].tags.length > 0) {
+                        corps.splice(corps.findIndex(findEntreprise, corps[index]), 1)
+                    }
+                    else index++
+                    if (corps.length === index) {$elf.userCorps = corps; this.hasSliced = true}
+                }
             });
         },
         getSitesData () {
@@ -168,7 +210,7 @@ export default {
                     });
 
                 },
-                error(error) {
+                error(error) {name
                     console.error(error)
                 },
                 complete() {
@@ -177,15 +219,13 @@ export default {
             })
         },
         getWatchedUrls () {
-            if (!this.actUserId) return setTimeout(this.getWatchedUrls, 100);
             if (!this.urlsTags) return setTimeout(this.getWatchedUrls, 100)
+            if (!this.hasSliced) return setTimeout(this.getWatchedUrls, 100)
+            else if (this.userCorps.length <= 0) {this.isLoaded = true; return;}
             self = this;
-            this.$apollo.query({
-                query: getEntreprisesTags,
-                variables: {"id": this.actUserId}
-            }).then((data) => {
-                const entreprises = data.data.users[0].entreprises;
-                this.watchedUrls = [];
+            const entreprises = this.userCorps
+            this.watchedUrls = [];
+            if (entreprises.length > 0) {
                 entreprises.forEach((corp, index) => {
                     self.watchedUrls.push({nom: corp.nom, urls: []})
                     corp.tags.forEach((tag) => {
@@ -197,17 +237,18 @@ export default {
                         }
                     })
                 });
-            }).catch((err) => {console.log(err);});
+            } else this.isLoaded = true;
+
         },
         getUsrId() {
-        this.$apollo.query({
-            query: userId
-        }).then((data) => {
-            this.actUserId = data['data']['me']['id']
-        }).catch((error) => {
-            console.log(error)
-        })
-    },
+            this.$apollo.query({
+                query: userId
+            }).then((data) => {
+                this.actUserId = data['data']['me']['id']
+            }).catch((error) => {
+                console.log(error)
+            })
+        }
     }
 }
 </script>

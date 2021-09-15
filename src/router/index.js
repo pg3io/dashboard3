@@ -4,7 +4,7 @@ import store from '@/store'
 //import LOGIN_USER from '@/store/index.js'
 import profile from '@/views/profile.vue'
 import { apolloClient } from '@/vue-apollo'
-import { getUserPerms } from '@/graphql/querys.js'
+import { getUserPerms, getCustoms } from '@/graphql/querys.js'
 import gql from 'graphql-tag'
 //import axios from 'axios'
 Vue.use(VueRouter)
@@ -36,7 +36,13 @@ function guardMyroute(to, from, next)
           else next()
         }).catch((err) => {console.log(err)});
       }).catch((err) => {console.log(err);});
-    }
+    } else if (to.name === 'tickets'||to.name === 'graph') {
+      apolloClient.query({query: getCustoms}).then((data) => {
+        if (!data.data.parametre.zammad && to.name === 'tickets') {window.location.href='/'; next('/')}
+        if (!data.data.parametre.graph && to.name === 'graph') {window.location.href='/'; next('/')}
+        else { next() } 
+      })
+    } else next()
   } else { next('/login'); }
 }
 
