@@ -17,5 +17,5 @@ jobs:
       - run: docker image ls
       - run: docker run dashboard:${{ github.run_id }}-test &
       - run: |
-            echo {\"site\": \"https://dashboard-preprod.pg3.io\", \"identifier\": \"${{ secrets.PREPROD_USER }}\", \"password\": \"${{ secrets.PREPROD_PASSWORD }}\"} > tests/cypress.env.json
+            echo {\"site\": \"http://127.0.0.1:8080\", \"identifier\": \"${{ secrets.PREPROD_USER }}\", \"password\": \"${{ secrets.PREPROD_PASSWORD }}\"} > tests/cypress.env.json
       - run: npm test
