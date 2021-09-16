@@ -9,7 +9,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # - run: sed -i -e "s/http\:\/\/<STRAPI_URL>/https:\/\/dashboard-preprod.pk3.io/" Dockerfile
+      - uses: actions/checkout@v2
+      - run: sed -i -e "s/http\:\/\/<STRAPI_URL>/https:\/\/dashboard-preprod.pk3.io/" Dockerfile
       - 
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -31,4 +32,5 @@ jobs:
       - run: "pwd && ls -R /home"
       - run: |
             echo {"site": "https://dashboard-preprod.pg3.io", "identifier": "${{ secrets.PREPROD_USER }}", "password": "${{ secrets.PREPROD_PASSWORD }}"} > tests/cypress.env.json
+      - run: cat tests/cypress.env.json
       - run: npm test
