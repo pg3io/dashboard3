@@ -2,7 +2,7 @@ name: Deploy and test
 
 on:
   push:
-    branches: [ $default-branch ]
+    branches: [ workflows-dev ]
   pull_request:
     branches: [ $default-branch ]
 
