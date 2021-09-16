@@ -31,6 +31,6 @@ jobs:
       - uses: actions/checkout@v2
       - run: "pwd && ls -R /home"
       - run: |
-            echo {""site"": ""https://dashboard-preprod.pg3.io"", ""identifier"": ""${{ secrets.PREPROD_USER }}"", ""password"": ""${{ secrets.PREPROD_PASSWORD }}""} > tests/cypress.env.json
+            echo {\"site\": \"https://dashboard-preprod.pg3.io\", \"identifier\": \"${{ secrets.PREPROD_USER }}\", \"password\": \"${{ secrets.PREPROD_PASSWORD }}\"} > tests/cypress.env.json
       - run: cat tests/cypress.env.json
       - run: npm test
