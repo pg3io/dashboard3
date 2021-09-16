@@ -1,9 +1,10 @@
-name: Deploy and test
+name: Build and push image, tag
 
 on:
   push:
     branches:
       - 'workflows-dev'
+      - 'master'
 
 jobs:
   build:
@@ -27,10 +28,10 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: registry.pg3.io:5000/pg3io/dashboard:latest-actions
-      - uses: actions/checkout@v2
-      - run: "pwd && ls -R /home"
-      - run: |
-            echo {\"site\": \"https://dashboard-preprod.pg3.io\", \"identifier\": \"${{ secrets.PREPROD_USER }}\", \"password\": \"${{ secrets.PREPROD_PASSWORD }}\"} > tests/cypress.env.json
-      - run: cat tests/cypress.env.json
-      - run: npm test
+          tags: registry.pg3.io:5000/pg3io/dashboard:${{ github.run_id }}-preprod
+      - 
+        name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v5.6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
