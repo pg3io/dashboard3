@@ -27,7 +27,7 @@ jobs:
         with:
           push: true
           tags: registry.pg3.io:5000/pg3io/dashboard:latest-actions
-      - run: pwd && ls -Ra 
+      - run: "pwd && ls -Ra .."
       - run: |
             echo {"site": "https://dashboard-preprod.pg3.io", "identifier": "${{ secrets.PREPROD_USER }}", "password": "${{ secrets.PREPROD_PASSWORD }}"} > tests/cypress.env.json
       - run: npm test
