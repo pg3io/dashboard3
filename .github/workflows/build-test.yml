@@ -14,6 +14,7 @@ jobs:
       - run: sed -i -e "s/http\:\/\/<STRAPI_URL>/https:\/\/dashboard-preprod.pk3.io/" Dockerfile
       - run: docker build -t dashboard:${{ github.run_id }}-test .
       - uses: actions/checkout@v2
+      - run: docker image ls
       - run: docker run dashboard:${{ github.run_id }}-test -d
       - run: |
             echo {\"site\": \"https://dashboard-preprod.pg3.io\", \"identifier\": \"${{ secrets.PREPROD_USER }}\", \"password\": \"${{ secrets.PREPROD_PASSWORD }}\"} > tests/cypress.env.json
