@@ -1,0 +1,29 @@
+name: Build and test
+
+on:
+  push:
+    branches:
+      - 'workflows-dev'
+      - 'master'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: sed -i -e "s/http\:\/\/<STRAPI_URL>/https:\/\/dashboard-preprod.pk3.io/" Dockerfile
+      - 
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Build
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: false
+          tags: pg3io/dashboard:${{ github.run_id }}-test
+      - uses: actions/checkout@v2
+      - run: docker run pg3io/dashboard:${{ github.run_id }}-test -d
+      - run: |
+            echo {\"site\": \"https://dashboard-preprod.pg3.io\", \"identifier\": \"${{ secrets.PREPROD_USER }}\", \"password\": \"${{ secrets.PREPROD_PASSWORD }}\"} > tests/cypress.env.json
+      - run: npm test
