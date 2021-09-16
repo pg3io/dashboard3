@@ -1,0 +1,31 @@
+name: Deploy and test
+
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ 16.x ]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: sed -i -e "s/http\:\/\/<STRAPI_URL>/https:\/\/dashboard-preprod.pk3.io/" Dockerfile
+    - run: docker build -t registry.pg3.io:5000/pg3io/dashboard3:0.59-actions
+    - run: docker login -u ${{ secrets.REGIS_USER }} --password ${{ secrets.REGIS_PASS }} registry.pg3.io:5000
+    - run: docker push registry.pg3.io:5000/pg3io/dashboard3:0.59-actions
+    - run: echo '{"site": "https://dashboard-preprod.pg3.io", "identifier": "${{ secrets.PREPROD_USER }}", "password": "${{ secrets.PREPROD_PASSWORD }}"}' > tests/cypress.env.json
+    - run: npm test
