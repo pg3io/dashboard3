@@ -21,9 +21,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: false
-          tags: pg3io/dashboard:${{ github.run_id }}-test
+          tags: dashboard:${{ github.run_id }}-test
       - uses: actions/checkout@v2
-      - run: docker run pg3io/dashboard:${{ github.run_id }}-test -d
+      - run: docker run dashboard:${{ github.run_id }}-test -d
       - run: |
             echo {\"site\": \"https://dashboard-preprod.pg3.io\", \"identifier\": \"${{ secrets.PREPROD_USER }}\", \"password\": \"${{ secrets.PREPROD_PASSWORD }}\"} > tests/cypress.env.json
       - run: npm test
