@@ -10,7 +10,7 @@
                 </b-button-group>
             </div>
             <b-row class="" v-if="watchedUrls.length > 0 && values.length > 0 && this.isLoaded">
-                <line-chart :library='{"plotOptions": {"series": {"marker" :{"enabled": false}}}}' legend="bottom" :data="values" width="100%" height="500px" :min="0" :max="maxValue" suffix="s" :xmin="new Date(Object.keys(values[0].data)[0])" :xmax="new Date(Date.now())"/>
+                <line-chart :library='{"plotOptions": {"series": {"marker" :{"enabled": false}}}, "tooltip" : {"valueDecimals": 2}}' legend="bottom" :data="values" width="100%" height="500px" :min="0" :max="maxValue" suffix="s" :xmin="new Date(Object.keys(values[0].data)[0])" :xmax="new Date(Date.now())"/>
             </b-row>
             <div v-else class="text-center pt-3">
                 <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded"></b-icon>
