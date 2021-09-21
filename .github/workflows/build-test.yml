@@ -22,5 +22,8 @@ jobs:
     services:
       dashboard:
         image: registry.pg3.io:5000/dashboard:latest-actions
+        credentials:
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASS }}
         ports:
           - 8080:8080
