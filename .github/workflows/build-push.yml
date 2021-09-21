@@ -22,13 +22,8 @@ jobs:
           registry: registry.pg3.io:5000
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASS }}
-      -
-        name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          tags: registry.pg3.io:5000/pg3io/dashboard:latest-actions
+      - run: docker build -t registry.pg3.io:5000/pg3io/dashboard:latest-actions .
+      - run: docker push registry.pg3.io:5000/pg3io/dashboard:latest-actions
       - 
         name: Bump version and push tag
         id: tag_version
