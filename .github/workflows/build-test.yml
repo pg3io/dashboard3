@@ -1,0 +1,23 @@
+name: Build and test
+
+on:
+  workflow_run:
+    workflows: ["Build and push image"]
+    branches: [main, workflows-dev]
+    types: 
+      - completed
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+            echo {\"site\": \"http://127.0.0.1:8080\", \"identifier\": \"${{ secrets.PREPROD_USER }}\", \"password\": \"${{ secrets.PREPROD_PASSWORD }}\"} > tests/cypress.env.json
+      - run: npm test
+    services:
+      dashboard:
+        image: registry.pg3.io:5000/dashboard:latest-actions
+        ports:
+          - 8080:8080
