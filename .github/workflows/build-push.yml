@@ -1,4 +1,4 @@
-name: Build and push image, tag
+name: Build and push image
 
 on:
   push:

@@ -2,7 +2,7 @@ name: Build and test
 
 on:
   workflow_run:
-    workflows: ["Build and push image, tag"]
+    workflows: ["Build and push image"]
     branches: [main, workflows-dev]
     types: 
       - completed
