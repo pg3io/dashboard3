@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - 'workflows-dev'
-      - 'master'
+      - 'main'
 
 jobs:
   build:
