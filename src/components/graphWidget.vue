@@ -10,7 +10,8 @@
             v-if="watchedUrls.length > 0 && values.length > 0 && this.isLoaded"
         />
         <div v-else class="text-center pt-3">
-            <b-icon icon="arrow-clockwise" class="mt-5" animation="spin" font-scale="9"></b-icon>
+            <b-icon icon="arrow-clockwise" class="mt-5" animation="spin" font-scale="9" v-if="!isLoaded"></b-icon>
+            <span class="hidden" v-else> {{ hideBecauseEmpty() }}</span>
         </div>
     </b-card>
 </template>
@@ -61,6 +62,11 @@ export default {
         setTimeout(function() {if (this.watchedUrls.length === 0 && !this.isLoaded) this.isLoaded = true}, 30000)
     },
     methods : {
+        hideBecauseEmpty () {
+            if (this.isLoaded) {
+                this.$emit('IsEmpty', true);
+            }
+        },
         selectRange (button, buttons) {
             buttons.forEach(($btn) => {
                 if ($btn.value !== button.value) 

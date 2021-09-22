@@ -282,4 +282,7 @@ a.active, a.sec-link.router-link-active, a.link.router-link-exact-active {
 {
   opacity: 0;
 }
+.hidden {
+  visibility: hidden;
+}
 </style>

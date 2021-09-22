@@ -1,7 +1,7 @@
 <template>
-    <b-card title="Tickets en cours ce mois-ci" class="text-center widget">
-        <h1 class="text-bold mt-5" style="font-size: 150px;" v-if="counter && !counter.split()[0].startsWith('0')">{{ counter }}</h1>
-        <h2 class="mt-5" v-else-if="counter.split()[0].startsWith('0')">Tous les tickets ont été répondus !</h2>
+    <b-card class="text-center widget" title="Tickets en cours ce mois-ci">
+        <h1 class="mt-5" style="font-size: 150px;" v-if="hasTickets">{{openTickets}}<span class="text-muted" style="font-size: 100px">/{{allTickets}}</span></h1>
+        <!--<pie-chart v-if="counter" :data="values" :colors="['#17a2b8', '#20c997']"></pie-chart> -->
         <b-icon icon="arrow-clockwise" class="mt-5" animation="spin" font-scale="9" v-else></b-icon>
     </b-card>
 </template>
@@ -21,7 +21,9 @@ export default {
             zammad_url: '',
             isLoaded : false,
             hasTickets: false,
-            counter: ''
+            openTickets: 0,
+            allTickets: 0,
+            values: []
 
         }
 
@@ -31,6 +33,7 @@ export default {
         this.getUserInfos2()
         this.getTickets()
         this.countTickets()
+        
     },
     methods : {
         printTickets () {
@@ -51,9 +54,15 @@ export default {
                     else if (moment().diff(moment(ticket.close_at), 'days') < 30)
                         n_tickets++;
                     if (index >= self.tickets.length - 1) {
-                        self.counter = `${n_open}/${n_tickets}`
+                        self.openTickets = n_open;
+                        self.allTickets = n_tickets
+                        self.values = [["Ouverts", (n_open / n_tickets) * 100], ["Fermés", ((n_tickets - n_open) / n_tickets) * 100]]
+                        self.hasTickets = true;
+                        if (n_tickets <= 0) this.$emit('IsEmptyT', true);
+                        else this.isLoaded = true;
                     }
                 });
+                if (this.tickets[0].length <= 0) this.$emit('IsEmptyT', true);
             } else return setTimeout(this.countTickets, 100)
         },
         getUserInfos() {
@@ -104,7 +113,7 @@ export default {
                                 this.tickets.push(ticketsArray);
                             ticketsArray = null;
                             if (index === this.user.entreprises.length - 1 && this.tickets.length > 0) this.hasTickets = true;
-                            if (index === this.user.entreprises.length - 1) this.isLoaded = true;
+                            else if (index === this.user.entreprises.length - 1 ) this.$emit('IsEmptyT', true);
                         });
                     });
                 }
@@ -116,6 +125,6 @@ export default {
 
 <style>
 .widget {
-    height: 342px
+    height: 400px
 }
 </style>

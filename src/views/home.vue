@@ -1,14 +1,14 @@
 <template>
     <div class="p-3">
         <b-row class="p-3">
-                <b-col v-if="tickets">
+                <b-col v-if="tickets && ticketsNotEmpty" sm="12" :md="getWidth('tickets')">
                     <router-link to="/tickets" class="widgetLink" style="color: rgb(0, 0, 0)" >
-                        <ticketsWidget />
+                        <ticketsWidget @IsEmpty="hideTickets"/>
                     </router-link>
                 </b-col>
-            <b-col v-if="graph" >
+            <b-col v-if="graph && graphNotEmpty" sm="12" :md="getWidth('graph')">
                 <router-link to="/graph" class="widgetLink" style="color: rgb(0, 0, 0)" >
-                    <graphWidget />
+                    <graphWidget  @IsEmpty="hideGraph"/>
                 </router-link>
             </b-col>
         </b-row>
@@ -30,6 +30,31 @@ export default {
     components: {
         ticketsWidget: ticketsWidget,
         graphWidget: graphWidget
+    },
+    data () {
+        return {
+            graphNotEmpty : true,
+            ticketsNotEmpty : true
+            
+        }
+    },
+    methods :  {
+        hideGraph () {
+            this.graphNotEmpty = false;
+        },
+        hideTickets () {
+            this.ticketsNotEmpty = false;
+        },
+        getWidth (component) {
+            if (component === 'graph') {
+                if (this.tickets && this.ticketsNotEmpty) return '6';
+                else return '12';
+            }
+            if (component === 'tickets') {
+                if (this.graph && this.graphNotEmpty) return '6';
+                else return '12';
+            }
+        }
     }
 }
 </script>
