@@ -1,5 +1,5 @@
 <template>
-    <b-card class="widget">
+    <b-card class="widget text-center" title="Temps de réponse moyen de vos sites web">
         <line-chart 
             :library='{"plotOptions": {"series": {"marker" :{"enabled": false}}}, "tooltip": {"valueDecimals": 2}}'
             :legend="false"

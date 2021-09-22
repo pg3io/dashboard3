@@ -1,6 +1,7 @@
 <template>
     <b-card title="Tickets en cours ce mois-ci" class="text-center widget">
-        <h1 class="text-bold mt-5" style="font-size: 150px;" v-if="counter">{{ counter }}</h1>
+        <h1 class="text-bold mt-5" style="font-size: 150px;" v-if="counter && !counter.split()[0].startsWith('0')">{{ counter }}</h1>
+        <h2 class="mt-5" v-else-if="counter.split()[0].startsWith('0')">Tous les tickets ont été répondus !</h2>
         <b-icon icon="arrow-clockwise" class="mt-5" animation="spin" font-scale="9" v-else></b-icon>
     </b-card>
 </template>
@@ -8,7 +9,7 @@
 <script>
 import {getZammad, userInfos, userId} from '@/graphql/querys.js'
 import { GetTicketsFromCorp } from '@/zammad/querys.js'
-
+import moment from 'moment'
 export default {
     name: "TicketsWidget",
     data () {
@@ -47,7 +48,7 @@ export default {
                         n_open++;
                         n_tickets++;
                     }
-                    else if ((new Date().getTime() - new Date(ticket.updated_at).getTime()) < (3600 * 24 * 30))
+                    else if (moment().diff(moment(ticket.close_at), 'days') < 30)
                         n_tickets++;
                     if (index >= self.tickets.length - 1) {
                         self.counter = `${n_open}/${n_tickets}`
