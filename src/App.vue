@@ -71,7 +71,7 @@
               <Profile :userInfos="userInfos"></Profile>
           </b-col>
           <b-col class="home" v-else-if="$route.path=='/'">
-              <home :home="homeText"></home>
+              <home v-if="homeText"  :home="homeText" :tickets="zammad" :graph="graph"></home>
           </b-col>
           <b-col class="other" v-else>
               <router-view></router-view>
