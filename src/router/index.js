@@ -143,15 +143,15 @@ const routes = [
     }
   },
   {
-    path: '/graph',
+    path: '/monitoring',
     name: 'graph',
     beforeEnter : guardMyroute,
     component: () => import('@/views/graph.vue'),
     meta: {
-      title: 'PG3 - Graph',
+      title: 'PG3 - Monitoring',
       requiresAuth: true
     }
-  }
+  },
 ]
 
 const router = new VueRouter({

@@ -1,5 +1,5 @@
 <template>
-    <b-card class="text-center widget" title="Tickets en cours ce mois-ci">
+    <b-card class="text-center widget" title="Tickets résolus" subtitle="30 derniers jours">
         <h1 class="mt-5" style="font-size: 150px;" v-if="hasTickets">{{openTickets}}<span class="text-muted" style="font-size: 100px">/{{allTickets}}</span></h1>
         <!--<pie-chart v-if="counter" :data="values" :colors="['#17a2b8', '#20c997']"></pie-chart> -->
         <b-icon icon="arrow-clockwise" class="mt-5" animation="spin" font-scale="9" v-else></b-icon>
@@ -23,8 +23,8 @@ export default {
             hasTickets: false,
             openTickets: 0,
             allTickets: 0,
-            values: []
-
+            values: [],
+            noTicket: false
         }
 
     },
@@ -42,7 +42,7 @@ export default {
             } else return setTimeout(this.printTickets, 100)
         },
         countTickets () {
-            if (this.tickets.length > 0) {
+            if (this.tickets.length > 0 || this.noTicket) {
                 var n_tickets = 0;
                 var n_open = 0;
                 let self = this
@@ -62,7 +62,6 @@ export default {
                         else this.isLoaded = true;
                     }
                 });
-                if (this.tickets[0].length <= 0) this.$emit('IsEmptyT', true);
             } else return setTimeout(this.countTickets, 100)
         },
         getUserInfos() {
@@ -113,7 +112,7 @@ export default {
                                 this.tickets.push(ticketsArray);
                             ticketsArray = null;
                             if (index === this.user.entreprises.length - 1 && this.tickets.length > 0) this.hasTickets = true;
-                            else if (index === this.user.entreprises.length - 1 ) this.$emit('IsEmptyT', true);
+                            else if (index === this.user.entreprises.length - 1) this.noTicket = true;
                         });
                     });
                 }
@@ -125,6 +124,6 @@ export default {
 
 <style>
 .widget {
-    height: 400px
+    height: 400px;
 }
 </style>

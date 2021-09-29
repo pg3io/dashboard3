@@ -1,9 +1,10 @@
 <template>
     <b-card class="widget text-center" title="Temps de réponse moyen de vos sites web">
         <line-chart 
+            class="chart"
             :library='{"plotOptions": {"series": {"marker" :{"enabled": false}}}, "tooltip": {"valueDecimals": 2}}'
             :legend="false"
-            :data="values" width="100%" height="300px"
+            :data="values" height="300px"
             :min="0" :max="maxValue"
             suffix="s"
             :xmin="new Date(Object.keys(values[0].data)[0])" :xmax="new Date(Date.now())"

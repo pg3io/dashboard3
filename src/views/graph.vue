@@ -1,30 +1,42 @@
 <template>
     <transition name="fade">
         <b-container fluid="sm" style="margin-top: 2%;">
-            <div class="text-center">
-                <span class="align-baseline h4">Historique du temps de réponse sur </span>
-                <b-button-group class="ml-2" size="md">
-                    <b-button v-for="(btn, idx) in buttons" :key="idx"  @click="selectRange(btn, buttons)" :pressed="btn.state" variant="dark">
-                        {{ btn.caption }}
-                    </b-button>
-                </b-button-group>
+            <div class="card">
+                <div class="text-center card-header">
+                    <span class="align-baseline h4">Historique du temps de réponse sur </span>
+                    <b-button-group class="ml-2" size="md">
+                        <b-button v-for="(btn, idx) in buttons" :key="idx"  @click="selectRange(btn, buttons)" :pressed="btn.state" variant="outline-dark">
+                            {{ btn.caption }}
+                        </b-button>
+                    </b-button-group>
+                </div>
+                <div class="card-body">
+                    <b-row class="" v-if="watchedUrls.length > 0 && values.length > 0 && this.isLoaded">
+                        <line-chart :library='{"plotOptions": {"series": {"marker" :{"enabled": false}}}, "tooltip": {"valueDecimals": 2}}' legend="bottom" :data="values" width="100%" height="500px" :min="0" :max="maxValue" suffix="s"/>
+                    </b-row>
+                    <div v-else class="text-center pt-3 mt-6">
+                        <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded"></b-icon>
+                        <h2 style="margin-top: 2%; text-align: center;" v-if="isLoaded">Vous n'avez aucun site à monitorer.</h2>
+                    </div>
+                </div>
             </div>
-            <b-row class="" v-if="watchedUrls.length > 0 && values.length > 0 && this.isLoaded">
-                <line-chart :library='{"plotOptions": {"series": {"marker" :{"enabled": false}}}, "tooltip": {"valueDecimals": 2}}' legend="bottom" :data="values" width="100%" height="500px" :min="0" :max="maxValue" suffix="s" :xmin="new Date(Object.keys(values[0].data)[0])" :xmax="new Date(Date.now())"/>
-            </b-row>
-            <div v-else class="text-center pt-3">
-                <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded"></b-icon>
-                <h2 style="margin-top: 2%; text-align: center;" v-if="isLoaded">Vous n'avez aucun site à monitorer.</h2>
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="text-center">Sauvegardes</h4>
+                </div>
+                <div class="card-body">
+                    <BackupTable />
+                </div>
             </div>
         </b-container>
     </transition>
 </template>
 
 <script>
-
 import { userId, getEntreprisesTags } from '@/graphql/querys.js';
 import {InfluxDB} from '@influxdata/influxdb-client';
 import gql from 'graphql-tag';
+import BackupTable from '@/components/backupTable.vue'
 
 let self;
 
@@ -46,13 +58,15 @@ export default {
             actUserId: 0,
             userCorps : [],
             watchedUrls: [],
-            urlsTags: null,
             values: [],
             dataQuery: '',
+            xmin: '',
+            xmax: '',            
             isLoaded: false,
+            hasSliced: true,
             InfluxDB: null,
             queryAPI: null,
-            hasSliced: true,
+            urlsTags: null,
             buttons: [
                 { caption: '1 jour', state: false, value: '1d' },
                 { caption: '1 semaine', state: true, value: '7d' },
@@ -60,6 +74,9 @@ export default {
                 { caption: '1 an', state: false, value: '1y'}
             ],
         }
+    },
+    components: {
+        BackupTable
     },
     created () {
         this.getInfluxCredentials();
@@ -69,7 +86,6 @@ export default {
         this.getWatchedUrls();
         this.getDataQuery('7d');
         this.getSitesData();
-        setTimeout(function() {if (this.watchedUrls.length === 0 && !this.isLoaded) this.isLoaded = true}, 30000)
     },
     methods : {
         selectRange (button, buttons) {
@@ -111,7 +127,10 @@ export default {
                 return setTimeout(this.printWatchedUrls, 100);
             console.log("urls", this.watchedUrls)
         },
+        
         getDataQuery (range) {
+            if (this.InfluxDB === null)
+                return setTimeout(this.getDataQuery, 100, range);
             var aggr = '1h';
             if (range === undefined)
                 range = '7d';
@@ -119,15 +138,26 @@ export default {
                 aggr = '15m';
             else if (range === '30d')
                 aggr = '3h';
-            else if (range === '1y')
+            else if (range === '1y') {
+                var xmin = new Date()
                 aggr = '12h';
+                xmin.setMinutes(0);
+                xmin.setSeconds(0);
+                xmin = xmin.getTime() - (1000 * 3600 * 24 * 365)
+                this.xmin = new Date(xmin).toISOString();
+            }
+            this.xmax = new Date().toDateString()
             if (this.watchedUrls.length === 0)
                 return setTimeout(this.getDataQuery, 100, range);
             self = this;
-            this.dataQuery = `from(bucket: "${self.InfluxDB.bucket}")|> range(start: -${range}) |> filter(fn: (r) => r["_measurement"] == "server_response") |> filter(fn: (r) => r["_field"] == "timereq") |> filter(fn: (r) => r["host"] == "${this.watchedUrls[0].urls[0]}"`;
+            this.dataQuery = `from(bucket: "${this.InfluxDB.bucket}")|> range(start: -${range}) |> filter(fn: (r) => r["_measurement"] == "server_response") |> filter(fn: (r) => r["_field"] == "timereq") |> filter(fn: (r) => r["host"] == "${this.watchedUrls[0].urls[0]}"`;
             this.watchedUrls.forEach((corp, index) => {
                 if (corp.urls.length > 1) {
                     corp.urls.forEach((url, i) => {
+                        if (range === '1y') {
+                            self.values.push(JSON.parse(`{"name": "${url}", "data" : {"${this.xmin}": ${0.0}}}`));
+                            self.values.push(JSON.parse(`{"name": "${url}", "data" : {"${new Date('2021-07-12T23:59:00Z').toISOString()}": ${0.0}}}`));
+                        }
                         if (index > 0 || i > 0)
                             self.dataQuery += ` or r["host"] == "${url}"`
                         if ((i === (corp.urls.length - 1) || corp.urls.length === 0) && index === (self.watchedUrls.length - 1))
@@ -162,7 +192,7 @@ export default {
         getSitesData () {
             if (this.watchedUrls.length > 0 && this.InfluxDB !== null && this.queryAPI !== null) {
                 if (!this.dataQuery.endsWith('|> yield(name: "mean")')) {
-                    return setTimeout(this.getSitesData, 1000);
+                    return setTimeout(this.getSitesData, 100);
                 }
                 else {
                     let self = this
