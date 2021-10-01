@@ -1,12 +1,17 @@
 <template>
-    <b-card class="text-center widget" title="Tickets en cours ce mois-ci">
-        <h1 class="mt-5" style="font-size: 150px;" v-if="hasTickets">{{openTickets}}<span class="text-muted" style="font-size: 100px">/{{allTickets}}</span></h1>
-        <!--<pie-chart v-if="counter" :data="values" :colors="['#17a2b8', '#20c997']"></pie-chart> -->
+    <b-card class="text-center widget" title="Tickets résolus">
+        <h5 class="text-center text-muted">30 derniers jours</h5>
+        <div  v-if="hasTickets">
+            <h1 class="mt-5" style="font-size: 150px;">{{allTickets - openTickets}}<span class="text-muted" style="font-size: 100px">/{{allTickets}}</span></h1>
+            <h6>Tickets ouverts : {{ openTickets }}</h6>
+        </div>
         <b-icon icon="arrow-clockwise" class="mt-5" animation="spin" font-scale="9" v-else></b-icon>
     </b-card>
 </template>
 
 <script>
+//        <!--<pie-chart v-if="counter" :data="values" :colors="['#17a2b8', '#20c997']"></pie-chart> -->
+
 import {getZammad, userInfos, userId} from '@/graphql/querys.js'
 import { GetTicketsFromCorp } from '@/zammad/querys.js'
 import moment from 'moment'
@@ -23,8 +28,8 @@ export default {
             hasTickets: false,
             openTickets: 0,
             allTickets: 0,
-            values: []
-
+            values: [],
+            noTicket: false
         }
 
     },
@@ -33,7 +38,6 @@ export default {
         this.getUserInfos2()
         this.getTickets()
         this.countTickets()
-        
     },
     methods : {
         printTickets () {
@@ -42,27 +46,30 @@ export default {
             } else return setTimeout(this.printTickets, 100)
         },
         countTickets () {
-            if (this.tickets.length > 0) {
-                var n_tickets = 0;
-                var n_open = 0;
-                let self = this
-                this.tickets[0].forEach((ticket, index) => {
-                    if (ticket.state != 'closed') {
-                        n_open++;
-                        n_tickets++;
-                    }
-                    else if (moment().diff(moment(ticket.close_at), 'days') < 30)
-                        n_tickets++;
-                    if (index >= self.tickets.length - 1) {
-                        self.openTickets = n_open;
-                        self.allTickets = n_tickets
-                        self.values = [["Ouverts", (n_open / n_tickets) * 100], ["Fermés", ((n_tickets - n_open) / n_tickets) * 100]]
-                        self.hasTickets = true;
-                        if (n_tickets <= 0) this.$emit('IsEmptyT', true);
-                        else this.isLoaded = true;
-                    }
-                });
-                if (this.tickets[0].length <= 0) this.$emit('IsEmptyT', true);
+            if ((this.tickets.length > 0 || this.noTicket) && this.user !== null) {
+                if (this.tickets.length === this.user.entreprises.length) {
+                    var n_tickets = 0;
+                    var n_open = 0;
+                    let self =this
+                    this.tickets.forEach((corp, ind) => {
+                        corp.forEach((ticket, index) => {
+                            if (ticket.state != 'closed') {
+                                n_open++;
+                                n_tickets++;
+                            }
+                            else if (moment().diff(moment(ticket.close_at), 'days') < 30)
+                                n_tickets++;
+                            if (index >= corp.length - 1 && ind >= self.tickets.length - 1) {
+                                self.openTickets = n_open;
+                                self.allTickets = n_tickets
+                                self.values = [["Ouverts", (n_open / n_tickets) * 100], ["Fermés", ((n_tickets - n_open) / n_tickets) * 100]]
+                                self.hasTickets = true;
+                                if (n_tickets <= 0) this.$emit('IsEmptyT', true);
+                                else self.isLoaded = true;
+                            }
+                        });
+                    });
+                } else return setTimeout(this.countTickets, 100)
             } else return setTimeout(this.countTickets, 100)
         },
         getUserInfos() {
@@ -113,7 +120,7 @@ export default {
                                 this.tickets.push(ticketsArray);
                             ticketsArray = null;
                             if (index === this.user.entreprises.length - 1 && this.tickets.length > 0) this.hasTickets = true;
-                            else if (index === this.user.entreprises.length - 1 ) this.$emit('IsEmptyT', true);
+                            else if (index === this.user.entreprises.length - 1) this.noTicket = true;
                         });
                     });
                 }
@@ -125,6 +132,6 @@ export default {
 
 <style>
 .widget {
-    height: 400px
+    height: 400px;
 }
 </style>

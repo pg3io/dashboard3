@@ -3,11 +3,11 @@
         <b-row class="p-3">
                 <b-col v-if="tickets && ticketsNotEmpty" sm="12" :md="getWidth('tickets')">
                     <router-link to="/tickets" class="widgetLink" style="color: rgb(0, 0, 0)" >
-                        <ticketsWidget @IsEmpty="hideTickets"/>
+                        <ticketsWidget @IsEmptyT="hideTickets"/>
                     </router-link>
                 </b-col>
             <b-col v-if="graph && graphNotEmpty" sm="12" :md="getWidth('graph')">
-                <router-link to="/graph" class="widgetLink" style="color: rgb(0, 0, 0)" >
+                <router-link to="/monitoring" class="widgetLink" style="color: rgb(0, 0, 0)" >
                     <graphWidget  @IsEmpty="hideGraph"/>
                 </router-link>
             </b-col>

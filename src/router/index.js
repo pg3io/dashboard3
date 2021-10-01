@@ -1,21 +1,12 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import store from '@/store'
-//import LOGIN_USER from '@/store/index.js'
 import profile from '@/views/profile.vue'
 import { apolloClient } from '@/vue-apollo'
 import { getUserPerms, getCustoms } from '@/graphql/querys.js'
 import gql from 'graphql-tag'
-//import axios from 'axios'
-Vue.use(VueRouter)
 
-// const getUserGeds = `query getUserPerms($id: ID!){
-//   users(where: {id: $id}) {
-//     ged
-//     factures
-//     activites
-//   }
-// }`
+Vue.use(VueRouter)
 
 function guardMyroute(to, from, next)
 {
@@ -39,7 +30,7 @@ function guardMyroute(to, from, next)
     } else if (to.name === 'tickets'||to.name === 'graph') {
       apolloClient.query({query: getCustoms}).then((data) => {
         if (!data.data.parametre.zammad && to.name === 'tickets') {window.location.href='/'; next('/')}
-        if (!data.data.parametre.graph && to.name === 'graph') {window.location.href='/'; next('/')}
+        if (!(data.data.parametre.graph || data.data.parametre.backups) && to.name === 'graph') {window.location.href='/'; next('/')}
         else { next() } 
       })
     } else next()
@@ -143,15 +134,15 @@ const routes = [
     }
   },
   {
-    path: '/graph',
+    path: '/monitoring',
     name: 'graph',
     beforeEnter : guardMyroute,
     component: () => import('@/views/graph.vue'),
     meta: {
-      title: 'PG3 - Graph',
+      title: 'PG3 - Monitoring',
       requiresAuth: true
     }
-  }
+  },
 ]
 
 const router = new VueRouter({

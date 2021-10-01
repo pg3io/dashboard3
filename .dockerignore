@@ -1,4 +1,10 @@
-*.md
-docker-compose*
-Dockerfile*
-.gitignore
+tests/
+node_modules/
+.github/
+assets/
+.env/
+docker-compose.yml
+docker.yml
+Dockerfile
+LICENSE
+README.md
