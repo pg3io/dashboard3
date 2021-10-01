@@ -10,7 +10,7 @@
             <b-nav-item to="/factures" v-if="perms.factures">Factures</b-nav-item>
             <b-nav-item to="/fichiers" v-if="perms.ged">Fichiers</b-nav-item>
             <b-nav-item to="/tickets" v-if="zammad">Tickets</b-nav-item>
-            <b-nav-item to="/monitoring" v-if="graph">Monitoring</b-nav-item>
+            <b-nav-item to="/monitoring" v-if="graph || backups">Monitoring</b-nav-item>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto">
           <template><img class="rounded-circle" :src="gravatar" alt="user profile image" style="width: 35px"/></template>
@@ -56,7 +56,7 @@
                       <b-badge pill variant="secondary" class="align-center ml-3">beta</b-badge>
                     </router-link>
                   </li>
-                  <li class="nav-item graph" v-if="graph">
+                  <li class="nav-item graph" v-if="graph || backups">
                     <router-link to="/monitoring" class="nav-link link sec-link"  id="graphLink" style="color: rgb(0, 0, 0)" >
                       <b-icon-graph-up></b-icon-graph-up>
                       <span class="ml-3 align-top" style="font-size:1.2rem;">Monitoring</span>
@@ -109,7 +109,8 @@ export default {
       footerText: "",
       perms: {},
       zammad: false,
-      graph: false
+      graph: false,
+      backups: false,
     }
   },
   mounted() {
@@ -160,10 +161,10 @@ export default {
           return
       if (!this.actUserId) return setTimeout(this.hasGraph, 100);
       this.$apollo.query({
-        query: gql`query{parametre{graph}}`
+        query: gql`query{parametre{graph backups}}`
       }).then((data) => {
-        if (data.data.parametre.graph)
-          this.graph = true;
+          this.graph = data.data.parametre.graph;
+          this.backups = data.data.parametre.backups;
       }).catch((e) => {console.log(e)});
     },
     getDashboardInfos() {

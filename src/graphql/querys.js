@@ -111,6 +111,7 @@ query {
     login
     zammad
     graph
+    backups
   }
 }`
 

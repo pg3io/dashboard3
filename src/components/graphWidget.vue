@@ -58,7 +58,7 @@ export default {
         this.getUserCorps();
         this.sortUrlsTags();
         this.getWatchedUrls();
-        this.getDataQuery('1d');
+        this.getDataQuery('7d');
         this.getSitesData();
         setTimeout(function() {if (this.watchedUrls.length === 0 && !this.isLoaded) this.isLoaded = true}, 30000)
     },
@@ -66,25 +66,6 @@ export default {
         hideBecauseEmpty () {
             if (this.isLoaded) {
                 this.$emit('IsEmpty', true);
-            }
-        },
-        selectRange (button, buttons) {
-            buttons.forEach(($btn) => {
-                if ($btn.value !== button.value) 
-                    $btn.state = false 
-                else $btn.state = true
-            });
-            button.state = true;
-            this.rangeChanger(button.value);
-        },
-        rangeChanger (range) {
-            if (this.watchedUrls.length > 0) {
-                this.maxValue = 0;
-                this.values = [];
-                this.dataQuery = '';
-                this.isLoaded = false;
-                this.getDataQuery(range);
-                this.getSitesData();
             }
         },
         getInfluxCredentials () {
@@ -109,14 +90,6 @@ export default {
         },
         getDataQuery (range) {
             var aggr = '1h';
-            if (range === undefined)
-                range = '7d';
-            else if (range === '1d')
-                aggr = '15m';
-            else if (range === '30d')
-                aggr = '3h';
-            else if (range === '1y')
-                aggr = '12h';
             if (this.watchedUrls.length === 0)
                 return setTimeout(this.getDataQuery, 100, range);
             self = this;

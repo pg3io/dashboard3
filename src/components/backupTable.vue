@@ -1,6 +1,6 @@
 <template>
     <b-table
-        v-if="hasServers && isLoaded && backups.length > 0"
+        v-if="hasServers && isLoad && backups.length > 0"
         :items="backups"
         :fields="fields"
         :sort-compare="mySortCompare"
@@ -20,7 +20,7 @@
         </template>
     </b-table>
     <div v-else class="text-center pt-3">
-        <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded"></b-icon>
+        <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoad"></b-icon>
         <h2 style="margin-top: 2%; text-align: center;" v-else>Vous n'avez pas de serveurs à backuper</h2>
     </div>
 </template>
@@ -53,15 +53,15 @@ export default {
         return {
             selectMode: 'single',
             userId: 0,
-            isLoaded: false,
+            isLoad: false,
             hasServers: false,
-            hasSliced: false,
+            hasSlice: false,
             backups: [],
-            watchedUrls: [],
-            userCorps: [],
+            watcherUri: [],
+            userCorp: [],
             InfluxDB: null,
             QueryAPI: null,
-            dataQuery: '',
+            myQuery: '',
             fields: [
                 { key: 'host', sortable: true, class: 'host' },
                 { key: 'end_time', sortable: true, class: 'end_time', label: "Dernière sauvegarde", formatter: myDateFormat },
@@ -76,42 +76,42 @@ export default {
     created () {
         this.getInfluxCredentials ()
         this.getUserId()
-        this.getUserCorps();
+        this.getuserCorp();
         this.sortUrlsTags();
-        this.getWatchedUrls();
-        this.getDataQuery()
+        this.getwatcherUri();
+        this.getmyQuery()
         this.getSitesData()
     },
     methods: {
-        getDataQuery () {
-            if (this.watchedUrls.length === 0)
-                return setTimeout(this.getDataQuery, 100);
+        getmyQuery () {
+            if (this.watcherUri.length === 0)
+                return setTimeout(this.getmyQuery, 100);
             self = this;
-            this.dataQuery = `from(bucket: "backups")
+            this.myQuery = `from(bucket: "backups")
     |> range(start: -24h)
     |> filter(fn: (r) => r["_measurement"] == "backup")
     |> filter(fn: (r) => r["_field"] == "status" or r["_field"] == "type" or r["_field"] == "end_time_0" or r["_field"] == "end_time_1" or r["_field"] == "end_time_2" or r["_field"] == "end_time_3")
-    |> filter(fn: (r) => r["host"] == "${this.watchedUrls[0].urls[0]}"`;
-            this.watchedUrls.forEach((corp, index) => {
+    |> filter(fn: (r) => r["host"] == "${this.watcherUri[0].urls[0]}"`;
+            this.watcherUri.forEach((corp, index) => {
                 if (corp.urls.length > 1) {
                     corp.urls.forEach((url, i) => {
                         if (index > 0 || i > 0)
-                            self.dataQuery += ` or r["host"] == "${url}"`
-                        if ((i === (corp.urls.length - 1) || corp.urls.length === 0) && index === (self.watchedUrls.length - 1))
-                            self.dataQuery += `)  |> last(column: "host") |> yield(name: "last")`;
+                            self.myQuery += ` or r["host"] == "${url}"`
+                        if ((i === (corp.urls.length - 1) || corp.urls.length === 0) && index === (self.watcherUri.length - 1))
+                            self.myQuery += `)  |> last(column: "host") |> yield(name: "last")`;
                     })
-                } else if (index === self.watchedUrls.length - 1)
-                    self.dataQuery += `)  |> last(column: "host") |> yield(name: "last")`;
+                } else if (index === self.watcherUri.length - 1)
+                    self.myQuery += `)  |> last(column: "host") |> yield(name: "last")`;
             });
         },
         getSitesData () {
-            if (this.watchedUrls.length > 0 && this.InfluxDB !== null && this.queryAPI !== null) {
-                if (!this.dataQuery.endsWith('|> yield(name: "last")')) {
+            if (this.watcherUri.length > 0 && this.InfluxDB !== null && this.queryAPI !== null) {
+                if (!this.myQuery.endsWith('|> yield(name: "last")')) {
                     return setTimeout(this.getSitesData, 1000);
                 }
                 else {
                     let self = this
-                    this.queryAPI.queryRows(this.dataQuery, {
+                    this.queryAPI.queryRows(this.myQuery, {
                         next(row, tableMeta) {
                             const o = tableMeta.toObject(row)
                             const elemIndex = self.backups.findIndex(findUrl, o);
@@ -119,9 +119,13 @@ export default {
                                 if (o._field === "status")
                                     if (o._value > 75) self.backups[elemIndex][o._field] = "KO"
                                     else self.backups[elemIndex][o._field] = "OK"
-                                else if (o._field.startsWith('end_time_') && (new Date(o._value)).getTime() > new Date(self.backups[elemIndex]["end_time"]).getTime())
-                                    self.backups[elemIndex]["end_time"] = o._value
-                                else
+                                else if (o._field.startsWith('end_time_')) {
+                                    if (self.backups[elemIndex].end_time !== undefined && o._value !== '')
+                                        if ((new Date(o._value)).getTime() > new Date(self.backups[elemIndex]["end_time"]).getTime())
+                                            self.backups[elemIndex]["end_time"] = o._value
+                                    else if (o._value !== '')
+                                        self.backups[elemIndex]["end_time"] = o._value
+                                } else
                                     self.backups[elemIndex][o._field] = o._value
                             }
                             else {
@@ -138,17 +142,17 @@ export default {
                             console.error(error)
                         },
                         complete() {
-                            self.isLoaded = true;
+                            self.isLoad = true;
                             self.hasServers = true;
                         }
                     })
                 }
             } else return setTimeout(this.getSitesData, 100);
         },
-        printWatchedUrls () {
-            if (this.watchedUrls.length === 0||!this.dataQuery)
-                return setTimeout(this.printWatchedUrls, 100);
-            console.log("urls", this.watchedUrls, this.dataQuery)
+        printwatcherUri () {
+            if (this.watcherUri.length === 0||!this.myQuery)
+                return setTimeout(this.printwatcherUri, 100);
+            console.log("urls", this.watcherUri, this.myQuery)
         },
         mySortCompare(itemA, itemB, key) {
             if ( key !== 'date') {
@@ -193,8 +197,8 @@ export default {
                 console.log(error)
             })
         },
-        getUserCorps () {
-            if (!this.actUserId) return setTimeout(this.getUserCorps, 100)
+        getuserCorp () {
+            if (!this.actUserId) return setTimeout(this.getuserCorp, 100)
             this.$apollo.query({
                 query: getEntreprisesTags,
                 variables: {"id": this.actUserId}
@@ -211,7 +215,7 @@ export default {
                         corps.splice(corps.findIndex(findEntreprise, corps[index]), 1)
                     }
                     else index++
-                    if (corps.length === index) {$elf.userCorps = corps; this.hasSliced = true}
+                    if (corps.length === index) {$elf.userCorp = corps; this.hasSlice = true}
                 }
             });
         },
@@ -245,26 +249,26 @@ export default {
                 }
             })
         },
-        getWatchedUrls () {
-            if (!this.urlsTags) return setTimeout(this.getWatchedUrls, 100)
-            if (!this.hasSliced) return setTimeout(this.getWatchedUrls, 100)
-            else if (this.userCorps.length <= 0) {this.isLoaded = true; return;}
+        getwatcherUri () {
+            if (!this.urlsTags) return setTimeout(this.getwatcherUri, 100)
+            if (!this.hasSlice) return setTimeout(this.getwatcherUri, 100)
+            else if (this.userCorp.length <= 0) {this.isLoad = true; return;}
             self = this;
-            const entreprises = this.userCorps
-            this.watchedUrls = [];
+            const entreprises = this.userCorp
+            this.watcherUri = [];
             if (entreprises.length > 0) {
                 entreprises.forEach((corp, index) => {
-                    self.watchedUrls.push({nom: corp.nom, urls: []})
+                    self.watcherUri.push({nom: corp.nom, urls: []})
                     corp.tags.forEach((tag) => {
                         if (self.urlsTags[tag.tag] !== undefined) {
                             self.urlsTags[tag.tag].forEach((url) => {
-                                if (!self.watchedUrls[index].urls.includes(url))
-                                    self.watchedUrls[index].urls.push(url);
+                                if (!self.watcherUri[index].urls.includes(url))
+                                    self.watcherUri[index].urls.push(url);
                             })
                         }
                     })
                 });
-            } else this.isLoaded = true;
+            } else this.isLoad = true;
 
         },
     }

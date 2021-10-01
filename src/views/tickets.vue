@@ -241,25 +241,26 @@ export default {
                 if (this.hasTickets) {
                     const ticketsTampon = this.tickets;
                     this.tickets = [];
+                    var tmp = 0;
                     ticketsTampon.forEach((elem) => {
-                        elem.forEach((element) => {
-                            this.tickets.push(element);
+                        elem.forEach((element, index) => {
+                            if (moment().diff(moment(element.last_contact_at), 'days') > 30 && element.state === 'open')
+                                element._rowVariant = 'danger';
+                            if (element.state === 'closed')
+                                element._rowVariant = 'success';
+                            else if (element.priority_id > 2)
+                                element._rowVariant = 'warning';
+                            else if (element.priority_id < 2)
+                                element._rowVariant = 'info';
+                            if (moment().diff(moment(element.last_contact_at), 'days') > 30 && element.state === 'closed')
+                                tmp = index
+                            else if (element.state === 'closed' && !this.closed_tickets)
+                                tmp = index
+                            else
+                                this.tickets.push(element)
                         });
                     });
-                    this.tickets.forEach((elem, index) => {
-                        if (moment().diff(moment(elem.last_contact_at), 'months') > 1 && elem.state === 'closed')
-                            this.tickets.splice(index, 1);
-                        else if (elem.state === 'closed' && !this.closed_tickets)
-                            this.tickets.splice(index, 1);
-                        else if (moment().diff(moment(elem.last_contact_at), 'months') > 1)
-                            elem._rowVariant = 'danger';
-                        else if (elem.state === 'closed')
-                            elem._rowVariant = 'success';
-                        else if (elem.priority_id > 2)
-                            elem._rowVariant = 'warning';
-                        else if (elem.priority_id < 2)
-                            elem._rowVariant = 'info';
-                    })
+                    console.log(tmp);
                 } else return setTimeout(this.formatTickets, 100);
             } else return setTimeout(this.formatTickets, 100);
         }

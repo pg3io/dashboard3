@@ -1,7 +1,7 @@
 <template>
     <transition name="fade">
         <b-container fluid="sm" style="margin-top: 2%;">
-            <div class="card">
+            <div class="card" v-if="perms.graph">
                 <div class="text-center card-header">
                     <span class="align-baseline h4">Historique du temps de réponse sur </span>
                     <b-button-group class="ml-2" size="md">
@@ -20,7 +20,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card">
+            <div class="card" v-if="perms.backups">
                 <div class="card-header">
                     <h4 class="text-center">Sauvegardes</h4>
                 </div>
@@ -33,12 +33,12 @@
 </template>
 
 <script>
-import { userId, getEntreprisesTags } from '@/graphql/querys.js';
+import { userId, getEntreprisesTags, getCustoms } from '@/graphql/querys.js';
 import {InfluxDB} from '@influxdata/influxdb-client';
 import gql from 'graphql-tag';
 import BackupTable from '@/components/backupTable.vue'
 
-let self;
+let $self;
 
 function findUrl(elem) {
     if  (elem.name === this.host) return true;
@@ -67,6 +67,7 @@ export default {
             InfluxDB: null,
             queryAPI: null,
             urlsTags: null,
+            perms : {"backups": false, "graph": false},
             buttons: [
                 { caption: '1 jour', state: false, value: '1d' },
                 { caption: '1 semaine', state: true, value: '7d' },
@@ -81,6 +82,7 @@ export default {
     created () {
         this.getInfluxCredentials();
         this.getUsrId();
+        this.getUsrPerms();
         this.getUserCorps();
         this.sortUrlsTags();
         this.getWatchedUrls();
@@ -88,6 +90,17 @@ export default {
         this.getSitesData();
     },
     methods : {
+        getUsrPerms() {
+            if (this.actUserId) {
+                this.$apollo.query({
+                    query: getCustoms
+                }).then((data) => {
+                    this.perms.backups = data.data.parametre.backups;
+                    this.perms.graph = data.data.parametre.graph;
+                    console.log(this.perms)
+                }).catch((err) => {console.log(err)});
+            } else return setTimeout(this.getUsrPerms, 100)
+        },
         selectRange (button, buttons) {
             buttons.forEach(($btn) => {
                 if ($btn.value !== button.value) 
@@ -123,7 +136,7 @@ export default {
             });
         },
         printWatchedUrls () {
-            if (this.watchedUrls.length === 0)
+            if (this.watchedUrls.length === 0 || this.watchedUrls[0].urls.length === 0)
                 return setTimeout(this.printWatchedUrls, 100);
             console.log("urls", this.watchedUrls)
         },
@@ -149,22 +162,22 @@ export default {
             this.xmax = new Date().toDateString()
             if (this.watchedUrls.length === 0)
                 return setTimeout(this.getDataQuery, 100, range);
-            self = this;
+            $self = this;
             this.dataQuery = `from(bucket: "${this.InfluxDB.bucket}")|> range(start: -${range}) |> filter(fn: (r) => r["_measurement"] == "server_response") |> filter(fn: (r) => r["_field"] == "timereq") |> filter(fn: (r) => r["host"] == "${this.watchedUrls[0].urls[0]}"`;
             this.watchedUrls.forEach((corp, index) => {
                 if (corp.urls.length > 1) {
                     corp.urls.forEach((url, i) => {
                         if (range === '1y') {
-                            self.values.push(JSON.parse(`{"name": "${url}", "data" : {"${this.xmin}": ${0.0}}}`));
-                            self.values.push(JSON.parse(`{"name": "${url}", "data" : {"${new Date('2021-07-12T23:59:00Z').toISOString()}": ${0.0}}}`));
+                            $self.values.push(JSON.parse(`{"name": "${url}", "data" : {"${this.xmin}": ${0.0}}}`));
+                            $self.values.push(JSON.parse(`{"name": "${url}", "data" : {"${new Date('2021-07-12T23:59:00Z').toISOString()}": ${0.0}}}`));
                         }
                         if (index > 0 || i > 0)
-                            self.dataQuery += ` or r["host"] == "${url}"`
-                        if ((i === (corp.urls.length - 1) || corp.urls.length === 0) && index === (self.watchedUrls.length - 1))
-                            self.dataQuery += `)  |> aggregateWindow(every: ${aggr}, fn: mean, createEmpty: false) |> yield(name: "mean")`;
+                            $self.dataQuery += ` or r["host"] == "${url}"`
+                        if ((i === (corp.urls.length - 1) || corp.urls.length === 0) && index === ($self.watchedUrls.length - 1))
+                            $self.dataQuery += `)  |> aggregateWindow(every: ${aggr}, fn: mean, createEmpty: false) |> yield(name: "mean")`;
                     })
-                } else if (index === self.watchedUrls.length - 1)
-                    self.dataQuery += `)  |> aggregateWindow(every: ${aggr}, fn: mean, createEmpty: false) |> yield(name: "mean")`;
+                } else if (index === $self.watchedUrls.length - 1)
+                    $self.dataQuery += `)  |> aggregateWindow(every: ${aggr}, fn: mean, createEmpty: false) |> yield(name: "mean")`;
             });
         },
         getUserCorps () {
@@ -195,25 +208,25 @@ export default {
                     return setTimeout(this.getSitesData, 100);
                 }
                 else {
-                    let self = this
+                    let $self = this
                     this.queryAPI.queryRows(this.dataQuery, {
                         next(row, tableMeta) {
                             const o = tableMeta.toObject(row)
-                            const elemIndex = self.values.findIndex(findUrl, o);
-                            if (o._value > self.maxValue)
-                                self.maxValue = o._value;
+                            const elemIndex = $self.values.findIndex(findUrl, o);
+                            if (o._value > $self.maxValue)
+                                $self.maxValue = o._value;
                             if (elemIndex >= 0) {
-                                self.values[elemIndex].data[o._time] = o._value;
+                                $self.values[elemIndex].data[o._time] = o._value;
                             }
                             else {
-                                self.values.push(JSON.parse(`{"name": "${o.host}", "data" : {"${o._time}": ${o._value}}}`));
+                                $self.values.push(JSON.parse(`{"name": "${o.host}", "data" : {"${o._time}": ${o._value}}}`));
                             }
                         },
                         error(error) {
                             console.error(error)
                         },
                         complete() {
-                            self.isLoaded = true;
+                            $self.isLoaded = true;
                         }
                     })
                 }
@@ -224,11 +237,11 @@ export default {
                 return setTimeout(this.sortUrlsTags, 100);
             const query = `from(bucket: "${this.InfluxDB.bucket}") |> range(start: -2m) |> filter(fn: (r) => r["_measurement"] == "tags") |> filter(fn: (r) => r["_field"] == "tags") |> yield(name: "last")`;
             var urlsTags = {};
-            self = this;
+            $self = this;
             this.queryAPI.queryRows(query, {
                 next(row, tableMeta) {
                     const o = tableMeta.toObject(row)
-                    o._value = o._value.match(/[a-zA-Z0-9]+/gm);
+                    o._value = o._value.match(/[a-z0-9]+/gm);
                     o._value.forEach((tag) => {
                         if (urlsTags[tag] === undefined) {
                             urlsTags[tag] = [];
@@ -244,7 +257,7 @@ export default {
                     console.error(error)
                 },
                 complete() {
-                    self.urlsTags = urlsTags;
+                    $self.urlsTags = urlsTags;
                 }
             })
         },
@@ -252,17 +265,17 @@ export default {
             if (!this.urlsTags) return setTimeout(this.getWatchedUrls, 100)
             if (!this.hasSliced) return setTimeout(this.getWatchedUrls, 100)
             else if (this.userCorps.length <= 0) {this.isLoaded = true; return;}
-            self = this;
+            $self = this;
             const entreprises = this.userCorps
             this.watchedUrls = [];
             if (entreprises.length > 0) {
                 entreprises.forEach((corp, index) => {
-                    self.watchedUrls.push({nom: corp.nom, urls: []})
+                    $self.watchedUrls.push({nom: corp.nom, urls: []})
                     corp.tags.forEach((tag) => {
-                        if (self.urlsTags[tag.tag] !== undefined) {
-                            self.urlsTags[tag.tag].forEach((url) => {
-                                if (!self.watchedUrls[index].urls.includes(url))
-                                    self.watchedUrls[index].urls.push(url);
+                        if ($self.urlsTags[tag.tag] !== undefined) {
+                            $self.urlsTags[tag.tag].forEach((url) => {
+                                if (!$self.watchedUrls[index].urls.includes(url))
+                                    $self.watchedUrls[index].urls.push(url);
                             })
                         }
                     })
