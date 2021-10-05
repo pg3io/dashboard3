@@ -23,15 +23,15 @@
                </div>
                 <div class="card-body"><div v-html="elem.body"></div></div>
              </div>
-             <template #modal-footer="">
+             <template modal-footer="">
                 <b-button size="lg" variant="primary" @click="goToDetails(modal.number - 35000)">
                   Détails
                 </b-button>
             </template>
         </b-modal>
         <b-table
-            v-if="hasTickets && (tickets !== undefined)"
-            :items="tickets"
+            v-if="hasTickets && (new_tickets.length > 0) && (handeld_corps === user.entreprises.length)"
+            :items="new_tickets"
             :fields="fields"
             :sort-by.sync="sortBy"
             :sort-desc.sync="sortDesc"
@@ -89,8 +89,11 @@ export default {
         return {
             selectMode: 'single',
             userId: 0,
+            n_corps: 0,
+            handeld_corps : 0,
             tickets: [],
             ticketsArray : null,
+            new_tickets : [],
             user: null,
             save: null,
             sortBy: 'created_at',
@@ -120,6 +123,8 @@ export default {
             this.hasTickets = false;
             this.isLoaded = false;
             this.tickets = [];
+            this.handeld_corps = 0;
+            this.n_corps = 0;
             this.getTickets();
             this.formatTickets();
             this.assureTickets();
@@ -223,14 +228,21 @@ export default {
                     link.click();
                 }
                 else {
-                    this.user.entreprises.forEach((corp, index) => {
+                    this.n_corps = 0;
+                    this.user.entreprises.forEach((corp) => {
                         GetTicketsFromCorp(token, url, this.axios, corp.nom).then((data) => {
                             ticketsArray = data;
-                            if (ticketsArray.length > 0)
+                            if (ticketsArray.length > 0) {
                                 this.tickets.push(ticketsArray);
+                                this.n_corps++;
+                                this.handeld_corps++;
+                            } else this.handeld_corps++;
                             ticketsArray = null;
-                            if (index === this.user.entreprises.length - 1 && this.tickets.length > 0) this.hasTickets = true;
-                            if (index === this.user.entreprises.length - 1) this.isLoaded = true;
+                            if (this.handeld_corps === this.user.entreprises.length && this.n_corps > 0) {
+                                this.hasTickets = true;
+                                this.isLoaded = true;
+                            }
+                            else if (this.handeld_corps === this.user.entreprises.length) {this.hasTickets = false;}
                         });
                     });
                 }
@@ -239,7 +251,8 @@ export default {
         formatTickets () {
             if (this.isLoaded) {
                 if (this.hasTickets) {
-                    const ticketsTampon = this.tickets;
+                    this.new_tickets = []
+                    var ticketsTampon = this.tickets;
                     this.tickets = [];
                     var tmp = 0;
                     ticketsTampon.forEach((elem) => {
@@ -256,12 +269,12 @@ export default {
                                 tmp = index
                             else if (element.state === 'closed' && !this.closed_tickets)
                                 tmp = index
-                            else
-                                this.tickets.push(element)
+                            else {
+                                this.new_tickets.push(element)
+                            }
                         });
                     });
-                    console.log(tmp);
-                } else return setTimeout(this.formatTickets, 100);
+                } else return setTimeout(this.formatTickets, 100+tmp);
             } else return setTimeout(this.formatTickets, 100);
         }
     },

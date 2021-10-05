@@ -11,13 +11,11 @@ Vue.use(VueRouter)
 function guardMyroute(to, from, next)
 {
   var connecter = false;
-
   if(sessionStorage.getItem('apollo-token')) {
     connecter = true;
   } else {
     connecter = false;
   }
-
   if(connecter == true ) {
     if (to.name === 'factures' || to.name === 'fichiers') {
       apolloClient.query({query: gql`query { me { id }}`}).then((data) => {
@@ -42,7 +40,7 @@ const routes = [
     path: '/login',
     name: 'Login',
     meta: {
-      title: 'PG3 - Login',
+      title: 'Dashboard PG3 - Login',
     },
     component: () => import('@/views/login.vue'),
     beforeEnter: (to, from, next) => {
@@ -151,23 +149,24 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-const isUserLoggedIn = store.getters.isAuthenticated
-if (to.matched.some(record => record.meta.requiresAuth)) {
-  if (!isUserLoggedIn) {
-    store.dispatch('logOut')
-    document.title = to.meta.title
-    next({
-      path: '/login',
-      query: { redirect: to.fullPath }
-    })
-  } else {
-    document.title = to.meta.title
-    next()
-  }
-} else {
-  document.title = to.meta.title
-  next()
-  }
+    const isUserLoggedIn = store.getters.isAuthenticated
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+      if (!isUserLoggedIn) {
+        store.dispatch('logOut')
+        document.title = to.meta.title
+        next({
+          path: '/login',
+          query: { redirect: to.fullPath }
+        })
+      }
+       else {
+        // document.title = to.meta.title
+        next()
+      }
+    } else {
+      // document.title = to.meta.title
+      next()
+    }
 })
 
 export default router

@@ -18,13 +18,21 @@ describe('Test de la partie Facture', () => {
                 });
             })
         }
-        rows.sort((a, b) => {
-            let epochA = new Date(a.date).getTime();
-            let epochB = new Date(b.date).getTime();
-            return epochA - epochB;
-        });
     });
     it ('Test du détail', () => {
+        rows.sort((a, b) => {
+            var newDatA = a.date.split('-');
+            var newDatB = b.date.split('-');
+            let tmp = newDatA[0]
+            newDatA[0] = newDatA[1]
+            newDatA[1] = tmp
+            tmp = newDatB[0]
+            newDatB[0] = newDatB[1]
+            newDatB[1] = tmp
+            const epochA = new Date(newDatA.join('-')).getTime()
+            const epochB = new Date(newDatB.join('-')).getTime()
+            return  epochB - epochA;
+        })
         cy.visit(url+`/factures/${rows[0].ref}`);
         cy.uilogin(login, passwd);
         cy.get('tbody').then(tab => {
@@ -33,25 +41,25 @@ describe('Test de la partie Facture', () => {
             expect(tab.text()).to.contains(rows[0].date.replaceAll('-', '/'));
             expect(tab.text()).to.contains(rows[0].entreprise);
         });
-        cy.expect('svg#arrowForward').to.exist;
-        cy.get('svg#arrowForward').click();
+        cy.expect('svg#arrowBackward').to.exist;
+        cy.get('svg#arrowBackward').click();
         cy.location().then((location) => {
             cy.expect(location.pathname).to.equal('/factures/'+rows[1].ref);
             cy.expect('svg#arrowForward').to.exist;
             cy.expect('svg#arrowBackward').to.exist;
-            cy.get('svg#arrowForward').click();
+            cy.get('svg#arrowBackward').click();
             cy.location().then((location) => {
                 cy.expect(location.pathname).to.equal('/factures/'+rows[2].ref);
-                cy.expect('svg#arrowBackward').to.exist;
-                cy.get('svg#arrowBackward').click();
+                cy.expect('svg#arrowForward').to.exist;
+                cy.get('svg#arrowForward').click();
                 cy.location().then((location) => {
                     cy.expect(location.pathname).to.equal('/factures/'+rows[1].ref);
                     cy.expect('svg#arrowForward').to.exist;
                     cy.expect('svg#arrowBackward').to.exist;
-                    cy.get('svg#arrowBackward').click();
+                    cy.get('svg#arrowForward').click();
                     cy.location().then((location) => {
                         cy.expect(location.pathname).to.equal('/factures/'+rows[0].ref);
-                        cy.get('svg.download').click();
+                        cy.get('svg.download').click({multiple: true});
                         cy.task('checkDownload', rows[0].ref+'.pdf').then(path => {
                             console.log("File downloaded : ", path);
                             expect(path).to.contains(rows[0].ref);

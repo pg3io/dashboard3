@@ -20,8 +20,9 @@
         </b-input-group-append>
         </b-input-group>
         <div id="errorMessage"  role="alert" style="display: none">Nom d'utilisateur ou mot de passe érroné!</div>
-        <span class="forgotPWD" @click="forgotPassword = true">Mot de passe oublié</span>
+        <div class="forgotPWD mb-2" @click="forgotPassword = true">Mot de passe oublié</div>
         <button class="btn btn-lg btn-primary btn-block" type="submit">Connexion</button>
+        <b-form-checkbox id="remember-1" v-model="remember" name="remember-box" class="mt-2">Se souvenir de moi</b-form-checkbox>
       </form>
       <p v-if="loginMessage">{{ loginMessage }}</p>
     </div>
@@ -52,6 +53,7 @@
 import { mapActions } from 'vuex'
 import { resetEmail } from '@/graphql/querys.js'
 import gql from 'graphql-tag'
+import { getCookie } from '@/cookies.js'
 export default {
   name: 'Login',
   data () {
@@ -67,11 +69,13 @@ export default {
         identifier: '',
         password: ''
       },
+      remember: false,
       image: '',
       loginMessage: ''
     }
   },
   created() {
+    this.autologin();
     this.getImage();
   },
   methods: {
@@ -112,13 +116,25 @@ export default {
     ...mapActions(['login']),
     logIn() {
       document.getElementById("errorMessage").style.display = "none"
-      this.login(this.authDetails)
+      console.log('Exec this.login(authDetails, remember)', this.authDetails, this.remember)
+      this.login({auth: this.authDetails, remember: this.remember})
         .then(() => {
           if (document.getElementById("errorMessage").style.display != "block") {
             window.location = "/"
           }
         })
-    }
+    },
+    autologin () {
+      const creds = {"identifier": window.atob(getCookie(window.btoa('identifier'))), "password": window.atob(getCookie(window.btoa('password')))}
+      if (creds.identifier && creds.password) {
+        this.login({auth: creds, remember: false})
+        .then(() => {
+          if (document.getElementById("errorMessage").style.display != "block") {
+            window.location = "/"
+          }
+        })
+      }
+    },
   },
 }
 </script>

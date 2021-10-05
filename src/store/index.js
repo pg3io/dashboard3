@@ -7,6 +7,7 @@ import { onLogout } from '@/vue-apollo'
 import { onLogin } from '@/vue-apollo'
 import { LOGGED_IN_USER } from '@/graphql/login'
 import { LOGIN_USER } from '@/graphql/login'
+import { setCookie } from '@/cookies'
 //import { TOKEN_USER} from '@/graphql/mutations'
 
 Vue.use(Vuex)
@@ -48,11 +49,6 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    
-    // Realy need a refresh token ?
-    /*const refreshToken = sign({ userId: user.id }, 'azertyhbvcghjk', {
-      expiresIn:"7d",
-    })*/
     async testLogin({ commit }, authDetails) {
       try {
         var {data} = await apolloClient.mutate({
@@ -65,13 +61,15 @@ export default new Vuex.Store({
           variables: authDetails
         })
         sessionStorage.setItem('valid-password', true)
-        console.log(data, commit)
       } catch (e) {
-        console.error(e)
+        console.error(e, data, commit)
         throw(e)
       }
     },
-    async login ({ commit }, authDetails) {
+    async login ({ commit }, params) {
+      console.log("params", params)
+      const authDetails = params.auth
+      const remember = params.remember
       try {
         var {data} = await apolloClient.mutate({
           mutation: gql`
@@ -85,11 +83,15 @@ export default new Vuex.Store({
         const token = JSON.stringify("Bearer " + data.login.jwt)
         commit('SET_TOKEN', token)
         sessionStorage.setItem('apollo-token', token)
-        //dispatch('setUser')
-        //const { datatest } = await apolloClient.query({ query: LOGGED_IN_USER })
+        console.log(remember, authDetails)
+        if (remember) {
+          setCookie(window.btoa('identifier'), window.btoa(authDetails.identifier), 7, '')
+          setCookie(window.btoa('password'), window.btoa(authDetails.password), 7, '')
+          console.log("Mettage de cookie", authDetails.identifier, authDetails.password)
+        }
         commit('LOGIN_USER', authDetails)
 
-      //cas d'erreure ---->
+      //cas d'erreur ---->
       } catch (e) {
         console.error("POST https://dashboard.pk3.io/graphql 401 (UNAUTHORIZED)")
         console.error(e)

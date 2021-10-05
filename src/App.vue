@@ -97,7 +97,7 @@ import Profile from '@/views/profile.vue'
 import Home from '@/views/home.vue'
 import md5 from 'js-md5';
 import gql from 'graphql-tag';
-
+import { setCookie } from './cookies.js';
 export default {
   name: "App",
   data() {
@@ -113,7 +113,11 @@ export default {
       backups: false,
     }
   },
+  beforeUpdate() {
+    this.setTitle()
+  },
   mounted() {
+    this.setTitle()
     this.getUsrId();
     this.getUserPermissions();
     this.hasZammad();
@@ -135,6 +139,17 @@ export default {
     },
   },
   methods: {
+    setTitle ( ) {
+      if (this.isAuthenticated) {
+        this.$apollo.query({
+          query: gql`query{parametre{title}}`
+        }).then((data) => {
+          if (data.data.parametre.title !== null)
+            document.title = data.data.parametre.title;
+        }).catch((err) => {console.log(err)});
+      } else if (location.pathname !== '/login') return setTimeout(this.setTitle, 100);
+      else return
+    },
     goToPage(id) {
       document.getElementById(id).click()
     },
@@ -205,6 +220,8 @@ export default {
       })
     },
     logOut() {
+      setCookie(window.btoa('identifier'), '', 7, '')
+      setCookie(window.btoa('password'), '', 7, '')
       this.$store.dispatch('logOut')
         .then(() => this.$router.push('/login'))
     },

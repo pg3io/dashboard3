@@ -4,9 +4,9 @@ const passwd = Cypress.env('password');
 
 describe("Test de la porte d'entrée", () => {
     it('Login', () => {
-        cy.visit(url, {});
-        cy.location().then((location) => {
-            if (location.pathname === '/login') {
+        cy.visit(url, {}).then(() => {
+            cy.location().then(($location) => {
+            if ($location.pathname === "/login") {
                 cy.get('input#identifier').type(login);
                 cy.get('input#password').type(passwd);
                 cy.contains('Connexion').click();
@@ -20,7 +20,8 @@ describe("Test de la porte d'entrée", () => {
             }
             cy.wait(1000)
             cy.location().then(loc => { cy.expect(loc.pathname).to.equal('/'); })
-        })
+            })
+        });
     });
 });
 

@@ -64,6 +64,7 @@ export default {
             xmax: '',            
             isLoaded: false,
             hasSliced: true,
+            hasZeroPoint: false,
             InfluxDB: null,
             queryAPI: null,
             urlsTags: null,
@@ -97,7 +98,6 @@ export default {
                 }).then((data) => {
                     this.perms.backups = data.data.parametre.backups;
                     this.perms.graph = data.data.parametre.graph;
-                    console.log(this.perms)
                 }).catch((err) => {console.log(err)});
             } else return setTimeout(this.getUsrPerms, 100)
         },
@@ -156,10 +156,12 @@ export default {
                 aggr = '12h';
                 xmin.setMinutes(0);
                 xmin.setSeconds(0);
+                xmin.setMilliseconds(0);
                 xmin = xmin.getTime() - (1000 * 3600 * 24 * 365)
                 this.xmin = new Date(xmin).toISOString();
+                this.xmax = new Date().toDateString()
+                this.values.push(JSON.parse(`{"name": "origin", "data" : {"${this.xmin}": ${0.0}}}`));
             }
-            this.xmax = new Date().toDateString()
             if (this.watchedUrls.length === 0)
                 return setTimeout(this.getDataQuery, 100, range);
             $self = this;
@@ -167,10 +169,6 @@ export default {
             this.watchedUrls.forEach((corp, index) => {
                 if (corp.urls.length > 1) {
                     corp.urls.forEach((url, i) => {
-                        if (range === '1y') {
-                            $self.values.push(JSON.parse(`{"name": "${url}", "data" : {"${this.xmin}": ${0.0}}}`));
-                            $self.values.push(JSON.parse(`{"name": "${url}", "data" : {"${new Date('2021-07-12T23:59:00Z').toISOString()}": ${0.0}}}`));
-                        }
                         if (index > 0 || i > 0)
                             $self.dataQuery += ` or r["host"] == "${url}"`
                         if ((i === (corp.urls.length - 1) || corp.urls.length === 0) && index === ($self.watchedUrls.length - 1))
@@ -203,7 +201,7 @@ export default {
             });
         },
         getSitesData () {
-            if (this.watchedUrls.length > 0 && this.InfluxDB !== null && this.queryAPI !== null) {
+            if (this.InfluxDB !== null && this.queryAPI !== null) {
                 if (!this.dataQuery.endsWith('|> yield(name: "mean")')) {
                     return setTimeout(this.getSitesData, 100);
                 }

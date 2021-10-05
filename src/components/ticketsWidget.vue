@@ -29,7 +29,9 @@ export default {
             openTickets: 0,
             allTickets: 0,
             values: [],
-            noTicket: false
+            noTicket: false,
+            n_corps: 0,
+            handeld_corps : 0
         }
 
     },
@@ -41,13 +43,12 @@ export default {
     },
     methods : {
         printTickets () {
-            if (this.tickets.length > 0) {
-                console.log('this.tickets', this.tickets)
+            if (this.tickets.length > 0) { console.log(this.tickets)
             } else return setTimeout(this.printTickets, 100)
         },
         countTickets () {
             if ((this.tickets.length > 0 || this.noTicket) && this.user !== null) {
-                if (this.tickets.length === this.user.entreprises.length) {
+                if (this.tickets.length === this.n_corps && this.hasTickets) {
                     var n_tickets = 0;
                     var n_open = 0;
                     let self =this
@@ -113,14 +114,20 @@ export default {
                     link.click();
                 }
                 else {
-                    this.user.entreprises.forEach((corp, index) => {
-                        GetTicketsFromCorp(token, url, this.axios, corp.nom).then((data) => {
+                    let $self = this;
+                    this.user.entreprises.forEach((corp) => {
+                        GetTicketsFromCorp(token, url, $self.axios, corp.nom).then((data) => {
                             ticketsArray = data;
-                            if (ticketsArray.length > 0)
-                                this.tickets.push(ticketsArray);
+                            if (ticketsArray.length > 0) {
+                                $self.tickets.push(ticketsArray);
+                                $self.n_corps++
+                                $self.handeld_corps++
+                            } else $self.handeld_corps++
                             ticketsArray = null;
-                            if (index === this.user.entreprises.length - 1 && this.tickets.length > 0) this.hasTickets = true;
-                            else if (index === this.user.entreprises.length - 1) this.noTicket = true;
+                            if ($self.handeld_corps === $self.user.entreprises.length && $self.n_corps > 0) {
+                                $self.hasTickets = true;
+                                }
+                            else if ($self.handeld_corps === $self.user.entreprises.length) {$self.hasTickets = false;}
                         });
                     });
                 }

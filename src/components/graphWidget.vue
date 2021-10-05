@@ -60,7 +60,6 @@ export default {
         this.getWatchedUrls();
         this.getDataQuery('7d');
         this.getSitesData();
-        setTimeout(function() {if (this.watchedUrls.length === 0 && !this.isLoaded) this.isLoaded = true}, 30000)
     },
     methods : {
         hideBecauseEmpty () {
