@@ -40,7 +40,7 @@ const routes = [
     path: '/login',
     name: 'Login',
     meta: {
-      title: 'Dashboard PG3 - Login',
+      title: 'Login',
     },
     component: () => import('@/views/login.vue'),
     beforeEnter: (to, from, next) => {
@@ -57,7 +57,7 @@ const routes = [
     beforeEnter : guardMyroute,
     component: () => import('@/views/home.vue'),
     meta: {
-      title: 'PG3',
+      title: 'Home',
       requiresAuth: true
     }
   },
@@ -67,7 +67,7 @@ const routes = [
     beforeEnter : guardMyroute,
     component: profile,
     meta: {
-      title: 'PG3 - profile',
+      title: 'Profil',
       requiresAuth: true
     }
   },
@@ -77,7 +77,7 @@ const routes = [
     beforeEnter : guardMyroute,
     component: () => import('@/views/factures.vue'),
     meta: {
-      title: 'PG3 - Factures',
+      title: 'Factures',
       requiresAuth: true
     }
   },
@@ -87,7 +87,7 @@ const routes = [
     beforeEnter : guardMyroute,
     component: () => import('@/views/password.vue'),
     meta: {
-      title: 'Mot de passe'
+      title: 'Récupération de mot de passe'
     },
     alias: '/password?code=:code'
   },
@@ -107,7 +107,7 @@ const routes = [
     beforeEnter : guardMyroute,
     component: () => import('@/views/ged.vue'),
     meta: {
-      title: 'PG3 - GED',
+      title: 'GED',
       requiresAuth: true
     }
   },
@@ -127,7 +127,7 @@ const routes = [
     beforeEnter : guardMyroute,
     component: () => import('@/views/tickets.vue'),
     meta: {
-      title: 'PG3 - Tickets',
+      title: 'Tickets',
       requiresAuth: true
     }
   },
@@ -137,7 +137,7 @@ const routes = [
     beforeEnter : guardMyroute,
     component: () => import('@/views/graph.vue'),
     meta: {
-      title: 'PG3 - Monitoring',
+      title: 'Monitoring',
       requiresAuth: true
     }
   },
@@ -160,11 +160,11 @@ router.beforeEach((to, from, next) => {
         })
       }
        else {
-        // document.title = to.meta.title
+        document.title = to.meta.title
         next()
       }
     } else {
-      // document.title = to.meta.title
+      document.title = to.meta.title
       next()
     }
 })

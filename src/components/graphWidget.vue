@@ -167,15 +167,16 @@ export default {
                 next(row, tableMeta) {
                     const o = tableMeta.toObject(row)
                     o._value = o._value.match(/[a-zA-Z0-9]+/gm);
-                    o._value.forEach((tag) => {
-                        if (urlsTags[tag] === undefined) {
-                            urlsTags[tag] = [];
-                            urlsTags[tag].push(o.host)
-                        } else {
-                            if (!urlsTags[tag].includes(o.host))
+                    if (o._value !== null)
+                        o._value.forEach((tag) => {
+                            if (urlsTags[tag] === undefined) {
+                                urlsTags[tag] = [];
                                 urlsTags[tag].push(o.host)
-                        }
-                    });
+                            } else {
+                                if (!urlsTags[tag].includes(o.host))
+                                    urlsTags[tag].push(o.host)
+                            }
+                        });
 
                 },
                 error(error) {name

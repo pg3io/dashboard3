@@ -93,9 +93,15 @@ export default {
                     variables: {'id': this.userId}
                 }).then((data) => {
                     this.user = data.data['users'][0]
+                    var tmp = []
+                    this.user.entreprises.forEach((corp) => {
+                        corp.tags.forEach((tag) => {
+                        tmp.push({"nom": tag})
+                    })
+                    })
                 }).catch((err) => {console.log(err)});
             }
-        },  
+        },
         getTickets() {
             if (!this.user)
                 return setTimeout(this.getTickets, 100);

@@ -61,6 +61,7 @@ query getUserInfos($id: ID!) {
           url
         }
       }
+      tags
     }
   }
 }`

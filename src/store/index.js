@@ -67,7 +67,6 @@ export default new Vuex.Store({
       }
     },
     async login ({ commit }, params) {
-      console.log("params", params)
       const authDetails = params.auth
       const remember = params.remember
       try {
@@ -83,11 +82,12 @@ export default new Vuex.Store({
         const token = JSON.stringify("Bearer " + data.login.jwt)
         commit('SET_TOKEN', token)
         sessionStorage.setItem('apollo-token', token)
-        console.log(remember, authDetails)
         if (remember) {
-          setCookie(window.btoa('identifier'), window.btoa(authDetails.identifier), 7, '')
-          setCookie(window.btoa('password'), window.btoa(authDetails.password), 7, '')
-          console.log("Mettage de cookie", authDetails.identifier, authDetails.password)
+          setCookie(window.btoa('identifier'), window.btoa(authDetails.identifier), 120, '')
+          setCookie(window.btoa('password'), window.btoa(authDetails.password), 120, '')
+        } else {
+          setCookie(window.btoa('identifier'), window.btoa(authDetails.identifier), 1, '')
+          setCookie(window.btoa('password'), window.btoa(authDetails.password), 1, '')
         }
         commit('LOGIN_USER', authDetails)
 
@@ -104,13 +104,11 @@ export default new Vuex.Store({
 
     async logOut ({ commit }) {
       commit('LOGOUT_USER')
-      console.log('logOut est terminer')
     },
 
     async setUser ({ commit }) {
       const { data } = await apolloClient.query({ query: LOGGED_IN_USER })
       commit(({ query: LOGIN_USER }), data.me)
-      console.log('setUser est terminer')
     }
   },
   plugins: [vuexLocal.plugin]

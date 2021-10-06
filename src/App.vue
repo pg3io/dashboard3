@@ -2,11 +2,11 @@
 <transition name="fade">
   <div id="app">
     <header>
-      <b-navbar toggleable="lg" type="dark" variant="dark" fixed="top" class="p-O" v-if="isAuthenticated">
+      <b-navbar id="mobile-nav" toggleable="lg" type="dark" variant="dark" fixed="top" class="p-O" v-if="isAuthenticated">
         <b-navbar-brand to="/"><b-icon-toggle-on></b-icon-toggle-on> {{ name }} </b-navbar-brand>
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
         <b-collapse id="nav-collapse" is-nav>
-          <b-navbar-nav class="d-sm-block d-md-none">
+          <b-navbar-nav class="d-sm-block d-lg-none">
             <b-nav-item to="/factures" v-if="perms.factures">Factures</b-nav-item>
             <b-nav-item to="/fichiers" v-if="perms.ged">Fichiers</b-nav-item>
             <b-nav-item to="/tickets" v-if="zammad">Tickets</b-nav-item>
@@ -67,25 +67,26 @@
               </div>
             </nav>
           </b-col>
-          <b-col v-if="$route.path=='/profile'" class="profile">
-              <Profile :userInfos="userInfos"></Profile>
-          </b-col>
-          <b-col class="home" v-else-if="$route.path=='/'">
-              <home v-if="homeText"  :home="homeText" :tickets="zammad" :graph="graph"></home>
-          </b-col>
-          <b-col class="other" v-else>
-              <router-view></router-view>
+          <b-col>
+            <div v-if="$route.path=='/profile'" class="profile">
+                <Profile :userInfos="userInfos"></Profile>
+            </div>
+            <div class="home" v-else-if="$route.path=='/'">
+                <home v-if="homeText"  :home="homeText" :tickets="zammad" :graph="graph"></home>
+            </div>
+            <div class="other" v-else>
+                <router-view></router-view>
+            </div>
+            <footer class="footer py-3 bg-light">
+              <div class="container">
+                <span v-html="footerText"></span>
+              </div>
+            </footer>
           </b-col>
         </b-row>
         <router-view v-if="$route.path == '/login'"></router-view>
         </b-container>
-      <!--<autologout></autologout>-->
       </body>
-      <footer class="footer mt-auto py-3 bg-light">
-        <div class="container">
-          <span v-html="footerText"></span>
-        </div>
-      </footer>
     </div>
   </transition>
 </template>
@@ -145,7 +146,8 @@ export default {
           query: gql`query{parametre{title}}`
         }).then((data) => {
           if (data.data.parametre.title !== null)
-            document.title = data.data.parametre.title;
+            if (!document.title.startsWith('Dashboard PG3') )
+              document.title = data.data.parametre.title + ' - ' + document.title; 
         }).catch((err) => {console.log(err)});
       } else if (location.pathname !== '/login') return setTimeout(this.setTitle, 100);
       else return
@@ -244,6 +246,14 @@ export default {
 </script>
 
 <style lang="css">
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;  
+}
+
 #sidebarMenu
 {
     position: fixed;
@@ -254,6 +264,13 @@ export default {
     padding: 48px 0 0;
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
 }
+
+@media only screen and (max-width: 800px){
+  #sidebarMenu {
+    visibility: hidden;
+  }
+}
+
 #sidebarMenu a.nav-link {
   padding: 0.5rem
 }

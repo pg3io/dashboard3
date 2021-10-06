@@ -30,7 +30,7 @@
             </template>
         </b-modal>
         <b-table
-            v-if="hasTickets && (new_tickets.length > 0) && (handeld_corps === user.entreprises.length)"
+            v-if="hasTickets && (new_tickets.length > 0) && (handeld_corps >= user.entreprises.length)"
             :items="new_tickets"
             :fields="fields"
             :sort-by.sync="sortBy"
@@ -91,6 +91,7 @@ export default {
             userId: 0,
             n_corps: 0,
             handeld_corps : 0,
+            n_tags: 0,
             tickets: [],
             ticketsArray : null,
             new_tickets : [],
@@ -101,6 +102,7 @@ export default {
             sortByFormatted: false,
             hasTickets: false,
             isLoaded: false,
+            hasTags: false,
             token: "",
             modal: {},
             striper : striper,
@@ -122,12 +124,12 @@ export default {
         closed_tickets: function () {
             this.hasTickets = false;
             this.isLoaded = false;
+            this.n_tags = 0;
             this.tickets = [];
             this.handeld_corps = 0;
             this.n_corps = 0;
             this.getTickets();
             this.formatTickets();
-            this.assureTickets();
         }
     },
     created() {
@@ -141,10 +143,13 @@ export default {
     },
     methods: {
         assureTickets() {
-            if (!this.hasTickets) {
+            if (!this.hasTickets && !this.tickets.length > 0) {
                 return setTimeout(this.assureTickets, 100);
             }
-            else this.$refs.selectableTable.refresh()
+            else {
+                // this.$refs.selectableTable.refresh();
+                console.log("assureTickets", this.tickets)
+            }
         },
         rightClicked (item, index, evt) {
             evt.preventDefault()
@@ -197,7 +202,6 @@ export default {
             }).catch((error) => {
                 console.log(error)
             })
-
         },
         getUserInfos2 () {
             if (!this.userId) return setTimeout(this.getUserInfos2, 100);
@@ -207,11 +211,33 @@ export default {
                     variables: {'id': this.userId}
                 }).then((data) => {
                     this.user = data.data['users'][0]
+                    var $tmp = []
+                    this.user.entreprises.forEach((corp, index) => {
+                        if (corp.tags !== null) {
+                            corp.tags.forEach((tag, i) => {
+                                $tmp.push({"nom": tag.tag})
+                                this.n_tags++;
+                                if (index === this.user.entreprises.length - 1 && i === corp.tags.length - 1) {
+                                    $tmp.forEach((tag2, i2) => {
+                                        this.user.entreprises.push(tag2)
+                                        if (i2 === $tmp.length - 1)
+                                            this.hasTags = true
+                                    })
+                                }
+                            })
+                        } else if (index === this.user.entreprises.length -1) {
+                            $tmp.forEach((tag2, i2) => {
+                                this.user.entreprises.push(tag2)
+                                if (i2 === $tmp.length - 1)
+                                    this.hasTags = true
+                            })
+                        }
+                    })
                 }).catch((err) => {console.log(err)});
             }
         },  
         getTickets() {
-            if (!this.user)
+            if (!this.user || !this.hasTags)
                 return setTimeout(this.getTickets, 100);
             let token;
             let url;
@@ -221,7 +247,7 @@ export default {
                 url = data.data.zammad.url;
                 this.token = token;
                 this.zammad_url = url;
-                if (token === null) {
+                if (token === null || this.zammad_url === null) {
                     var link = document.createElement('a');
                     link.href = '/';
                     document.body.appendChild(link);
@@ -238,11 +264,11 @@ export default {
                                 this.handeld_corps++;
                             } else this.handeld_corps++;
                             ticketsArray = null;
-                            if (this.handeld_corps === this.user.entreprises.length && this.n_corps > 0) {
+                            if (this.handeld_corps >= (this.user.entreprises.length) && this.n_corps > 0) {
                                 this.hasTickets = true;
                                 this.isLoaded = true;
                             }
-                            else if (this.handeld_corps === this.user.entreprises.length) {this.hasTickets = false;}
+                            else if (this.handeld_corps >= this.user.entreprises.length) {this.hasTickets = false;}
                         });
                     });
                 }
