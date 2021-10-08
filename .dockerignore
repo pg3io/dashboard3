@@ -8,5 +8,3 @@ docker.yml
 Dockerfile
 LICENSE
 README.md
-public/css/dark.css
-public/css/light.css
