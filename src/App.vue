@@ -2,7 +2,7 @@
 <transition name="fade">
   <div id="app">
     <header>
-      <b-navbar id="mobile-nav" toggleable="lg" type="dark" variant="dark" fixed="top" class="p-O" v-if="isAuthenticated">
+      <b-navbar id="mobile-nav" :style="`background-color: ${(dark_mode) ? ('var(--light)') : ('var(--dark)')}`" toggleable="lg" type="dark" fixed="top" class="p-O" v-if="isAuthenticated">
         <b-navbar-brand to="/"><b-icon-toggle-on></b-icon-toggle-on> {{ name }} </b-navbar-brand>
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
         <b-collapse id="nav-collapse" is-nav>
@@ -13,6 +13,13 @@
             <b-nav-item to="/monitoring" v-if="graph || backups">Monitoring</b-nav-item>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto">
+            <template class="text-align-bottom">
+              <i v-if="!dark_mode" class="fa fa-sun mr-2" style="color: white; font-size:1.5rem; margin-top: 0.4rem;"></i>
+              <b-form-checkbox id="checkbox-dark" v-model="dark_mode" name="checkbox-dark" class="mt-1"
+              size="lg" switch v-b-tooltip.hover.left="'Dark Mode'">
+              </b-form-checkbox>
+              <i v-if="dark_mode" class="fa fa-moon mr-5" style="color: white; font-size:1.2rem; margin-top:0.5rem;"></i>
+            </template>
           <template><img class="rounded-circle" :src="gravatar" alt="user profile image" style="width: 35px"/></template>
             <b-nav-item-dropdown right>
               <b-dropdown-item class="nav-link" @click="goToPage('profileLink')">
@@ -35,29 +42,29 @@
               <div class="d-flex text-big flex-column flex-shrink-0 p-3 bg-light">
                 <ul class="nav flex-column nav-pills mb-auto mt-3 text-align-center">
                   <li class="nav-item">
-                    <router-link to="/" class="nav-link link" id="homeLink"  style="color: rgb(0, 0, 0)" ><b-icon-house-door></b-icon-house-door> 
+                    <router-link to="/" class="nav-link link" id="homeLink"  style="color: var(--text)" ><b-icon-house-door></b-icon-house-door> 
                      <span class="ml-3 align-top" style="font-size:1.2rem;"> Home</span> 
                     </router-link>
                   </li>
                   <li class="nav-item factures" v-if="perms.factures">
-                    <router-link to="/factures" class="nav-link link sec-link"  id="factureLink" style="color: rgb(0, 0, 0)" ><b-icon-file-earmark-ruled></b-icon-file-earmark-ruled>
+                    <router-link to="/factures" class="nav-link link sec-link"  id="factureLink" style="color: var(--text)" ><b-icon-file-earmark-ruled></b-icon-file-earmark-ruled>
                       <span class="ml-3 align-top" style="font-size:1.2rem;"> Factures</span> 
                     </router-link>
                   </li>
                   <li class="nav-item ged" v-if="perms.ged">
-                    <router-link to="/fichiers" class="nav-link link sec-link"  id="fichierLink" style="color: rgb(0, 0, 0)" ><b-icon-folder></b-icon-folder>
+                    <router-link to="/fichiers" class="nav-link link sec-link"  id="fichierLink" style="color: var(--text)" ><b-icon-folder></b-icon-folder>
                        <span class="ml-3 align-top" style="font-size:1.2rem;"> Fichiers</span>
                     </router-link>
                   </li>
                   <li class="nav-item tickets" v-if="zammad">
-                    <router-link to="/tickets" class="nav-link link sec-link"  id="ticketLink" style="color: rgb(0, 0, 0)" >
+                    <router-link to="/tickets" class="nav-link link sec-link"  id="ticketLink" style="color: var(--text)" >
                       <b-icon-bookmarks></b-icon-bookmarks>
                       <span class="ml-3 align-top" style="font-size:1.2rem;">Tickets</span>
                       <b-badge pill variant="secondary" class="align-center ml-3">beta</b-badge>
                     </router-link>
                   </li>
                   <li class="nav-item graph" v-if="graph || backups">
-                    <router-link to="/monitoring" class="nav-link link sec-link"  id="graphLink" style="color: rgb(0, 0, 0)" >
+                    <router-link to="/monitoring" class="nav-link link sec-link"  id="graphLink" style="color: var(--text)" >
                       <b-icon-graph-up></b-icon-graph-up>
                       <span class="ml-3 align-top" style="font-size:1.2rem;">Monitoring</span>
                       <b-badge pill variant="secondary" class="align-center ml-3">beta</b-badge>
@@ -72,7 +79,7 @@
                 <Profile :userInfos="userInfos"></Profile>
             </div>
             <div class="home" v-else-if="$route.path=='/'">
-                <home v-if="homeText"  :home="homeText" :tickets="zammad" :graph="graph"></home>
+                <home v-if="homeText" :dark="dark_mode"  :home="homeText" :tickets="zammad" :graph="graph"></home>
             </div>
             <div class="other" v-else>
                 <router-view></router-view>
@@ -99,6 +106,8 @@ import Home from '@/views/home.vue'
 import md5 from 'js-md5';
 import gql from 'graphql-tag';
 import { setCookie } from './cookies.js';
+import $ from 'jquery'
+
 export default {
   name: "App",
   data() {
@@ -112,6 +121,7 @@ export default {
       zammad: false,
       graph: false,
       backups: false,
+      dark_mode: undefined,
     }
   },
   beforeUpdate() {
@@ -123,6 +133,8 @@ export default {
     this.getUserPermissions();
     this.hasZammad();
     this.hasGraph();
+    this.getTheme();
+    this.setTheme();
   },
   components: {
     Profile,
@@ -139,14 +151,57 @@ export default {
       return (`https://www.gravatar.com/avatar/${hash}`);
     },
   },
+  watch: {
+    dark_mode: function (old, niou) {
+      if (this.dark_mode && typeof(Storage) !== 'undefined') {
+        localStorage.setItem("dashboard3-dark", 'true')
+      }
+      else if (typeof(Storage) !== 'undefined') {
+        localStorage.setItem("dashboard3-dark", 'false')
+      }
+      if ((old === true || old === false) && old !== niou && niou !== undefined
+      && (window.location.pathname === '/' || window.location.pathname === '/monitoring')) {
+        window.location.reload()
+      }
+      this.setTheme()
+    }
+  },
   methods: {
+    getTheme () {
+      const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+      if (prefersDarkScheme.matches)
+        this.dark_mode = true;
+      else if (typeof(Storage) !== "undefined") {
+        if (localStorage.getItem('dashboard3-dark') === 'true') {
+          this.dark_mode = true
+        } else {
+              localStorage.setItem('dashboard3-dark','false');
+              this.dark_mode = false;
+            }
+      } else this.dark_mode = false;
+    },
+    setTheme () {
+      if (this.dark_mode !== undefined) {
+          if ($('input#checkbox-dark').length === 1) {
+            let stylesheet = $('#theme-stylesheet')[0]
+            if (stylesheet.href.search('light') && this.dark_mode)
+              stylesheet.href = stylesheet.href.replace('light', 'dark')
+            else if (stylesheet.href.search('dark') && !this.dark_mode) {
+              stylesheet.href = stylesheet.href.replace('dark', 'light')
+            }
+            if (!this.dark_mode) {
+              $('input#checkbox-dark').parent().css('margin-right', '4rem')
+            } else if ($('input#checkbox-dark').parent().css('margin-right')) $('input#checkbox-dark').parent().css('margin-right', '')
+        } else { return setTimeout(this.setTheme, 100)}
+      } else return setTimeout(this.setTheme, 100);
+    },
     setTitle ( ) {
       if (this.isAuthenticated) {
         this.$apollo.query({
           query: gql`query{parametre{title}}`
         }).then((data) => {
           if (data.data.parametre.title !== null)
-            if (!document.title.startsWith('Dashboard PG3') )
+            if (!document.title.startsWith(data.data.parametre.title))
               document.title = data.data.parametre.title + ' - ' + document.title; 
         }).catch((err) => {console.log(err)});
       } else if (location.pathname !== '/login') return setTimeout(this.setTitle, 100);
@@ -279,8 +334,8 @@ export default {
   font-size: 1.2rem;
 }
 a.active, a.sec-link.router-link-active, a.link.router-link-exact-active {
-  background : #343a40 !important;
-  color: #f8f9fa !important;
+  background-color: var(--dark) !important;
+  color: var(--text-invert) !important;
 }
 
 #app
@@ -319,5 +374,25 @@ a.active, a.sec-link.router-link-active, a.link.router-link-exact-active {
 }
 .hidden {
   visibility: hidden;
+}
+/* #mobile-nav {
+  background-color: var(--light);
+} */
+.card-body {
+      background-color: var(--bg-color) !important;
+}
+
+.card-header {
+      background-color: var(--light) !important;
+}
+.text-muted {
+  color: var(--gray-muted) !important;
+}
+.form-control {
+  background-color: var(--bg-color) !important;
+  color: var(--text) !important;
+}
+.form-control::placeholder {
+  color: var(--primary) !important;
 }
 </style>

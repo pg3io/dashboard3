@@ -29,49 +29,49 @@ $breakpoint-xl: 1200px;
 
 @font-face {
       font-family: "Open Sans";
-      src: url("./css/OpenSans-Regular.ttf");
+      src: url("OpenSans-Regular.ttf");
 }
 
 @font-face {
       font-family: "Open Sans";
-      src: url("./css/OpenSans-Light.ttf");
+      src: url("OpenSans-Light.ttf");
       font-weight: 300;
 }
 
 @font-face {
       font-family: "Open Sans";
-      src: url("./css/OpenSans-Bold.ttf");
+      src: url("OpenSans-Bold.ttf");
       font-weight: 700;
 }
 
 @font-face {
       font-family: "Open Sans";
-      src: url("./css/OpenSans-ExtraBold.ttf");
+      src: url("OpenSans-ExtraBold.ttf");
       font-weight: 900;
 }
 
 @font-face {
       font-family: "Open Sans";
-      src: url("./css/OpenSans-Italic.ttf");
+      src: url("OpenSans-Italic.ttf");
       font-style: italic;
 }
 
 @font-face {
       font-family: "Open Sans";
-      src: url("./css/OpenSans-LightItalic.ttf");
+      src: url("OpenSans-LightItalic.ttf");
       font-weight: 300;
       font-style: italic;
 }
 
 @font-face {
       font-family: "Open Sans";
-      src: url("./css/OpenSans-BoldItalic.ttf");
+      src: url("OpenSans-BoldItalic.ttf");
       font-weight: 700;
 }
 
 @font-face {
       font-family: "Open Sans";
-      src: url("./css/OpenSans-ExtraBoldItalic.ttf");
+      src: url("OpenSans-ExtraBoldItalic.ttf");
       font-weight: 900;
 }
 
@@ -81,3 +81,16 @@ $font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mon
       'Courier New', monospace;
 @import '../../node_modules/bootstrap/scss/bootstrap.scss';
 @import '../../node_modules/bootstrap-vue/src/index.scss';
+
+:root {
+      --text: #0d0f0f;
+      --text-invert: #f8f9fa;
+      --ticket-success: #70f591;
+      --bg-color: #f8f9fa;
+      --gray-muted: #6c757d;
+}
+
+body {
+      color: var(--text) !important;
+      background-color: #fff
+}

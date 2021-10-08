@@ -1,8 +1,31 @@
 <template>
-    <b-card class="widget text-center" title="Temps de réponse moyen de vos sites web">
+    <b-card class="widget text-center" title="Temps de réponse moyen de vos sites web" style="color: var(--text);">
         <line-chart 
             class="chart"
-            :library='{"plotOptions": {"series": {"marker" :{"enabled": false}}}, "tooltip": {"valueDecimals": 2}}'
+            :library='{
+                "colors": chartColors.colors,
+                "plotOptions": {
+                    "series": {
+                        "marker" :{"enabled": false}
+                    }
+                },
+                "xAxis": {
+                    "labels" :{
+                        "style": {"color": chartColors.font}
+                    }
+                },
+                "yAxis": {
+                    "labels" :{
+                        "style": {"color": chartColors.font}
+                    }
+                },
+                "tooltip": {
+                    "valueDecimals": 2
+                },
+                "chart": {
+                    "backgroundColor": chartColors.bg
+                }
+            }'
             :legend="false"
             :data="values" height="300px"
             :min="0" :max="maxValue"
@@ -49,8 +72,12 @@ export default {
             isLoaded: false,
             InfluxDB: null,
             queryAPI: null,
-            hasSliced: true
+            hasSliced: true,
+            chartColors: {}
         }
+    },
+    props : {
+        dark_mode: Boolean
     },
     created () {
         this.getInfluxCredentials();
@@ -61,7 +88,17 @@ export default {
         this.getDataQuery('7d');
         this.getSitesData();
     },
+    mounted() {
+        this.setChartColors();
+    },
     methods : {
+        setChartColors() {
+            if (this.dark_mode) {
+                this.chartColors.bg = '#343a40';
+                this.chartColors.colors = ['#9EDE73', '#AF00BE', "#DE208B", "#B5FFD9", "#0CECDD", "#FFF338", "#FF4848", "#F5F7B2", "#7ECA9C", "#EB596E"]
+                this.chartColors.font = "#f8f9fa"
+            } else this.chartColors.bg = '#fff'
+        },
         hideBecauseEmpty () {
             if (this.isLoaded) {
                 this.$emit('IsEmpty', true);

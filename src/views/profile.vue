@@ -3,7 +3,7 @@
         <h2>{{ userInfos.username }}</h2>
         <table class="table table-hover bg-light">
             <tbody>
-                <tr><th><a href="https://fr.gravatar.com/" style="color:black"> Profile gravatar </a></th><td><img class="rounded-circle" :src="gravatar" alt="user profile image" /> </td></tr>
+                <tr><th><a href="https://fr.gravatar.com/" style="color:var(--text)"> Profile gravatar </a></th><td><img class="rounded-circle" :src="gravatar" alt="user profile image" /> </td></tr>
                 <tr><th>E-mail</th><td> {{ userInfos.email }} </td></tr>
                 <tr>
                     <th v-if="userInfos.entreprises && userInfos.entreprises.length > 1">Entreprises</th>
@@ -25,8 +25,8 @@
                 <b-form-input v-model="oldPassword" name="oldPassword" id="oldPassword" type="password"></b-form-input>
                 <b-input-group-append>
                     <b-button variant="outline" class="onInput" @click="changeState('old')">
-                        <b-icon icon="eye-slash" v-if="!old"></b-icon>
-                        <b-icon icon="eye" v-else></b-icon>
+                        <b-icon style="color: var(--text);" icon="eye-slash" v-if="!old"></b-icon>
+                        <b-icon style="color: var(--text);" icon="eye" v-else></b-icon>
                     </b-button>
                 </b-input-group-append>
             </b-input-group>
@@ -36,8 +36,8 @@
                 <b-form-input v-model="newPassword" name="newPassword" id="newPassword" type="password"></b-form-input>
                 <b-input-group-append>
                     <b-button variant="outline" class="onInput" @click="changeState('new')">
-                        <b-icon icon="eye-slash" v-if="!yesNew"></b-icon>
-                        <b-icon icon="eye" v-else></b-icon>
+                        <b-icon icon="eye-slash" style="color: var(--text);" v-if="!yesNew"></b-icon>
+                        <b-icon icon="eye" style="color: var(--text);" v-else></b-icon>
                     </b-button>
                 </b-input-group-append>
             </b-input-group>
@@ -47,8 +47,8 @@
                 <b-form-input v-model="confirmNewPassword" name="confirmNewPassword" id="confirmNewPassword" type="password"></b-form-input>
                 <b-input-group-append>
                     <b-button variant="outline" class="onInput" @click="changeState('confirm')">
-                        <b-icon icon="eye-slash" v-if="!confirm"></b-icon>
-                        <b-icon icon="eye" v-else></b-icon>
+                        <b-icon icon="eye-slash" style="color: var(--text);" v-if="!confirm"></b-icon>
+                        <b-icon icon="eye" style="color: var(--text);"  v-else></b-icon>
                     </b-button>
                 </b-input-group-append>
             </b-input-group>

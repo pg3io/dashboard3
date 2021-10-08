@@ -12,7 +12,32 @@
                 </div>
                 <div class="card-body">
                     <b-row class="" v-if="watchedUrls.length > 0 && values.length > 0 && this.isLoaded">
-                        <line-chart :library='{"plotOptions": {"series": {"marker" :{"enabled": false}}}, "tooltip": {"valueDecimals": 2}}' legend="bottom" :data="values" width="100%" height="500px" :min="0" :max="maxValue" suffix="s"/>
+                        <line-chart :library='{
+                            "colors": chartColors.colors,
+                            "plotOptions": {
+                                "series": {
+                                    "marker" :{"enabled": false}
+                                }
+                            },
+                            "xAxis": {
+                                "labels" :{
+                                    "style": {"color": chartColors.font}
+                                }
+                            },
+                            "yAxis": {
+                                "labels" :{
+                                    "style": {"color": chartColors.font}
+                                }
+                            },
+                            "tooltip": {
+                                "valueDecimals": 2
+                            },
+                            "chart": {
+                                "backgroundColor": chartColors.bg
+                            },
+                            "legend": {"itemStyle": {"color": chartColors.font}, "itemHoverStyle": {"color": chartColors.font_dark}}
+                        }'
+                        legend="bottom" :data="values" width="100%" height="500px" :min="0" :max="maxValue" suffix="s"/>
                     </b-row>
                     <div v-else class="text-center pt-3 mt-6">
                         <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded"></b-icon>
@@ -68,6 +93,7 @@ export default {
             InfluxDB: null,
             queryAPI: null,
             urlsTags: null,
+            chartColors: {},
             perms : {"backups": false, "graph": false},
             buttons: [
                 { caption: '1 jour', state: false, value: '1d' },
@@ -90,7 +116,22 @@ export default {
         this.getDataQuery('7d');
         this.getSitesData();
     },
+    mounted() {
+        this.setChartColors();
+    },
     methods : {
+        setChartColors() {
+            if (localStorage.getItem('dashboard3-dark') === 'true') {
+                this.chartColors.bg = '#343a40';
+                this.chartColors.colors = ['#9EDE73', '#AF00BE', "#DE208B", "#B5FFD9", "#0CECDD", "#FFF338", "#FF4848", "#F5F7B2", "#7ECA9C", "#EB596E"]
+                this.chartColors.font = "#f8f9fa"
+                this.chartColors.font_dark = "#fff"
+            } else {
+                this.chartColors.bg = '#fff'
+                this.chartColors.font = "#0d0f0f"
+                this.chartColors.font_dark = "#000"
+            }
+        },
         getUsrPerms() {
             if (this.actUserId) {
                 this.$apollo.query({

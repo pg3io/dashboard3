@@ -12,10 +12,10 @@
         <label for="inputPassword" class="sr-only">Password</label>
         <b-input-group-append class="eyeButton">
           <b-button v-if="showPassword" variant="link" size="sm" @click="show_hidePassword">
-            <b-icon class="icon" icon="eye"></b-icon>
+            <b-icon style="color: var(--text);" class="icon" icon="eye"></b-icon>
           </b-button>
           <b-button v-else variant="link" size="sm" @click="show_hidePassword">
-            <b-icon class="icon" icon="eye-slash"></b-icon>
+            <b-icon style="color: var(--text);" class="icon" icon="eye-slash"></b-icon>
           </b-button>
         </b-input-group-append>
         </b-input-group>
@@ -75,7 +75,7 @@ export default {
     }
   },
   created() {
-    this.autologin();
+    setTimeout(this.autologin, 1000);
     this.getImage();
   },
   methods: {
@@ -116,7 +116,6 @@ export default {
     ...mapActions(['login']),
     logIn() {
       document.getElementById("errorMessage").style.display = "none"
-      console.log('Exec this.login(authDetails, remember)', this.authDetails, this.remember)
       this.login({auth: this.authDetails, remember: this.remember})
         .then(() => {
           if (document.getElementById("errorMessage").style.display != "block") {
@@ -237,5 +236,14 @@ body {
 }
 .turn-clockWise {
   animation: rotate 2s infinite linear;
+}
+input#identifier {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom: 0;
+}
+input#password {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 </style>

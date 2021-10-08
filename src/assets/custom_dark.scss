@@ -5,21 +5,21 @@ $pink: #e83e8c;
 $red: #dc3545;
 $orange: #fd7e14;
 $yellow: #ffc107;
-$green: #28a745;
+$green: #329e4b;
 $teal: #20c997;
 $cyan: #17a2b8;
 $white: #fff;
 $gray: #6c757d;
 $gray-dark: #343a40;
-$primary:  #f8f9fa;
+$primary:  #6b41b9;
 // $primary: #343a40;
 $secondary: #6c757d;
-$success: #00c732;
+$success: #329e4b;
 $info: #0d0f0f;
 $warning: #ffa807;
 $danger: #dc3545;
-$light: #343a40;;
-$dark: #343a40;
+$light: rgb(26, 26, 26);
+$dark: #f8f9fa;
 $breakpoint-xs: 0;
 $breakpoint-sm: 800px;
 $breakpoint-md: 900px;
@@ -28,49 +28,49 @@ $breakpoint-xl: 1200px;
 
 @font-face {
       font-family: "Open Sans";
-      src: url("./css/OpenSans-Regular.ttf");
+      src: url("OpenSans-Regular.ttf");
 }
 
 @font-face {
       font-family: "Open Sans";
-      src: url("./css/OpenSans-Light.ttf");
+      src: url("OpenSans-Light.ttf");
       font-weight: 300;
 }
 
 @font-face {
       font-family: "Open Sans";
-      src: url("./css/OpenSans-Bold.ttf");
+      src: url("OpenSans-Bold.ttf");
       font-weight: 700;
 }
 
 @font-face {
       font-family: "Open Sans";
-      src: url("./css/OpenSans-ExtraBold.ttf");
+      src: url("OpenSans-ExtraBold.ttf");
       font-weight: 900;
 }
 
 @font-face {
       font-family: "Open Sans";
-      src: url("./css/OpenSans-Italic.ttf");
+      src: url("OpenSans-Italic.ttf");
       font-style: italic;
 }
 
 @font-face {
       font-family: "Open Sans";
-      src: url("./css/OpenSans-LightItalic.ttf");
+      src: url("OpenSans-LightItalic.ttf");
       font-weight: 300;
       font-style: italic;
 }
 
 @font-face {
       font-family: "Open Sans";
-      src: url("./css/OpenSans-BoldItalic.ttf");
+      src: url("OpenSans-BoldItalic.ttf");
       font-weight: 700;
 }
 
 @font-face {
       font-family: "Open Sans";
-      src: url("./css/OpenSans-ExtraBoldItalic.ttf");
+      src: url("OpenSans-ExtraBoldItalic.ttf");
       font-weight: 900;
 }
 
@@ -78,9 +78,42 @@ $font-family-sans-serif: "Open Sans", -apple-system, BlinkMacSystemFont, 'Segoe 
       Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 $font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
       'Courier New', monospace;
+.modal-content {
+      background-color: var(--bg-color) !important;
+}
+
 @import '../../node_modules/bootstrap/scss/bootstrap.scss';
 @import '../../node_modules/bootstrap-vue/src/index.scss';
 
+.modal-content {
+      background-color: var(--bg-color) !important;
+  }
+
+:root {
+      --text: #f8f9fa;
+      --text-invert: #0d0f0f;
+      --ticket-success: rgba(36, 184, 48, 0.2);
+      --ticket-success-hover: rgba(36, 184, 48, 0.4);
+      --light-green: rgb(157, 207, 162);
+      --light-gray: #cecece;
+      --gray-muted: #6ea8db;
+      --bg-color: #33383d;
+}
+
 body {
-      color: #fff;
+      color: var(--text) !important;
+      background-color: var(--bg-color);
+}
+
+.table {
+      color: var(--text) !important;
+}
+.table-success, .table-success > th, .table-success > td {
+      background-color: var(--ticket-success) !important;
+}
+.table-success:hover {
+      background-color: var(--ticket-success-hover) !important;
+}
+tbody > tr:hover {
+      color: #fff !important;
 }

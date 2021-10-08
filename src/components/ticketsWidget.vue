@@ -1,5 +1,5 @@
 <template>
-    <b-card class="text-center widget" title="Tickets résolus">
+    <b-card class="text-center widget" title="Tickets résolus" style="color: var(--text);">
         <h5 class="text-center text-muted">30 derniers jours</h5>
         <div  v-if="hasTickets">
             <h1 class="mt-5" style="font-size: 150px;">{{allTickets - openTickets}}<span class="text-muted" style="font-size: 100px">/{{allTickets}}</span></h1>
@@ -12,9 +12,16 @@
 <script>
 //        <!--<pie-chart v-if="counter" :data="values" :colors="['#17a2b8', '#20c997']"></pie-chart> -->
 
+function findTagsInCorps(elem) {
+    if (elem.nom.toString() === this.nom.toString())
+        return true;
+    else return false;
+}
+
 import {getZammad, userInfos, userId} from '@/graphql/querys.js'
 import { GetTicketsFromCorp } from '@/zammad/querys.js'
 import moment from 'moment'
+
 export default {
     name: "TicketsWidget",
     data () {
@@ -31,11 +38,13 @@ export default {
             values: [],
             noTicket: false,
             n_corps: 0,
-            handeld_corps : 0
+            handeld_corps : 0,
+            hasTags: false
         }
-
     },
     created () {
+        this.tickets = []
+        this.user = null
         this.getUserInfos()
         this.getUserInfos2()
         this.getTickets()
@@ -43,11 +52,11 @@ export default {
     },
     methods : {
         printTickets () {
-            if (this.tickets.length > 0) { console.log(this.tickets)
+            if (this.tickets.length > 0) { console.log(this.tickets, this.allTickets); return setTimeout(this.printTickets, 1000)
             } else return setTimeout(this.printTickets, 100)
         },
         countTickets () {
-            if ((this.tickets.length > 0 || this.noTicket) && this.user !== null) {
+            if (this.tickets.length > 0 && this.hasTags && this.user !== null) {
                 if (this.tickets.length === this.n_corps && this.hasTickets) {
                     var n_tickets = 0;
                     var n_open = 0;
@@ -64,7 +73,6 @@ export default {
                                 self.openTickets = n_open;
                                 self.allTickets = n_tickets
                                 self.values = [["Ouverts", (n_open / n_tickets) * 100], ["Fermés", ((n_tickets - n_open) / n_tickets) * 100]]
-                                self.hasTickets = true;
                                 if (n_tickets <= 0) this.$emit('IsEmptyT', true);
                                 else self.isLoaded = true;
                             }
@@ -93,17 +101,39 @@ export default {
                     variables: {'id': this.userId}
                 }).then((data) => {
                     this.user = data.data['users'][0]
-                    var tmp = []
-                    this.user.entreprises.forEach((corp) => {
-                        corp.tags.forEach((tag) => {
-                        tmp.push({"nom": tag})
-                    })
+                    let $tmp = []
+                    this.user.entreprises.forEach((corp, index) => {
+                        if (corp.tags !== null && corp.tags !== undefined) {
+                            corp.tags.forEach((tag, i) => {
+                                $tmp.push({"nom": tag.tag})
+                                this.n_tags++;
+                                if (index === this.user.entreprises.length - 1 && i === corp.tags.length - 1) {
+                                    $tmp.forEach((tag2, i2) => {
+                                        if (this.user.entreprises.findIndex(findTagsInCorps, tag2) < 0) {
+                                            this.user.entreprises.push(tag2)
+                                            if (i2 === $tmp.length - 1)
+                                                this.hasTags = true
+                                        } else if (i2 === $tmp.length - 1)
+                                            this.hasTags = true
+                                    })
+                                }
+                            })
+                        } else if (index === this.user.entreprises.length -1) {
+                            $tmp.forEach((tag2, i2) => {
+                                if (this.user.entreprises.findIndex(findTagsInCorps, tag2) < 0) {
+                                    this.user.entreprises.push(tag2)
+                                    if (i2 === $tmp.length - 1)
+                                        this.hasTags = true
+                                }else if (i2 === $tmp.length - 1)
+                                    this.hasTags = true
+                            })
+                        }
                     })
                 }).catch((err) => {console.log(err)});
             }
         },
         getTickets() {
-            if (!this.user)
+            if (!this.user && !this.hasTags)
                 return setTimeout(this.getTickets, 100);
             let token;
             let url;
@@ -113,7 +143,7 @@ export default {
                 url = data.data.zammad.url;
                 this.token = token;
                 this.zammad_url = url;
-                if (token === null) {
+                if (token === null || url === null) {
                     var link = document.createElement('a');
                     link.href = '/';
                     document.body.appendChild(link);
@@ -146,5 +176,8 @@ export default {
 <style>
 .widget {
     height: 400px;
+}
+.text-muted {
+    color: var(--gray-muted)
 }
 </style>

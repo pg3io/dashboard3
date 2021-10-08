@@ -30,7 +30,7 @@
             </template>
         </b-modal>
         <b-table
-            v-if="hasTickets && (new_tickets.length > 0) && (handeld_corps >= user.entreprises.length)"
+            v-if="hasTickets && (new_tickets.length > 0) && (handeld_corps >= users.entreprises.length)"
             :items="new_tickets"
             :fields="fields"
             :sort-by.sync="sortBy"
@@ -40,7 +40,8 @@
             striped hover
             responsive="sm"
             ref="selectableTable"
-            style="cursor: pointer;">
+            style="cursor: pointer;"
+            class="mt-3">
         </b-table>
         <div v-else class="text-center pt-3">
             <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded"></b-icon>
@@ -54,6 +55,13 @@ import { getZammad, userId, userInfos } from '@/graphql/querys.js'
 import { GetTicketsFromCorp, GetArticlesFromTicket } from '@/zammad/querys.js'
 import moment from 'moment'
 import $ from 'jquery'
+
+
+function findTagsInCorps(elem) {
+    if (elem.nom.toString() === this.nom.toString())
+        return true;
+    else return false;
+}
 
 function diffFormatter (value) {
     const secDiff = moment().diff(moment(value), 'seconds');
@@ -95,7 +103,7 @@ export default {
             tickets: [],
             ticketsArray : null,
             new_tickets : [],
-            user: null,
+            users: null,
             save: null,
             sortBy: 'created_at',
             sortDesc: true,
@@ -210,25 +218,31 @@ export default {
                     query: userInfos,
                     variables: {'id': this.userId}
                 }).then((data) => {
-                    this.user = data.data['users'][0]
+                    this.users = data.data['users'][0]
                     var $tmp = []
-                    this.user.entreprises.forEach((corp, index) => {
-                        if (corp.tags !== null) {
+                    this.users.entreprises.forEach((corp, index) => {
+                        if (corp.tags !== null && corp.tags !== undefined) {
                             corp.tags.forEach((tag, i) => {
                                 $tmp.push({"nom": tag.tag})
                                 this.n_tags++;
-                                if (index === this.user.entreprises.length - 1 && i === corp.tags.length - 1) {
+                                if (index === this.users.entreprises.length - 1 && i === corp.tags.length - 1) {
                                     $tmp.forEach((tag2, i2) => {
-                                        this.user.entreprises.push(tag2)
-                                        if (i2 === $tmp.length - 1)
+                                        if (this.users.entreprises.findIndex(findTagsInCorps, tag2) < 0) {
+                                            this.users.entreprises.push(tag2)
+                                            if (i2 === $tmp.length - 1)
+                                                this.hasTags = true
+                                        } else if (i2 === $tmp.length - 1)
                                             this.hasTags = true
                                     })
                                 }
                             })
-                        } else if (index === this.user.entreprises.length -1) {
+                        } else if (index === this.users.entreprises.length -1) {
                             $tmp.forEach((tag2, i2) => {
-                                this.user.entreprises.push(tag2)
-                                if (i2 === $tmp.length - 1)
+                                if (this.users.entreprises.findIndex(findTagsInCorps, tag2) < 0) {
+                                    this.users.entreprises.push(tag2)
+                                    if (i2 === $tmp.length - 1)
+                                    this.hasTags = true
+                                } else if (i2 === $tmp.length - 1)
                                     this.hasTags = true
                             })
                         }
@@ -237,7 +251,7 @@ export default {
             }
         },  
         getTickets() {
-            if (!this.user || !this.hasTags)
+            if (!this.users || !this.hasTags)
                 return setTimeout(this.getTickets, 100);
             let token;
             let url;
@@ -255,7 +269,7 @@ export default {
                 }
                 else {
                     this.n_corps = 0;
-                    this.user.entreprises.forEach((corp) => {
+                    this.users.entreprises.forEach((corp) => {
                         GetTicketsFromCorp(token, url, this.axios, corp.nom).then((data) => {
                             ticketsArray = data;
                             if (ticketsArray.length > 0) {
@@ -264,11 +278,11 @@ export default {
                                 this.handeld_corps++;
                             } else this.handeld_corps++;
                             ticketsArray = null;
-                            if (this.handeld_corps >= (this.user.entreprises.length) && this.n_corps > 0) {
+                            if (this.handeld_corps >= (this.users.entreprises.length) && this.n_corps > 0) {
                                 this.hasTickets = true;
                                 this.isLoaded = true;
                             }
-                            else if (this.handeld_corps >= this.user.entreprises.length) {this.hasTickets = false;}
+                            else if (this.handeld_corps >= this.users.entreprises.length) {this.hasTickets = false; this.users = null}
                         });
                     });
                 }
@@ -326,5 +340,11 @@ td {
 .customer-message h5 {
     text-align: right;
 }
-
+.table-success {
+    background-color: var(--ticket-success) !important;
+    opacity: 1 !important;
+}
+.modal-content {
+    background-color: var(--bg-color) !important;
+}
 </style>

@@ -8,7 +8,7 @@
                 </b-col>
             <b-col v-if="graph && graphNotEmpty" sm="12" :md="getWidth('graph')">
                 <router-link to="/monitoring" class="widgetLink" style="color: rgb(0, 0, 0)" >
-                    <graphWidget  @IsEmpty="hideGraph"/>
+                    <graphWidget :dark_mode="dark"  @IsEmpty="hideGraph"/>
                 </router-link>
             </b-col>
         </b-row>
@@ -26,6 +26,7 @@ export default {
         home: String || null,
         graph: Boolean,
         tickets: Boolean,
+        dark: Boolean,
     },
     components: {
         ticketsWidget: ticketsWidget,
