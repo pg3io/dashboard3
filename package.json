@@ -7,7 +7,9 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "test-ui": "cd tests && npm start",
-    "test": "cd tests && npm test"
+    "test": "cd tests && npm test",
+    "css-build": "npx node-sass --omit-source-map-url src/assets/custom_dark.scss public/css/dark.css && npx node-sass --omit-source-map-url src/assets/custom.scss public/css/light.css",
+    "css-minibuild": "npx node-sass --omit-source-map-url src/assets/custom_dark.scss public/css/dark.css && npx node-sass --omit-source-map-url src/assets/custom.scss public/css/light.css && java -jar yuicompressor-2.4.8.jar --type css -o public/css/dark.min.css public/css/dark.css && java -jar yuicompressor-2.4.8.jar --type css -o public/css/light.min.css public/css/light.css"
   },
   "dependencies": {
     "@influxdata/influxdb-client": "^1.17.0",
