@@ -23,7 +23,7 @@
                </div>
                 <div class="card-body"><div v-html="elem.body"></div></div>
              </div>
-             <template modal-footer="">
+             <template #modal-footer>
                 <b-button size="lg" variant="primary" @click="goToDetails(modal.number - 35000)">
                   Détails
                 </b-button>
