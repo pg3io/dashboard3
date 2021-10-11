@@ -169,16 +169,18 @@ export default {
   methods: {
     getTheme () {
       const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
-      if (prefersDarkScheme.matches)
-        this.dark_mode = true;
-      else if (typeof(Storage) !== "undefined") {
+      if (typeof(Storage) !== "undefined") {
         if (localStorage.getItem('dashboard3-dark') === 'true') {
           this.dark_mode = true
-        } else {
-              localStorage.setItem('dashboard3-dark','false');
-              this.dark_mode = false;
-            }
-      } else this.dark_mode = false;
+        } else if (prefersDarkScheme.matches && localStorage.getItem('dashboard3-dark') !== 'false') {
+          this.dark_mode = true;
+          localStorage.setItem('dashboard3-dark','true');
+        }
+        else {
+          localStorage.setItem('dashboard3-dark','false');
+          this.dark_mode = false;
+        }
+      } else this.dark_mode = prefersDarkScheme.matches;
     },
     setTheme () {
       if (this.dark_mode !== undefined) {
@@ -393,6 +395,6 @@ a.active, a.sec-link.router-link-active, a.link.router-link-exact-active {
   color: var(--text) !important;
 }
 .form-control::placeholder {
-  color: var(--primary) !important;
+  color: var(--light-gray) !important;
 }
 </style>
