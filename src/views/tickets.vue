@@ -237,6 +237,7 @@ export default {
                                 }
                             })
                         } else if (index === this.users.entreprises.length -1) {
+                            if ($tmp.length > 0) {
                             $tmp.forEach((tag2, i2) => {
                                 if (this.users.entreprises.findIndex(findTagsInCorps, tag2) < 0) {
                                     this.users.entreprises.push(tag2)
@@ -245,6 +246,7 @@ export default {
                                 } else if (i2 === $tmp.length - 1)
                                     this.hasTags = true
                             })
+                            } else this.hasTags = true;
                         }
                     })
                 }).catch((err) => {console.log(err)});
@@ -282,7 +284,11 @@ export default {
                                 this.hasTickets = true;
                                 this.isLoaded = true;
                             }
-                            else if (this.handeld_corps >= this.users.entreprises.length) {this.hasTickets = false; this.users = null}
+                            else if (this.handeld_corps >= this.users.entreprises.length) {
+                                this.hasTickets = false;
+                                this.users = null;
+                                this.isLoaded = true;
+                            }
                         });
                     });
                 }
