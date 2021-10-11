@@ -1,11 +1,12 @@
 <template>
     <b-card class="text-center widget" title="Tickets résolus" style="color: var(--text);">
         <h5 class="text-center text-muted">30 derniers jours</h5>
-        <div  v-if="hasTickets">
+        <div  v-if="hasTickets && handeld_corps === user.entreprises.length">
             <h1 class="mt-5" style="font-size: 150px;">{{allTickets - openTickets}}<span class="text-muted" style="font-size: 100px">/{{allTickets}}</span></h1>
             <h6>Tickets ouverts : {{ openTickets }}</h6>
         </div>
-        <b-icon icon="arrow-clockwise" class="mt-5" animation="spin" font-scale="9" v-else></b-icon>
+        <b-icon icon="arrow-clockwise" class="mt-5" animation="spin" font-scale="9" v-else-if="!noTicket"></b-icon>
+        <span class="hidden" v-else>{{ sendEvent() }}</span>
     </b-card>
 </template>
 
@@ -51,6 +52,9 @@ export default {
         this.countTickets()
     },
     methods : {
+        sendEvent() {
+            this.$emit('IsEmptyT', true)
+        },
         printTickets () {
             if (this.tickets.length > 0) { console.log(this.tickets, this.allTickets); return setTimeout(this.printTickets, 1000)
             } else return setTimeout(this.printTickets, 100)
@@ -163,7 +167,7 @@ export default {
                             if ($self.handeld_corps === $self.user.entreprises.length && $self.n_corps > 0) {
                                 $self.hasTickets = true;
                                 }
-                            else if ($self.handeld_corps === $self.user.entreprises.length) {$self.hasTickets = false;}
+                            else if ($self.handeld_corps === $self.user.entreprises.length) {$self.noTicket = true;}
                         });
                     });
                 }
