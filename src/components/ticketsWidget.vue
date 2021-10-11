@@ -128,7 +128,7 @@ export default {
                                     this.user.entreprises.push(tag2)
                                     if (i2 === $tmp.length - 1)
                                         this.hasTags = true
-                                }else if (i2 === $tmp.length - 1)
+                                } else if (i2 === $tmp.length - 1)
                                     this.hasTags = true
                             })
                         }
