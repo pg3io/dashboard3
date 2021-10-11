@@ -240,10 +240,10 @@ body {
 input#identifier {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
-  border-bottom: 0;
 }
 input#password {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+  border-top: 0;
 }
 </style>
