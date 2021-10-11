@@ -145,18 +145,24 @@ export default {
         this.getUserInfos2();
         this.getTickets();
         this.formatTickets();
+        this.assureTickets();
         $('#checkbox-1').click(()=> {
             this.toggleClosedTickets()
         })
     },
     methods: {
         assureTickets() {
-            if (!this.hasTickets && !this.tickets.length > 0) {
+            console.log("assureTickets " + `this.hasTickets=${this.hasTickets} this.isLoaded=${this.isLoaded} this.tickets=`, this.new_tickets)
+            if (!this.hasTickets && !this.new_tickets.length > 0) {
                 return setTimeout(this.assureTickets, 100);
+            }
+            else if (this.isLoaded && this.hasTickets && this.new_tickets.length === 0) {
+                this.closed_tickets = true;
+                console.log("assureTicket elseif")
             }
             else {
                 // this.$refs.selectableTable.refresh();
-                console.log("assureTickets", this.tickets)
+                console.log("assureTickets", this.new_tickets)
             }
         },
         rightClicked (item, index, evt) {
