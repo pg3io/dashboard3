@@ -1,27 +1,28 @@
 <template>
-    <b-table
-        v-if="hasServers && isLoad && backups.length > 0"
-        :items="backups"
-        :fields="fields"
-        :sort-compare="mySortCompare"
-        :sort-by.sync="sortBy"
-        :sort-desc.sync="sortDesc"
-        @row-contextmenu="rightClicked"
-        striped hover
-        responsive="sm"
-        ref="selectableTable"
-        class="mt-3"
-        selectable>
-        <template #cell(status)="row">
-            <span size="sm" class="mr-1">
-                <b-icon v-if="row.item.status === 'OK'" icon="check-circle" style="transform: scale(1.25);" variant="success"></b-icon>
-                <b-icon v-else-if="row.item.status === 'KO'" icon="x-circle" style="transform: scale(1.25);" variant="danger"></b-icon>
-            </span>
-        </template>
-    </b-table>
-    <div v-else class="text-center pt-3">
-        <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoad"></b-icon>
-        <h2 style="margin-top: 2%; text-align: center;" v-else>Vous n'avez pas de serveurs à backuper</h2>
+    <div>
+        <transition name="fade">
+        <b-table
+            v-if="hasServers && isLoad && backups.length > 0"
+            :items="backups"
+            :fields="fields"
+            :sort-compare="mySortCompare"
+            :sort-by.sync="sortBy"
+            :sort-desc.sync="sortDesc"
+            @row-contextmenu="rightClicked"
+            striped hover
+            responsive="sm"
+            ref="selectableTable"
+            class="mt-3"
+            selectable>
+            <template #cell(status)="row">
+                <span size="sm" class="mr-1">
+                    <b-icon v-if="row.item.status === 'OK'" icon="check-circle" style="transform: scale(1.25);" variant="success"></b-icon>
+                    <b-icon v-else-if="row.item.status === 'KO'" icon="x-circle" style="transform: scale(1.25);" variant="danger"></b-icon>
+                </span>
+            </template>
+        </b-table>
+        </transition>
+        <h2 style="margin-top: 2%; text-align: center;" v-if="!(hasServers && backups.length > 0) && isLoad">Vous n'avez pas de serveurs à backuper</h2>
     </div>
 </template>
 <script>

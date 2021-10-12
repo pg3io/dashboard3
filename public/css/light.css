@@ -9366,6 +9366,7 @@ input[type="color"].form-control:disabled {
   --text-invert: #f8f9fa;
   --ticket-success: #70f591;
   --bg-color: #f8f9fa;
+  --light-gray: #747474;
   --gray-muted: #6c757d; }
 
 body {

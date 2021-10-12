@@ -43,7 +43,7 @@
                 <ul class="nav flex-column nav-pills mb-auto mt-3 text-align-center">
                   <li class="nav-item">
                     <router-link to="/" class="nav-link link" id="homeLink"  style="color: var(--text)" ><b-icon-house-door></b-icon-house-door> 
-                     <span class="ml-3 align-top" style="font-size:1.2rem;"> Home</span> 
+                     <span class="ml-3 align-top" style="font-size:1.2rem;"> Home</span>
                     </router-link>
                   </li>
                   <li class="nav-item factures" v-if="perms.factures">
@@ -79,7 +79,9 @@
                 <Profile :userInfos="userInfos"></Profile>
             </div>
             <div class="home" v-else-if="$route.path=='/'">
-                <home v-if="homeText" :dark="dark_mode"  :home="homeText" :tickets="zammad" :graph="graph"></home>
+            <transition name="slide-fade">
+                <home v-if="(graph || backups) && homeText" :dark="dark_mode"  :home="homeText" :tickets="zammad" :graph="graph"></home>
+            </transition>
             </div>
             <div class="other" v-else>
                 <router-view></router-view>
@@ -365,6 +367,7 @@ a.active, a.sec-link.router-link-active, a.link.router-link-exact-active {
   color: #42b983;
 }
 
+
 .fade-enter-active, .fade-leave-active
 {
   transition: opacity .5s;
@@ -374,6 +377,24 @@ a.active, a.sec-link.router-link-active, a.link.router-link-exact-active {
 {
   opacity: 0;
 }
+
+
+.slide-fade-enter-active {
+  transition: all .3s ease;
+}
+.slide-fade-leave-active {
+  transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+.slide-fade-enter
+/* .slide-fade-leave-active below version 2.1.8 */ {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+.slide-fade-leave-to {
+  transform: translateX(-200%);
+  opacity: 0;
+}
+
 .hidden {
   visibility: hidden;
 }

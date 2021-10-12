@@ -106,6 +106,7 @@ export default {
                 }).then((data) => {
                     this.user = data.data['users'][0]
                     let $tmp = []
+                if (this.user.entreprises.length <= 0) {this.$emit('IsEmptyT', true)}
                     this.user.entreprises.forEach((corp, index) => {
                         if (corp.tags !== null && corp.tags !== undefined) {
                             corp.tags.forEach((tag, i) => {

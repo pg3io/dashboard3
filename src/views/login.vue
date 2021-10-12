@@ -21,7 +21,9 @@
         </b-input-group>
         <div id="errorMessage"  role="alert" style="display: none">Nom d'utilisateur ou mot de passe érroné!</div>
         <div class="forgotPWD mb-2" @click="forgotPassword = true">Mot de passe oublié</div>
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Connexion</button>
+        <b-overlay :show="submitted" spinner-large spinner-variant="primary" class="d-inline-block" opacity="0.6">
+          <button class="btn btn-lg btn-primary btn-block" type="submit">Connexion</button>
+        </b-overlay>
         <b-form-checkbox id="remember-1" v-model="remember" name="remember-box" class="mt-2">Se souvenir de moi</b-form-checkbox>
       </form>
       <p v-if="loginMessage">{{ loginMessage }}</p>
@@ -61,6 +63,7 @@ export default {
       lock: false,
       forgotPassword: false,
       emailSent: false,
+      submitted: false,
       emailReset: '',
       emailError: '',
       support : '',
@@ -115,22 +118,24 @@ export default {
     },
     ...mapActions(['login']),
     logIn() {
+      this.submitted = true;
       document.getElementById("errorMessage").style.display = "none"
       this.login({auth: this.authDetails, remember: this.remember})
         .then(() => {
           if (document.getElementById("errorMessage").style.display != "block") {
             window.location = "/"
-          }
+          } else this.submitted = false;
         })
     },
     autologin () {
       const creds = {"identifier": window.atob(getCookie(window.btoa('identifier'))), "password": window.atob(getCookie(window.btoa('password')))}
       if (creds.identifier && creds.password) {
+      this.submitted = true;
         this.login({auth: creds, remember: false})
         .then(() => {
           if (document.getElementById("errorMessage").style.display != "block") {
             window.location = "/"
-          }
+          } else this.submitted = false;
         })
       }
     },

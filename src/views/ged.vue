@@ -1,32 +1,31 @@
 <template>
     <b-container fluid="sm" style="margin-top: 2%;">
-        <b-table
-            v-if="hasFiles && isLoaded && geds"
-            :items="geds"
-            :fields="fields"
-            :sort-compare="mySortCompare"
-            :sort-by.sync="sortBy"
-            :sort-desc.sync="sortDesc"
-            :tbody-tr-class="rowClass"
-            @row-contextmenu="rightClicked"
-            @row-selected="onRowSelected"
-            striped hover
-            responsive="sm"
-            ref="selectableTable"
-            selectable>
-            <template #cell(payer)="row">
-                <span class="statut" style=""> {{ row.item.payer }} </span>
-            </template>
-            <template #cell(telecharger)="row">
-                <b-button variant="link" size="sm" @click="downloadMedias(row.item.nom, row.item.fichier)" class="mr-1" style="color: inherit;">
-                    <b-icon icon="file-earmark-arrow-down" style="transform: scale(1.25);"></b-icon>
-                </b-button>
-            </template>
-        </b-table>
-        <div v-else class="text-center pt-3">
-            <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded || !geds"></b-icon>
-            <h2 style="margin-top: 2%; text-align: center;" v-else>Vous n'avez pas de fichiers dans le GED</h2>
-        </div>
+        <transition name="slide-fade">
+            <b-table
+                v-if="hasFiles && isLoaded && geds"
+                :items="geds"
+                :fields="fields"
+                :sort-compare="mySortCompare"
+                :sort-by.sync="sortBy"
+                :sort-desc.sync="sortDesc"
+                :tbody-tr-class="rowClass"
+                @row-contextmenu="rightClicked"
+                @row-selected="onRowSelected"
+                striped hover
+                responsive="sm"
+                ref="selectableTable"
+                selectable>
+                <template #cell(payer)="row">
+                    <span class="statut" style=""> {{ row.item.payer }} </span>
+                </template>
+                <template #cell(telecharger)="row">
+                    <b-button variant="link" size="sm" @click="downloadMedias(row.item.nom, row.item.fichier)" class="mr-1" style="color: inherit;">
+                        <b-icon icon="file-earmark-arrow-down" style="transform: scale(1.25);"></b-icon>
+                    </b-button>
+                </template>
+            </b-table>
+        </transition>
+        <h2 style="margin-top: 2%; text-align: center;" v-if="!(hasFiles && geds) && isLoaded">Vous n'avez pas de fichiers dans le GED</h2>
     </b-container>
 </template>
 

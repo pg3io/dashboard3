@@ -1,53 +1,55 @@
 <template>
-    <b-container fluid="sm" style="margin-top: 2%;">
-        <b-row class="d-flex justify-content-between">
-            <b-form-checkbox
-            id="checkbox-1"
-            v-model="closed_tickets"
-            name="checkbox-1"
-            size="lg" switch>
-            Tickets fermés
-            </b-form-checkbox>
-            <a class="btn btn-dark" :href="`${this.zammad_url}#ticket/view/my_organization_tickets`">Tous les tickets</a>
-        </b-row>
-        <b-modal ref="popup" size="lg" centered scrollable>
-            <template #modal-header="{ close }" class="ticket-header">
-                <h5>{{ modal.title }} <span v-html="modal.badge"></span></h5>
-                <a @click="close()">
-                    <b-icon-x-square style="transform: scale(1.5); cursor: pointer; margin-right: 20%; margin-top: 20%;"></b-icon-x-square>
-                </a>
-            </template>
-             <div :class="striper(elem.sender)" v-for="(elem, index) in modal.articles" :key="index">
-               <div class="card-header">
-                <h5>{{ elem.from }} {{ diffFormatter (elem.updated_at) }}</h5>
-               </div>
-                <div class="card-body"><div v-html="elem.body"></div></div>
-             </div>
-             <template #modal-footer>
-                <b-button size="lg" variant="primary" @click="goToDetails(modal.number - 35000)">
-                  Détails
-                </b-button>
-            </template>
-        </b-modal>
-        <b-table
-            v-if="hasTickets && (new_tickets.length > 0) && (handeld_corps >= users.entreprises.length)"
-            :items="new_tickets"
-            :fields="fields"
-            :sort-by.sync="sortBy"
-            :sort-desc.sync="sortDesc"
-            @row-contextmenu="rightClicked"
-            @row-clicked="onRowSelected"
-            striped hover
-            responsive="sm"
-            ref="selectableTable"
-            style="cursor: pointer;"
-            class="mt-3">
-        </b-table>
-        <div v-else class="text-center pt-3">
-            <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded"></b-icon>
-            <h2 style="margin-top: 2%; text-align: center;" v-if="isLoaded && !hasTickets">Vous n'avez pas de tickets.</h2>
-        </div>
-    </b-container>
+    <transition name="slide-fade">
+        <b-container fluid="sm" style="margin-top: 2%;" v-if="isLoaded">
+            <b-row class="d-flex justify-content-between">
+                <b-form-checkbox
+                id="checkbox-1"
+                v-model="closed_tickets"
+                name="checkbox-1"
+                size="lg" switch>
+                Tickets fermés
+                </b-form-checkbox>
+                <a class="btn btn-dark" :href="`${this.zammad_url}#ticket/view/my_organization_tickets`">Tous les tickets</a>
+            </b-row>
+            <b-modal ref="popup" size="lg" centered scrollable>
+                <template #modal-header="{ close }" class="ticket-header">
+                    <h5>{{ modal.title }} <span v-html="modal.badge"></span></h5>
+                    <a @click="close()">
+                        <b-icon-x-square style="transform: scale(1.5); cursor: pointer; margin-right: 20%; margin-top: 20%;"></b-icon-x-square>
+                    </a>
+                </template>
+                <div :class="striper(elem.sender)" v-for="(elem, index) in modal.articles" :key="index">
+                <div class="card-header">
+                    <h5>{{ elem.from }} {{ diffFormatter (elem.updated_at) }}</h5>
+                </div>
+                    <div class="card-body"><div v-html="elem.body"></div></div>
+                </div>
+                <template #modal-footer>
+                    <b-button size="lg" variant="primary" @click="goToDetails(modal.number - 35000)">
+                    Détails
+                    </b-button>
+                </template>
+            </b-modal>
+            <b-table
+                v-if="hasTickets && (new_tickets.length > 0) && (handeld_corps >= users.entreprises.length)"
+                :items="new_tickets"
+                :fields="fields"
+                :sort-by.sync="sortBy"
+                :sort-desc.sync="sortDesc"
+                @row-contextmenu="rightClicked"
+                @row-clicked="onRowSelected"
+                striped hover
+                responsive="sm"
+                ref="selectableTable"
+                style="cursor: pointer;"
+                class="mt-3">
+            </b-table>
+            <div v-else class="text-center pt-3">
+                <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded"></b-icon>
+                <h2 style="margin-top: 2%; text-align: center;" v-if="isLoaded && !hasTickets">Vous n'avez pas de tickets.</h2>
+            </div>
+        </b-container>
+    </transition>
 </template>
 
 <script>
@@ -152,17 +154,11 @@ export default {
     },
     methods: {
         assureTickets() {
-            console.log("assureTickets " + `this.hasTickets=${this.hasTickets} this.isLoaded=${this.isLoaded} this.tickets=`, this.new_tickets)
             if (!this.hasTickets && !this.new_tickets.length > 0) {
                 return setTimeout(this.assureTickets, 100);
             }
             else if (this.isLoaded && this.hasTickets && this.new_tickets.length === 0) {
                 this.closed_tickets = true;
-                console.log("assureTicket elseif")
-            }
-            else {
-                // this.$refs.selectableTable.refresh();
-                console.log("assureTickets", this.new_tickets)
             }
         },
         rightClicked (item, index, evt) {
@@ -190,6 +186,11 @@ export default {
                 item.badge = `<span style="color:white" class="badge rounded-pill bg-primary ml-3">Nouveau</span>`;
             GetArticlesFromTicket(this.token, this.zammad_url, this.axios, item.id).then((data) => {
                 item.articles = data;
+                item.articles.sort((a, b) => {
+                    const epochA = new Date(a.updated_at).getTime();
+                    const epochB = new Date(b.updated_at).getTime();
+                    return epochB - epochA;
+                })
                 this.modal = item;
                 this.$refs['popup'].show();
             }).catch((e) => {console.log(e)});
@@ -226,6 +227,7 @@ export default {
                 }).then((data) => {
                     this.users = data.data['users'][0]
                     var $tmp = []
+                    if (this.users.entreprises.length <= 0) {this.isLoaded = true; return}
                     this.users.entreprises.forEach((corp, index) => {
                         if (corp.tags !== null && corp.tags !== undefined) {
                             corp.tags.forEach((tag, i) => {
