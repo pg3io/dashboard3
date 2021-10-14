@@ -16,7 +16,7 @@
             <template class="text-align-bottom">
               <i v-if="!dark_mode" class="fa fa-sun mr-2" style="color: white; font-size:1.5rem; margin-top: 0.4rem;"></i>
               <b-form-checkbox id="checkbox-dark" v-model="dark_mode" name="checkbox-dark" class="mt-1"
-              size="lg" switch v-b-tooltip.hover.left="'Dark Mode'">
+              size="lg" switch>
               </b-form-checkbox>
               <i v-if="dark_mode" class="fa fa-moon mr-5" style="color: white; font-size:1.2rem; margin-top:0.5rem;"></i>
             </template>
@@ -35,7 +35,7 @@
       </b-navbar>
     </header>
     <body>
-      <b-container fluid class="py-5">
+      <div class="py-5">
         <b-row v-if="isAuthenticated">
           <b-col cols="2" class="d-none d-md-block">
             <nav id="sidebarMenu" class="col-md-2 bg-light sidebar">
@@ -78,10 +78,10 @@
             <div v-if="$route.path=='/profile'" class="profile">
                 <Profile :userInfos="userInfos"></Profile>
             </div>
-            <div class="home" v-else-if="$route.path=='/'">
+            <b-container fluid class="home" v-else-if="$route.path=='/'">
                 <home v-if="homeText" :dark="dark_mode"  :home="homeText" :tickets="zammad" :graph="graph"></home>
-            </div>
-            <div class="other" v-else>
+            </b-container>
+            <div v-else>
                 <router-view></router-view>
             </div>
             <footer class="footer py-3 bg-light">
@@ -92,7 +92,7 @@
           </b-col>
         </b-row>
         <router-view v-if="$route.path == '/login'"></router-view>
-        </b-container>
+      </div>
       </body>
     </div>
   </transition>

@@ -8,16 +8,8 @@
         :sort-desc.sync="sortDesc"
         @row-contextmenu="rightClicked"
         striped hover
-        responsive="sm"
-        ref="selectableTable"
-        class="mt-3"
-        selectable>
-        <template #cell(status)="row">
-            <span size="sm" class="mr-1">
-                <b-icon v-if="row.item.status === 'OK'" icon="check-circle" style="transform: scale(1.25);" variant="success"></b-icon>
-                <b-icon v-else-if="row.item.status === 'KO'" icon="x-circle" style="transform: scale(1.25);" variant="danger"></b-icon>
-            </span>
-        </template>
+        responsive
+        ref="selectableTable">
     </b-table>
     <div v-else class="text-center pt-3">
         <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoad"></b-icon>
@@ -28,6 +20,7 @@
 import { userId, getEntreprisesTags } from '@/graphql/querys.js';
 import {InfluxDB} from '@influxdata/influxdb-client';
 import gql from 'graphql-tag';
+import $ from 'jquery';
 
 let self
 
@@ -42,10 +35,9 @@ function findUrl(elem) {
     else return false;
 }
 
-function myDateFormat(date) {
-    if (date === '')
-        return "Pas de données"
-    return new Date(date).toLocaleString('en-GB',{timezone: "Europe/Paris"});
+function myDateFormatter(date) {
+    console.log(date)
+    return `${date.getDate()}/${date.getMonth()+1}`
 }
 
 export default {
@@ -62,15 +54,10 @@ export default {
             InfluxDB: null,
             QueryAPI: null,
             myQuery: '',
-            fields: [
-                { key: 'host', sortable: true, class: 'host' },
-                { key: 'end_time', sortable: true, class: 'end_time', label: "Dernière sauvegarde", formatter: myDateFormat },
-                { key: 'type', sortable: false, class: 'type' },
-                { key: 'status', sortable: false, class: 'state' }
-            ],
+            fields: this.getFields(14),
             sortBy: 'last_bkp',
-            sortDesc: true,   
-
+            sortDesc: true,
+            rangeDays: 14
         }
     },
     created () {
@@ -81,16 +68,33 @@ export default {
         this.getwatcherUri();
         this.getmyQuery()
         this.getSitesData()
+        this.setIcons()
     },
     methods: {
+        getFields(range) {
+            var date = Date.now();
+            var fields = [{key: "host", sortable: true, stickyColumn: true}]
+            this.rangeDays = range
+            for (var i = 0; i < range; i++) {
+                fields.push({key: myDateFormatter(new Date(date - (3600 * 24 * i * 1000))), sortable: false})
+                console.log(fields, i)
+            }
+            var flag = true;
+            while (flag) {
+                if (fields.length >= range) {
+                    flag = false;
+                    return fields
+                }
+            }
+        },
         getmyQuery () {
             if (this.watcherUri.length === 0)
                 return setTimeout(this.getmyQuery, 100);
             self = this;
             this.myQuery = `from(bucket: "backups")
-    |> range(start: -24h)
+    |> range(start: -14d)
     |> filter(fn: (r) => r["_measurement"] == "backup")
-    |> filter(fn: (r) => r["_field"] == "status" or r["_field"] == "type" or r["_field"] == "end_time_0" or r["_field"] == "end_time_1" or r["_field"] == "end_time_2" or r["_field"] == "end_time_3")
+    |> filter(fn: (r) => r["_field"] == "status")
     |> filter(fn: (r) => r["host"] == "${this.watcherUri[0].urls[0]}"`;
             this.watcherUri.forEach((corp, index) => {
                 if (corp.urls.length > 1) {
@@ -98,10 +102,10 @@ export default {
                         if (index > 0 || i > 0)
                             self.myQuery += ` or r["host"] == "${url}"`
                         if ((i === (corp.urls.length - 1) || corp.urls.length === 0) && index === (self.watcherUri.length - 1))
-                            self.myQuery += `)  |> last(column: "host") |> yield(name: "last")`;
+                            self.myQuery += `) |> aggregateWindow(every: 24h, fn: last, createEmpty: false) |> yield(name: "last")`;
                     })
                 } else if (index === self.watcherUri.length - 1)
-                    self.myQuery += `)  |> last(column: "host") |> yield(name: "last")`;
+                        self.myQuery += `) |> aggregateWindow(every: 24h, fn: last, createEmpty: false) |> yield(name: "last")`;
             });
         },
         getSitesData () {
@@ -116,38 +120,41 @@ export default {
                             const o = tableMeta.toObject(row)
                             const elemIndex = self.backups.findIndex(findUrl, o);
                             if (elemIndex >= 0) {
-                                if (o._field === "status")
-                                    if (o._value > 75) self.backups[elemIndex][o._field] = "KO"
-                                    else self.backups[elemIndex][o._field] = "OK"
-                                else if (o._field.startsWith('end_time_')) {
-                                    if (self.backups[elemIndex].end_time !== undefined && o._value !== '')
-                                        if ((new Date(o._value)).getTime() > new Date(self.backups[elemIndex]["end_time"]).getTime())
-                                            self.backups[elemIndex]["end_time"] = o._value
-                                    else if (o._value !== '')
-                                        self.backups[elemIndex]["end_time"] = o._value
-                                } else
-                                    self.backups[elemIndex][o._field] = o._value
+                                if (o._value > 75) {
+                                    self.backups[elemIndex][myDateFormatter(new Date(o._time))] = "KO"
+                                    self.backups[elemIndex].status = "KO"
+                                    self.backups[elemIndex]._cellVariants[`${myDateFormatter(new Date(o._time))}`] = "danger"
+                                }
+                                else {
+                                    self.backups[elemIndex][myDateFormatter(new Date(o._time))] = "OK"
+                                    self.backups[elemIndex].status = "OK"
+                                    self.backups[elemIndex]._cellVariants[`${myDateFormatter(new Date(o._time))}`] = "success"
+                                }
                             }
                             else {
-                                if (o._field === "status")
-                                    if (o._value > 75) self.backups.push(JSON.parse(`{"host": "${o.host}", "${o._field}" : "KO"}`));
-                                    else self.backups.push(JSON.parse(`{"host": "${o.host}", "${o._field}" : "OK"}`));
-                                else if (o._field.startsWith('end_time_'))
-                                    self.backups.push(JSON.parse(`{"host": "${o.host}", "end_time" : "${o._value}"}`));
-                                else
-                                    self.backups.push(JSON.parse(`{"host": "${o.host}", "${o._field}" : "${o._value}"}`));
+                                if (o._value > 75) self.backups.push(JSON.parse(`{"host": "${o.host}", "${myDateFormatter(new Date(o._time))}" : "KO", "status": "KO", "_cellVariants": {"${myDateFormatter(new Date(o._time))}": "danger"}}`));
+                                else self.backups.push(JSON.parse(`{"host": "${o.host}", "${myDateFormatter(new Date(o._time))}" : "OK", "status": "OK", "_cellVariants": {"${myDateFormatter(new Date(o._time))}": "success"}}`));
                             }
                         },
                         error(error) {
                             console.error(error)
                         },
                         complete() {
+                            console.log(self.backups)
                             self.isLoad = true;
                             self.hasServers = true;
                         }
                     })
                 }
             } else return setTimeout(this.getSitesData, 100);
+        },
+        setIcons() {
+            if (!this.isLoad || !this.hasServers)
+                return setTimeout(this.setIcons)
+            else {
+                $("td.table-success").html('<span><i class="far fa-check-circle" style="color: var(--success);"></i></span>')
+                $("td.table-danger").html('<i class="far fa-times-circle" style="color: var(--danger);"></i>')
+            }
         },
         printwatcherUri () {
             if (this.watcherUri.length === 0||!this.myQuery)

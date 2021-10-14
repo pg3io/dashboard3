@@ -1,8 +1,8 @@
 <template>
     <transition name="fade">
-        <b-container fluid="sm" style="margin-top: 2%;">
-            <div class="card" v-if="perms.graph">
-                <div class="text-center card-header">
+        <div class="mt-4">
+            <div class="" v-if="perms.graph">
+                <div class="text-center">
                     <span class="align-baseline h4">Historique du temps de réponse sur </span>
                     <b-button-group class="ml-2" size="md">
                         <b-button v-for="(btn, idx) in buttons" :key="idx"  @click="selectRange(btn, buttons)" :pressed="btn.state" variant="outline-dark">
@@ -10,8 +10,8 @@
                         </b-button>
                     </b-button-group>
                 </div>
-                <div class="card-body">
-                    <b-row class="" v-if="watchedUrls.length > 0 && values.length > 0 && this.isLoaded">
+                <div class="">
+                    <b-row style="object-fit: cover;" v-if="watchedUrls.length > 0 && values.length > 0 && this.isLoaded">
                         <line-chart :library='{
                             "colors": chartColors.colors,
                             "plotOptions": {
@@ -37,23 +37,23 @@
                             },
                             "legend": {"itemStyle": {"color": chartColors.font}, "itemHoverStyle": {"color": chartColors.font_dark}}
                         }'
-                        legend="bottom" :data="values" width="100%" height="500px" :min="0" :max="maxValue" suffix="s"/>
+                        legend="bottom" :data="values" height="500px" :min="0" :max="maxValue" suffix="s"/>
                     </b-row>
                     <div v-else class="text-center pt-3 mt-6">
                         <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded"></b-icon>
-                        <h2 style="margin-top: 2%; text-align: center;" v-if="isLoaded">Vous n'avez aucun site à monitorer.</h2>
+                        <h2 class="mt-1" style="text-align: center;" v-if="isLoaded">Vous n'avez aucun site à monitorer.</h2>
                     </div>
                 </div>
             </div>
-            <div class="card" v-if="perms.backups">
-                <div class="card-header">
+            <div class="mt-3" v-if="perms.backups">
+                <div class="">
                     <h4 class="text-center">Sauvegardes</h4>
                 </div>
-                <div class="card-body">
+                <div class="">
                     <BackupTable />
                 </div>
             </div>
-        </b-container>
+        </div>
     </transition>
 </template>
 
@@ -335,3 +335,17 @@ export default {
     }
 }
 </script>
+<style scoped>
+@media screen and (min-width: 800px) and (max-width: 1200px) {
+    .graphcol {
+        margin-left: 15rem;
+        padding: 0 0 0 0;
+    }
+}
+@media screen and (min-width: 1200px) and (max-width: 1800px) {
+    .graphcol {
+        margin-left: 8rem;
+        padding: 0 0 0 0;
+    }
+}
+</style>

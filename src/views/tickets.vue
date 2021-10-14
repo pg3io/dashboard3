@@ -1,5 +1,5 @@
 <template>
-    <b-container fluid="sm" style="margin-top: 2%;">
+    <div class="mt-2">
         <b-row class="d-flex justify-content-between">
             <b-form-checkbox
             id="checkbox-1"
@@ -47,7 +47,7 @@
             <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded"></b-icon>
             <h2 style="margin-top: 2%; text-align: center;" v-if="isLoaded && !hasTickets">Vous n'avez pas de tickets.</h2>
         </div>
-    </b-container>
+    </div>
 </template>
 
 <script>

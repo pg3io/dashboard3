@@ -3,38 +3,38 @@
   src: url("OpenSans-Regular.ttf"); }
 
 @font-face {
-  font-family: "Open Sans";
+  font-family: "Open Sans Light";
   src: url("OpenSans-Light.ttf");
   font-weight: 300; }
 
 @font-face {
-  font-family: "Open Sans";
+  font-family: "Open Sans Bold";
   src: url("OpenSans-Bold.ttf");
   font-weight: 700; }
 
 @font-face {
-  font-family: "Open Sans";
+  font-family: "Open Sans ExtraBold";
   src: url("OpenSans-ExtraBold.ttf");
   font-weight: 900; }
 
 @font-face {
-  font-family: "Open Sans";
+  font-family: "Open Sans Italic";
   src: url("OpenSans-Italic.ttf");
   font-style: italic; }
 
 @font-face {
-  font-family: "Open Sans";
+  font-family: "Open Sans LightItalic";
   src: url("OpenSans-LightItalic.ttf");
   font-weight: 300;
   font-style: italic; }
 
 @font-face {
-  font-family: "Open Sans";
+  font-family: "Open Sans BoldItalic";
   src: url("OpenSans-BoldItalic.ttf");
   font-weight: 700; }
 
 @font-face {
-  font-family: "Open Sans";
+  font-family: "Open Sans ExtraBoldItalic";
   src: url("OpenSans-ExtraBoldItalic.ttf");
   font-weight: 900; }
 
@@ -9366,6 +9366,7 @@ input[type="color"].form-control:disabled {
   --text-invert: #f8f9fa;
   --ticket-success: #70f591;
   --bg-color: #f8f9fa;
+  --light-gray: #747474;
   --gray-muted: #6c757d; }
 
 body {

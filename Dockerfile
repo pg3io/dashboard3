@@ -1,6 +1,6 @@
 FROM node:lts-alpine as build-stage
 WORKDIR /app
-ENV VUE_APP_API_URL='http://<STRAPI_URL>/graphql'
+ENV VUE_APP_API_URL='https://dashboard-preprod.pk3.io/graphql'
 
 COPY package.json ./
 RUN npm install
