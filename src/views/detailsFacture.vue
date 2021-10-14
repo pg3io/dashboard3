@@ -1,5 +1,6 @@
 <template>
     <b-container>
+        <transition name="slide-fade">
         <b-row class="align-items-start" v-if="facture && facture.media">
             <b-col cols="12"  lg="4">
                 <b-row class="text-left">
@@ -42,10 +43,8 @@
                 <embed ref="factureRef" :src="getPdfLink(facture.media[0].url)" width="100%" height="880" frameborder="0" allowfullscreen />
             </b-col>
         </b-row>
-        <div v-else class="text-center pt-3">
-            <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="search"></b-icon>
-            <h2 style="margin-top: 2%;" v-if="!search">Nothing found</h2>
-        </div>
+        </transition>
+        <h2 style="margin-top: 2%;" v-if="!search && !(facture && facture.media)">Nothing found</h2>
     </b-container>
 </template>
 

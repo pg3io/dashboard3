@@ -1,16 +1,20 @@
 <template>
     <div class="p-3">
         <b-row class="p-3">
+            <transition name="fade">
                 <b-col v-if="tickets && ticketsNotEmpty" sm="12" :md="getWidth('tickets')">
                     <router-link to="/tickets" class="widgetLink" style="color: rgb(0, 0, 0)" >
                         <ticketsWidget @IsEmptyT="hideTickets"/>
                     </router-link>
                 </b-col>
+            </transition>
+            <transition name="fade">
             <b-col v-if="graph && graphNotEmpty" sm="12" :md="getWidth('graph')">
                 <router-link to="/monitoring" class="widgetLink" style="color: rgb(0, 0, 0)" >
                     <graphWidget :dark_mode="dark"  @IsEmpty="hideGraph"/>
                 </router-link>
             </b-col>
+            </transition>
         </b-row>
         <span v-html="home"></span>
     </div>

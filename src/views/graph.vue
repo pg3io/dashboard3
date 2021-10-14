@@ -1,7 +1,7 @@
 <template>
-    <transition name="fade">
         <b-container fluid="sm" style="margin-top: 2%;">
-            <div class="card" v-if="perms.graph">
+        <transition name="slide-fade">
+            <div class="card" v-if="perms.graph && this.isLoaded">
                 <div class="text-center card-header">
                     <span class="align-baseline h4">Historique du temps de réponse sur </span>
                     <b-button-group class="ml-2" size="md">
@@ -11,7 +11,8 @@
                     </b-button-group>
                 </div>
                 <div class="card-body">
-                    <b-row class="" v-if="watchedUrls.length > 0 && values.length > 0 && this.isLoaded">
+                    <transition name="slide-fade">
+                    <b-row class="" v-if="watchedUrls.length > 0 && values.length > 0 && isLoaded">
                         <line-chart :library='{
                             "colors": chartColors.colors,
                             "plotOptions": {
@@ -39,13 +40,13 @@
                         }'
                         legend="bottom" :data="values" width="100%" height="500px" :min="0" :max="maxValue" suffix="s"/>
                     </b-row>
-                    <div v-else class="text-center pt-3 mt-6">
-                        <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded"></b-icon>
-                        <h2 style="margin-top: 2%; text-align: center;" v-if="isLoaded">Vous n'avez aucun site à monitorer.</h2>
-                    </div>
+                    </transition>
+                    <h2 style="margin-top: 2%; text-align: center;" v-if="!(watchedUrls.length > 0 && values.length > 0) && isLoaded">Vous n'avez aucun site à monitorer.</h2>
                 </div>
             </div>
-            <div class="card" v-if="perms.backups">
+        </transition>
+        <transition name="slide-fade-up">
+            <div class="card" v-if="perms.backups && this.isLoaded">
                 <div class="card-header">
                     <h4 class="text-center">Sauvegardes</h4>
                 </div>
@@ -53,8 +54,8 @@
                     <BackupTable />
                 </div>
             </div>
-        </b-container>
-    </transition>
+        </transition>
+    </b-container>
 </template>
 
 <script>

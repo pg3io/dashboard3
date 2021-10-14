@@ -1,42 +1,42 @@
 <template>
+
     <b-container>
-        <b-row class="align-items-start" v-if="ged && ged.fichier">
-            <b-col cols="12"  lg="4">
-                <b-row class="text-left">
-                    <div class="p-5" style="transform: scale(1.2); align-self: center; mmargin: auto;">
-                        <h4 class="text-center">Infos</h4>
-                        <table class="table table-sm table-hover" style="transform: scale(1.1);">
-                            <tbody>
-                                <tr><th>Nom</th><td>{{ ged.nom }}</td></tr>
-                                <tr><th>Date</th><td>{{ ChangeDate(ged.date) }}</td></tr>
-                                <tr><th>Entreprise</th><td>{{ ged.entreprise }}</td></tr>
-                                <tr><th>Type</th><td>{{ ged.type }}</td></tr>
-                            </tbody>
-                        </table>
-                        <b-row v-if="ged.fichier.length > 1">
-                            <b-col v-for="(fichier, index) in ged.fichier" :key="index">
-                                <b-icon v-b-tooltip.hover.top="`fichier n° ${index+1} ${getFileName(fichier.url)}`" @click="downloadFile(getFileLink(fichier.url), `${ged.nom}_${index+1}.${getFileType(fichier.url)}`)" icon="file-earmark-arrow-down" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
-                            </b-col>
-                        </b-row>
-                        <b-icon v-else @click="downloadFile(getFileLink(ged.fichier[0].url), `${ged.nom}.${getFileType(ged.fichier[0].url)}`)" icon="file-earmark-arrow-down" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
-                    </div>
-                </b-row>
-            </b-col>
-            <b-col cols="12" lg="8" class="mt-3" v-if="ged.fichier.length > 1">
-                <b-tabs>
-                    <b-tab :title="'fichier n° '+(index+1)" v-for="(fichier, index) in ged.fichier" :key="index">
-                        <embed ref="factureRef" :src="getFileLink(fichier.url)" width="100%" height="880" frameborder="0" allowfullscreen />
-                    </b-tab>
-                </b-tabs>
-            </b-col>
-            <b-col cols="12" lg="8" class="mt-3" v-else>
-                <embed ref="factureRef" :src="getFileLink(ged.fichier[0].url)" width="100%" height="880" frameborder="0" allowfullscreen />
-            </b-col>
-        </b-row>
-        <div v-else class="text-center pt-3">
-            <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="search"></b-icon>
-            <h2 style="margin-top: 2%;" v-if="!search">Nothing found</h2>
-        </div>
+        <transition name="slide-fade">
+            <b-row class="align-items-start" v-if="ged && ged.fichier">
+                <b-col cols="12"  lg="4">
+                    <b-row class="text-left">
+                        <div class="p-5" style="transform: scale(1.2); align-self: center; margin: auto;">
+                            <h4 class="text-center">Infos</h4>
+                            <table class="table table-sm table-hover" style="transform: scale(1.1);">
+                                <tbody>
+                                    <tr><th>Nom</th><td>{{ ged.nom }}</td></tr>
+                                    <tr><th>Date</th><td>{{ ChangeDate(ged.date) }}</td></tr>
+                                    <tr><th>Entreprise</th><td>{{ ged.entreprise }}</td></tr>
+                                    <tr><th>Type</th><td>{{ ged.type }}</td></tr>
+                                </tbody>
+                            </table>
+                            <b-row v-if="ged.fichier.length > 1">
+                                <b-col v-for="(fichier, index) in ged.fichier" :key="index">
+                                    <b-icon v-b-tooltip.hover.top="`fichier n° ${index+1} ${getFileName(fichier.url)}`" @click="downloadFile(getFileLink(fichier.url), `${ged.nom}_${index+1}.${getFileType(fichier.url)}`)" icon="file-earmark-arrow-down" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
+                                </b-col>
+                            </b-row>
+                            <b-icon v-else @click="downloadFile(getFileLink(ged.fichier[0].url), `${ged.nom}.${getFileType(ged.fichier[0].url)}`)" icon="file-earmark-arrow-down" style="transform: scale(1.5); cursor: pointer; margin-left: 20%; margin-top: 10%;"></b-icon>
+                        </div>
+                    </b-row>
+                </b-col>
+                <b-col cols="12" lg="8" class="mt-3" v-if="ged.fichier.length > 1">
+                    <b-tabs>
+                        <b-tab :title="'fichier n° '+(index+1)" v-for="(fichier, index) in ged.fichier" :key="index">
+                            <embed ref="factureRef" :src="getFileLink(fichier.url)" width="100%" height="880" frameborder="0" allowfullscreen />
+                        </b-tab>
+                    </b-tabs>
+                </b-col>
+                <b-col cols="12" lg="8" class="mt-3" v-else>
+                    <embed ref="factureRef" :src="getFileLink(ged.fichier[0].url)" width="100%" height="880" frameborder="0" allowfullscreen />
+                </b-col>
+            </b-row>
+        </transition>
+            <h2 style="margin-top: 2%;" v-if="!(ged && ged.fichier) && !search">Nothing found</h2>
     </b-container>
 </template>
 
@@ -98,7 +98,8 @@ export default {
                     this.ged = [];
                     this.ged = data['data']['geds'][0];
                     this.ged['entreprise'] = this.entreprise;
-                }).catch((err) => {console.log(err)});
+                    this.search = false
+                }).catch((err) => {console.log(err); this.search = false});
             }
             else return setTimeout(this.getGed, 100);
         },

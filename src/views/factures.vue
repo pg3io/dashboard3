@@ -1,33 +1,34 @@
 <template>
     <div>
-        <b-container fluid="sm" style="margin-top: 2%;" v-if="hasFactures && isLoaded && factures">
-            <b-table
-                :items="factures"
-                :fields="fields"
-                :sort-compare="mySortCompare"
-                :sort-by.sync="sortBy"
-                :sort-desc.sync="sortDesc"
-                @row-contextmenu="rightClicked"
-                @row-selected="onRowSelected"
-                :tbody-tr-class="rowClass"
-                striped hover
-                responsive="sm"
-                ref="selectableTable"
-                selectable>
-                <template #cell(payer)="row">
-                    <span class="statut" style="" > {{ row.item.payer }} </span>
-                </template>
-                <template #cell(telecharger)="row">
-                    <b-button variant="link" size="sm" @click="downloadPDFs(row.item.media, row.item.ref)" class="mr-1" style="color: inherit;">
-                        <b-icon icon="file-earmark-arrow-down" style="transform: scale(1.25);"></b-icon>
-                    </b-button>
-                </template>
-            </b-table>
-        </b-container>
-        <div v-else class="text-center pt-3">
-            <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded || !factures"></b-icon>
-            <h2 style="margin-top: 2%; text-align: center;" v-else>Vous n'avez pas de factures</h2>
-        </div>
+        <transition name="slide-fade">
+            <b-container fluid="sm" style="margin-top: 2%;" v-if="hasFactures && isLoaded && factures">
+                <b-table
+                    :items="factures"
+                    :fields="fields"
+                    :sort-compare="mySortCompare"
+                    :sort-by.sync="sortBy"
+                    :sort-desc.sync="sortDesc"
+                    @row-contextmenu="rightClicked"
+                    @row-selected="onRowSelected"
+                    :tbody-tr-class="rowClass"
+                    striped hover
+                    responsive="sm"
+                    ref="selectableTable"
+                    selectable>
+                    <template #cell(payer)="row">
+                        <span class="statut" style="" > {{ row.item.payer }} </span>
+                    </template>
+                    <template #cell(telecharger)="row">
+                        <b-button variant="link" size="sm" @click="downloadPDFs(row.item.media, row.item.ref)" class="mr-1" style="color: inherit;">
+                            <b-icon icon="file-earmark-arrow-down" style="transform: scale(1.25);"></b-icon>
+                        </b-button>
+                    </template>
+                </b-table>
+            </b-container>
+        </transition>
+        <transition name="slide-fade">
+            <h2 style="margin-top: 2%; text-align: center;" v-if="!(hasFactures && factures) && isLoaded">Vous n'avez pas de factures</h2>
+        </transition>
     </div>
 </template>
 
