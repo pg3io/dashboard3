@@ -18,7 +18,8 @@ Dashboard est un outil de listing de factures, basé sur le Headless CMS [Strapi
 * liste de fichiers
 * Authentification avec un jwt
 * AuthGuard de navigation
-
+* Auto discovering de données de monitoring grace aux tags (voir [crawlurl](https://github.com/pg3io/crawlurl) et [backuppc-to-influxdb](https://github.com/pg3io/backuppc-to-influxdb))
+* Auto identification via un cookie de session
 
 # FrontEnd
 * Profile
@@ -33,7 +34,8 @@ Dashboard est un outil de listing de factures, basé sur le Headless CMS [Strapi
 * Système de GED basique
 * Listing des tickets
 * Rendu des données du projet [crawlurl](https://github.com/pg3io/crawlurl) dans un graphique.
-
+* Rendu des données de backup dans un tableau
+* Dark mode avec mémorisation des préférences utilisateur
 
 # Tests
 * Des tests automatisés via [Cypress](https://cypress.io) sont disponibles dans le dossiers 'tests'.
