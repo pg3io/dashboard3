@@ -1,5 +1,5 @@
 <template>
-        <b-container fluid="sm" style="margin-top: 2%;">
+        <div class="mt-4">
         <transition name="slide-fade">
             <div class="card" v-if="perms.graph && this.isLoaded">
                 <div class="text-center card-header">
@@ -55,7 +55,7 @@
                 </div>
             </div>
         </transition>
-    </b-container>
+    </div>
 </template>
 
 <script>
@@ -144,13 +144,16 @@ export default {
             } else return setTimeout(this.getUsrPerms, 100)
         },
         selectRange (button, buttons) {
-            buttons.forEach(($btn) => {
-                if ($btn.value !== button.value) 
-                    $btn.state = false 
-                else $btn.state = true
-            });
-            button.state = true;
-            this.rangeChanger(button.value);
+                if (!button.state) {
+                    buttons.forEach(($btn) => {
+                    if ($btn.value !== button.value) 
+                        $btn.state = false 
+                    else $btn.state = true
+                });
+                button.state = true;
+                this.rangeChanger(button.value);
+            }
+            else return
         },
         rangeChanger (range) {
             if (this.watchedUrls.length > 0) {

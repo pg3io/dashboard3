@@ -1,10 +1,10 @@
 <template>
-    <b-container>
+    <div>
         <transition name="slide-fade">
         <b-row class="align-items-start" v-if="facture && facture.media">
             <b-col cols="12"  lg="4">
                 <b-row class="text-left">
-                    <div class="p-5" style="transform: scale(1.2); align-self: center; mmargin: auto;">
+                    <div class="p-5" style="transform: scale(1.2); align-self: center; margin: auto;">
                         <h4 class="text-center">Infos</h4>
                         <table class="table table-sm table-hover" style="transform: scale(1.1);">
                             <tbody>
@@ -45,7 +45,7 @@
         </b-row>
         </transition>
         <h2 style="margin-top: 2%;" v-if="!search && !(facture && facture.media)">Nothing found</h2>
-    </b-container>
+    </div>
 </template>
 
 <script>

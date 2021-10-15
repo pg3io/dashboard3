@@ -1,6 +1,6 @@
 <template>
 
-    <b-container>
+    <div>
         <transition name="slide-fade">
             <b-row class="align-items-start" v-if="ged && ged.fichier">
                 <b-col cols="12"  lg="4">
@@ -37,7 +37,7 @@
             </b-row>
         </transition>
             <h2 style="margin-top: 2%;" v-if="!(ged && ged.fichier) && !search">Nothing found</h2>
-    </b-container>
+    </div>
 </template>
 
 <script>

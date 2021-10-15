@@ -1,7 +1,7 @@
 <template>
     <div>
         <transition name="slide-fade">
-            <b-container fluid="sm" style="margin-top: 2%;" v-if="hasFactures && isLoaded && factures">
+            <div class="m-2" v-if="hasFactures && isLoaded && factures">
                 <b-table
                     :items="factures"
                     :fields="fields"
@@ -14,7 +14,7 @@
                     striped hover
                     responsive="sm"
                     ref="selectableTable"
-                    selectable>
+                    selectable class="mt-4">
                     <template #cell(payer)="row">
                         <span class="statut" style="" > {{ row.item.payer }} </span>
                     </template>
@@ -24,7 +24,7 @@
                         </b-button>
                     </template>
                 </b-table>
-            </b-container>
+            </div>
         </transition>
         <transition name="slide-fade">
             <h2 style="margin-top: 2%; text-align: center;" v-if="!(hasFactures && factures) && isLoaded">Vous n'avez pas de factures</h2>

@@ -4,22 +4,14 @@
         <b-table
             v-if="hasServers && isLoad && backups.length > 0"
             :items="backups"
-            :fields="fields"
+            :fields="getFields()"
             :sort-compare="mySortCompare"
             :sort-by.sync="sortBy"
             :sort-desc.sync="sortDesc"
             @row-contextmenu="rightClicked"
             striped hover
-            responsive="sm"
-            ref="selectableTable"
-            class="mt-3"
-            selectable>
-            <template #cell(status)="row">
-                <span size="sm" class="mr-1">
-                    <b-icon v-if="row.item.status === 'OK'" icon="check-circle" style="transform: scale(1.25);" variant="success"></b-icon>
-                    <b-icon v-else-if="row.item.status === 'KO'" icon="x-circle" style="transform: scale(1.25);" variant="danger"></b-icon>
-                </span>
-            </template>
+            responsive="md"
+            ref="selectableTable">
         </b-table>
         </transition>
         <h2 style="margin-top: 2%; text-align: center;" v-if="!(hasServers && backups.length > 0) && isLoad">Vous n'avez pas de serveurs à backuper</h2>
@@ -29,6 +21,7 @@
 import { userId, getEntreprisesTags } from '@/graphql/querys.js';
 import {InfluxDB} from '@influxdata/influxdb-client';
 import gql from 'graphql-tag';
+import $ from 'jquery';
 
 let self
 
@@ -43,10 +36,15 @@ function findUrl(elem) {
     else return false;
 }
 
-function myDateFormat(date) {
-    if (date === '')
-        return "Pas de données"
-    return new Date(date).toLocaleString('en-GB',{timezone: "Europe/Paris"});
+function DateToDayMonth(date) {
+    if (typeof date === 'string') {
+        const newDate = new Date(date)
+        return `${newDate.getDate()}/${newDate.getMonth()+1}`
+    } else if (date instanceof Date) return `${date.getDate()}/${date.getMonth()+1}`
+    else {
+        console.log('DateToDayMonth function expects a string or a Date')
+        console.log(TypeError)
+    }
 }
 
 export default {
@@ -63,35 +61,55 @@ export default {
             InfluxDB: null,
             QueryAPI: null,
             myQuery: '',
-            fields: [
-                { key: 'host', sortable: true, class: 'host' },
-                { key: 'end_time', sortable: true, class: 'end_time', label: "Dernière sauvegarde", formatter: myDateFormat },
-                { key: 'type', sortable: false, class: 'type' },
-                { key: 'status', sortable: false, class: 'state' }
-            ],
             sortBy: 'last_bkp',
-            sortDesc: true,   
+            sortDesc: true, 
+            rangeDays: 14
 
         }
     },
     created () {
-        this.getInfluxCredentials ()
-        this.getUserId()
+        this.getInfluxCredentials();
+        this.getUserId();
         this.getuserCorp();
         this.sortUrlsTags();
         this.getwatcherUri();
-        this.getmyQuery()
-        this.getSitesData()
+        this.getmyQuery();
+        this.getSitesData();
+    },
+    mounted() {
+        this.$nextTick(function () {
+            this.setIcons();
+        });
     },
     methods: {
+        getFields() {
+            var fields = [{key: "host", sortable: true, stickyColumn: (window.screen.width > 500)}]
+            var flag = true;
+            const now = Date.now()
+            for (var i = 0; i < this.rangeDays; i++)
+                fields.push({key: DateToDayMonth(new Date(now - (i * 3600 * 24 * 1000))), sortable: false})
+            while (flag) {
+                if (fields.length >= this.rangeDays) {
+                    flag = false;
+                    return fields;
+                }
+            }
+        },
+        setIcons () {
+            if (!this.isLoad)
+                return setTimeout(this.setIcons, 100)
+            $('td.table-success').html('<span style="color: var(--success); font-size: 1.2rem; margin: 0 0 0 1rem"><i class="far fa-check-circle"></i></span>')
+            $('td.table-danger').html('<span style="color: var(--danger); font-size: 1.2rem; margin: 0 0 0 1rem"><i class="far fa-times-circle"></i></span>')
+            console.log($('td.table-success'))
+        },
         getmyQuery () {
             if (this.watcherUri.length === 0)
                 return setTimeout(this.getmyQuery, 100);
             self = this;
             this.myQuery = `from(bucket: "backups")
-    |> range(start: -24h)
+    |> range(start: -${this.rangeDays}d)
     |> filter(fn: (r) => r["_measurement"] == "backup")
-    |> filter(fn: (r) => r["_field"] == "status" or r["_field"] == "type" or r["_field"] == "end_time_0" or r["_field"] == "end_time_1" or r["_field"] == "end_time_2" or r["_field"] == "end_time_3")
+    |> filter(fn: (r) => r["_field"] == "status")
     |> filter(fn: (r) => r["host"] == "${this.watcherUri[0].urls[0]}"`;
             this.watcherUri.forEach((corp, index) => {
                 if (corp.urls.length > 1) {
@@ -99,10 +117,10 @@ export default {
                         if (index > 0 || i > 0)
                             self.myQuery += ` or r["host"] == "${url}"`
                         if ((i === (corp.urls.length - 1) || corp.urls.length === 0) && index === (self.watcherUri.length - 1))
-                            self.myQuery += `)  |> last(column: "host") |> yield(name: "last")`;
+                            self.myQuery += `)   |> aggregateWindow(every: 24h, fn: last) |> yield(name: "last")`;
                     })
                 } else if (index === self.watcherUri.length - 1)
-                    self.myQuery += `)  |> last(column: "host") |> yield(name: "last")`;
+                    self.myQuery += `)   |> aggregateWindow(every: 24h, fn: last) |> yield(name: "last")`;
             });
         },
         getSitesData () {
@@ -117,26 +135,20 @@ export default {
                             const o = tableMeta.toObject(row)
                             const elemIndex = self.backups.findIndex(findUrl, o);
                             if (elemIndex >= 0) {
-                                if (o._field === "status")
-                                    if (o._value > 75) self.backups[elemIndex][o._field] = "KO"
-                                    else self.backups[elemIndex][o._field] = "OK"
-                                else if (o._field.startsWith('end_time_')) {
-                                    if (self.backups[elemIndex].end_time !== undefined && o._value !== '')
-                                        if ((new Date(o._value)).getTime() > new Date(self.backups[elemIndex]["end_time"]).getTime())
-                                            self.backups[elemIndex]["end_time"] = o._value
-                                    else if (o._value !== '')
-                                        self.backups[elemIndex]["end_time"] = o._value
-                                } else
-                                    self.backups[elemIndex][o._field] = o._value
+                                if (o._value > 75) {
+                                    self.backups[elemIndex][DateToDayMonth(o._time)] = "KO";
+                                    self.backups[elemIndex]._cellVariants[DateToDayMonth(o._time)] = "danger"
+                                }
+                                else {
+                                    self.backups[elemIndex][DateToDayMonth(o._time)] = "OK"
+                                    self.backups[elemIndex]._cellVariants[DateToDayMonth(o._time)] = "success"
+                                }
                             }
                             else {
-                                if (o._field === "status")
-                                    if (o._value > 75) self.backups.push(JSON.parse(`{"host": "${o.host}", "${o._field}" : "KO"}`));
-                                    else self.backups.push(JSON.parse(`{"host": "${o.host}", "${o._field}" : "OK"}`));
-                                else if (o._field.startsWith('end_time_'))
-                                    self.backups.push(JSON.parse(`{"host": "${o.host}", "end_time" : "${o._value}"}`));
-                                else
-                                    self.backups.push(JSON.parse(`{"host": "${o.host}", "${o._field}" : "${o._value}"}`));
+                                if (o._value > 75) {
+                                    self.backups.push(JSON.parse(`{"host": "${o.host}", "${DateToDayMonth(o._time)}" : "KO", "_cellVariants": {"${DateToDayMonth(o._time)}": "danger"}}`));
+                                }
+                                else self.backups.push(JSON.parse(`{"host": "${o.host}", "${DateToDayMonth(o._time)}" : "OK", "_cellVariants": {"${DateToDayMonth(o._time)}": "success"}}`));
                             }
                         },
                         error(error) {
@@ -145,6 +157,7 @@ export default {
                         complete() {
                             self.isLoad = true;
                             self.hasServers = true;
+                            // console.log(self.backups)
                         }
                     })
                 }

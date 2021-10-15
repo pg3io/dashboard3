@@ -20,7 +20,7 @@
               </b-form-checkbox>
               <i v-if="dark_mode" class="fa fa-moon mr-5" style="color: white; font-size:1.2rem; margin-top:0.5rem;"></i>
             </template>
-          <template><img class="rounded-circle" :src="gravatar" alt="user profile image" style="width: 35px"/></template>
+          <template><img class="rounded-circle" :src="gravatar" alt="user profile image" style="width: 40px"/></template>
             <b-nav-item-dropdown right>
               <b-dropdown-item class="nav-link" @click="goToPage('profileLink')">
                 <router-link to="/profile" custom v-slot="{ navigate }" hidden='true' id="profileLink">
@@ -74,7 +74,7 @@
               </div>
             </nav>
           </b-col>
-          <b-col>
+          <b-col class="col-md-10 col-sm-12">
             <div v-if="$route.path=='/profile'" class="profile">
                 <Profile :userInfos="userInfos"></Profile>
             </div>

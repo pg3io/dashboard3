@@ -1,5 +1,5 @@
 <template>
-    <b-container fluid="sm" style="margin-top: 2%;">
+    <div class="mt-4">
         <transition name="slide-fade">
             <b-table
                 v-if="hasFiles && isLoaded && geds"
@@ -25,8 +25,10 @@
                 </template>
             </b-table>
         </transition>
+        <transition name="slide-fade">
         <h2 style="margin-top: 2%; text-align: center;" v-if="!(hasFiles && geds) && isLoaded">Vous n'avez pas de fichiers dans le GED</h2>
-    </b-container>
+        </transition>
+    </div>
 </template>
 
 <script>

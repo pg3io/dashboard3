@@ -32,47 +32,55 @@ $breakpoint-xl: 1200px;
 }
 
 @font-face {
-      font-family: "Open Sans";
+      font-family: "Open Sans Light";
       src: url("OpenSans-Light.ttf");
       font-weight: 300;
 }
 
 @font-face {
-      font-family: "Open Sans";
+      font-family: "Open Sans Bold";
       src: url("OpenSans-Bold.ttf");
       font-weight: 700;
 }
 
 @font-face {
-      font-family: "Open Sans";
+      font-family: "Open Sans ExtraBold";
       src: url("OpenSans-ExtraBold.ttf");
       font-weight: 900;
 }
 
 @font-face {
-      font-family: "Open Sans";
+      font-family: "Open Sans Italic";
       src: url("OpenSans-Italic.ttf");
       font-style: italic;
 }
 
 @font-face {
-      font-family: "Open Sans";
+      font-family: "Open Sans LightItalic";
       src: url("OpenSans-LightItalic.ttf");
       font-weight: 300;
       font-style: italic;
 }
 
 @font-face {
-      font-family: "Open Sans";
+      font-family: "Open Sans BoldItalic";
       src: url("OpenSans-BoldItalic.ttf");
       font-weight: 700;
 }
 
 @font-face {
-      font-family: "Open Sans";
+      font-family: "Open Sans ExtraBoldItalic";
       src: url("OpenSans-ExtraBoldItalic.ttf");
       font-weight: 900;
 }
+
+$grid-breakpoints: (
+  xs: $breakpoint-xs,
+  sm: $breakpoint-sm,
+  md: $breakpoint-md,
+  lg: $breakpoint-lg,
+  xl: $breakpoint-xl,
+);
 
 $font-family-sans-serif: "Open Sans", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
       Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
@@ -106,6 +114,10 @@ body {
 }
 
 .table {
+      color: var(--text) !important;
+}
+.table-b-table-default {
+      background-color: var(--bg-color) !important;
       color: var(--text) !important;
 }
 .table-success, .table-success > th, .table-success > td {
