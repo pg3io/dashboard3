@@ -113,6 +113,17 @@ body {
       background-color: var(--bg-color);
 }
 
+a {
+      color: var(--gray-muted) !important;
+}
+a:hover {
+      color: var(--primary) !important;
+}
+
+a:visited {
+      color: var(--light-gray) !important;
+}
+
 .table {
       color: var(--text) !important;
 }

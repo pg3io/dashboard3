@@ -1,4 +1,5 @@
 <template>
+    <div>
     <transition name="slide-fade">
         <div class="m-4 mt-4" v-if="isLoaded">
             <b-row class="d-flex justify-content-between">
@@ -41,15 +42,19 @@
                 striped hover
                 responsive="sm"
                 ref="selectableTable"
-                style="cursor: pointer;"
-                class="mt-3">
+                style="cursor: pointer; z-index: 1; position: absolute; width: 95%; margin: 2rem 3rem 0 0;">
             </b-table>
             <div v-else class="text-center pt-3">
-                <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded"></b-icon>
                 <h2 style="margin-top: 2%; text-align: center;" v-if="isLoaded && !hasTickets">Vous n'avez pas de tickets.</h2>
             </div>
         </div>
     </transition>
+    <transition name="fade-fast">
+        <div class=" mt-5" style="position: absolute; top: 50%; left: 50%;" v-if="!isLoaded">
+            <b-icon id="loading" icon="arrow-clockwise" animation="spin" font-scale="4"></b-icon>
+        </div>
+    </transition>
+    </div>
 </template>
 
 <script>
@@ -361,4 +366,5 @@ td {
 .modal-content {
     background-color: var(--bg-color) !important;
 }
+
 </style>

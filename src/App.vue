@@ -16,7 +16,7 @@
             <template class="text-align-bottom">
               <i v-if="!dark_mode" class="fa fa-sun mr-2" style="color: white; font-size:1.5rem; margin-top: 0.4rem;"></i>
               <b-form-checkbox id="checkbox-dark" v-model="dark_mode" name="checkbox-dark" class="mt-1"
-              size="lg" switch v-b-tooltip.hover.left="'Dark Mode'">
+              size="lg" switch>
               </b-form-checkbox>
               <i v-if="dark_mode" class="fa fa-moon mr-5" style="color: white; font-size:1.2rem; margin-top:0.5rem;"></i>
             </template>
@@ -378,6 +378,15 @@ a.active, a.sec-link.router-link-active, a.link.router-link-exact-active {
   opacity: 0;
 }
 
+.fade-fast-enter-active, .fade-fast-leave-active
+{
+  transition: opacity .3s;
+}
+
+.fade-fast-enter, .fade-fast-leave-to
+{
+  opacity: 0;
+}
 
 .slide-fade-enter-active {
   transition: all .3s ease;
