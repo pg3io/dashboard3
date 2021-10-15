@@ -100,7 +100,6 @@ export default {
                 return setTimeout(this.setIcons, 100)
             $('td.table-success').html('<span style="color: var(--success); font-size: 1.2rem; margin: 0 0 0 1rem"><i class="far fa-check-circle"></i></span>')
             $('td.table-danger').html('<span style="color: var(--danger); font-size: 1.2rem; margin: 0 0 0 1rem"><i class="far fa-times-circle"></i></span>')
-            console.log($('td.table-success'))
         },
         getmyQuery () {
             if (this.watcherUri.length === 0)
