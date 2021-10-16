@@ -10,7 +10,7 @@
                 size="lg" switch>
                 Tickets fermés
                 </b-form-checkbox>
-                <a class="btn btn-dark" :href="`${this.zammad_url}#ticket/view/my_organization_tickets`">Tous les tickets</a>
+                <button class="btn btn-dark" :href="`${this.zammad_url}#ticket/view/my_organization_tickets`">Tous les tickets</button>
             </b-row>
             <b-modal ref="popup" size="lg" centered scrollable>
                 <template #modal-header="{ close }" class="ticket-header">

@@ -9388,7 +9388,7 @@ a:hover {
   color: var(--primary) !important; }
 
 a:visited {
-  color: var(--light-gray) !important; }
+  color: var(--cyan) !important; }
 
 .table {
   color: var(--text) !important; }

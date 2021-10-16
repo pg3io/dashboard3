@@ -3,14 +3,14 @@
   <div id="app">
     <header>
       <b-navbar id="mobile-nav" :style="`background-color: ${(dark_mode) ? ('var(--light)') : ('var(--dark)')}`" toggleable="lg" type="dark" fixed="top" class="p-O" v-if="isAuthenticated">
-        <b-navbar-brand to="/"><b-icon-toggle-on></b-icon-toggle-on> {{ name }} </b-navbar-brand>
+        <b-navbar-brand to="/" :class="(dark_mode) ? ('ex-link'): ('')"><b-icon-toggle-on></b-icon-toggle-on> {{ name }} </b-navbar-brand>
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
         <b-collapse id="nav-collapse" is-nav>
           <b-navbar-nav class="d-sm-block d-lg-none">
-            <b-nav-item to="/factures" v-if="perms.factures">Factures</b-nav-item>
-            <b-nav-item to="/fichiers" v-if="perms.ged">Fichiers</b-nav-item>
-            <b-nav-item to="/tickets" v-if="zammad">Tickets</b-nav-item>
-            <b-nav-item to="/monitoring" v-if="graph || backups">Monitoring</b-nav-item>
+            <b-nav-item to="/factures" :class="(dark_mode) ? ('ex-link'): ('')" v-if="perms.factures">Factures</b-nav-item>
+            <b-nav-item to="/fichiers" :class="(dark_mode) ? ('ex-link'): ('')" v-if="perms.ged">Fichiers</b-nav-item>
+            <b-nav-item to="/tickets" :class="(dark_mode) ? ('ex-link'): ('')" v-if="zammad">Tickets</b-nav-item>
+            <b-nav-item to="/monitoring" :class="(dark_mode) ? ('ex-link'): ('')" v-if="graph || backups">Monitoring</b-nav-item>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto">
             <template class="text-align-bottom">
@@ -42,29 +42,29 @@
               <div class="d-flex text-big flex-column flex-shrink-0 p-3 bg-light">
                 <ul class="nav flex-column nav-pills mb-auto mt-3 text-align-center">
                   <li class="nav-item">
-                    <router-link to="/" class="nav-link link" id="homeLink"  style="color: var(--text)" ><b-icon-house-door></b-icon-house-door> 
+                    <router-link to="/" class="nav-link link" id="homeLink"><b-icon-house-door></b-icon-house-door> 
                      <span class="ml-3 align-top" style="font-size:1.2rem;"> Home</span>
                     </router-link>
                   </li>
                   <li class="nav-item factures" v-if="perms.factures">
-                    <router-link to="/factures" class="nav-link link sec-link"  id="factureLink" style="color: var(--text)" ><b-icon-file-earmark-ruled></b-icon-file-earmark-ruled>
+                    <router-link to="/factures" class="nav-link link sec-link"  id="factureLink"><b-icon-file-earmark-ruled></b-icon-file-earmark-ruled>
                       <span class="ml-3 align-top" style="font-size:1.2rem;"> Factures</span> 
                     </router-link>
                   </li>
                   <li class="nav-item ged" v-if="perms.ged">
-                    <router-link to="/fichiers" class="nav-link link sec-link"  id="fichierLink" style="color: var(--text)" ><b-icon-folder></b-icon-folder>
+                    <router-link to="/fichiers" class="nav-link link sec-link"  id="fichierLink"><b-icon-folder></b-icon-folder>
                        <span class="ml-3 align-top" style="font-size:1.2rem;"> Fichiers</span>
                     </router-link>
                   </li>
                   <li class="nav-item tickets" v-if="zammad">
-                    <router-link to="/tickets" class="nav-link link sec-link"  id="ticketLink" style="color: var(--text)" >
+                    <router-link to="/tickets" class="nav-link link sec-link"  id="ticketLink">
                       <b-icon-bookmarks></b-icon-bookmarks>
                       <span class="ml-3 align-top" style="font-size:1.2rem;">Tickets</span>
                       <b-badge pill variant="secondary" class="align-center ml-3">beta</b-badge>
                     </router-link>
                   </li>
                   <li class="nav-item graph" v-if="graph || backups">
-                    <router-link to="/monitoring" class="nav-link link sec-link"  id="graphLink" style="color: var(--text)" >
+                    <router-link to="/monitoring" class="nav-link link sec-link"  id="graphLink" style="" >
                       <b-icon-graph-up></b-icon-graph-up>
                       <span class="ml-3 align-top" style="font-size:1.2rem;">Monitoring</span>
                       <b-badge pill variant="secondary" class="align-center ml-3">beta</b-badge>
@@ -337,10 +337,6 @@ export default {
 {
   font-size: 1.2rem;
 }
-a.active, a.sec-link.router-link-active, a.link.router-link-exact-active {
-  background-color: var(--dark) !important;
-  color: var(--text-invert) !important;
-}
 
 #app
 {
@@ -404,12 +400,33 @@ a.active, a.sec-link.router-link-active, a.link.router-link-exact-active {
   opacity: 0;
 }
 
+a.ex-link:visited {
+  color: var(--text) !important;
+}
+a.ex-link {
+  color: var(--text) !important;
+}
+
+a.nav-link:visited {
+  color: var(--text) !important;
+}
+
+a.nav-link {
+  color: var(--text) !important;
+}
+a.nav-link.dropdown-toggle {
+  color: white !important;
+}
+
+a.active, a.sec-link.router-link-active, a.link.router-link-exact-active {
+  background-color: var(--dark) !important;
+  color: var(--text-invert) !important;
+}
+
 .hidden {
   visibility: hidden;
 }
-/* #mobile-nav {
-  background-color: var(--light);
-} */
+
 .card-body {
       background-color: var(--bg-color) !important;
 }
