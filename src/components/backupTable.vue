@@ -10,7 +10,7 @@
             :sort-desc.sync="sortDesc"
             @row-contextmenu="rightClicked"
             striped hover
-            responsive="md"
+            responsive
             ref="selectableTable">
         </b-table>
         </transition>
