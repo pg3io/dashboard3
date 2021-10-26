@@ -79,9 +79,7 @@
                 <Profile :userInfos="userInfos"></Profile>
             </div>
             <div class="home" v-else-if="$route.path=='/'">
-            <transition name="slide-fade">
                 <home v-if="(graph || backups) && homeText" :dark="dark_mode"  :home="homeText" :tickets="zammad" :graph="graph"></home>
-            </transition>
             </div>
             <div class="other" v-else>
                 <router-view></router-view>
@@ -89,6 +87,7 @@
             <footer class="footer py-3 bg-light">
               <div class="container">
                 <span v-html="footerText"></span>
+                <span class="mx-3">Dashboard PG3 - 0.85</span>
               </div>
             </footer>
           </b-col>

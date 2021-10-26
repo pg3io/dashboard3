@@ -28,7 +28,6 @@
       </form>
       <p v-if="loginMessage">{{ loginMessage }}</p>
     </div>
-    <transition name="slide-fade">
       <div v-if="forgotPassword" class="form-signin">
         <img class="mb-4" v-if="image" :src="image" alt="" width="150">
         <h5 style="text-align: left; margin-left: 2%;">Entrez votre email</h5>
@@ -47,7 +46,6 @@
           <b-button class="float-right" variant="primary" v-else style="margin-right: 2%;">Envoyer <b-icon class="turn-clockWise" icon="arrow-clockwise"></b-icon></b-button>
         </div>
       </div>
-    </transition>
   </div>
 </template>
 

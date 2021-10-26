@@ -1,6 +1,5 @@
 <template>
     <div>
-    <transition name="slide-fade">
         <div class="m-4 mt-4" v-if="isLoaded">
             <b-row class="d-flex justify-content-between">
                 <b-form-checkbox
@@ -48,12 +47,9 @@
                 <h2 style="margin-top: 2%; text-align: center;" v-if="isLoaded && !hasTickets">Vous n'avez pas de tickets.</h2>
             </div>
         </div>
-    </transition>
-    <transition name="fade-fast">
-        <div class=" mt-5" style="position: absolute; top: 50%; left: 50%;" v-if="!isLoaded">
+        <div class=" mt-5" style="position: absolute; top: 50%; left: 50%;" v-else>
             <b-icon id="loading" icon="arrow-clockwise" animation="spin" font-scale="4"></b-icon>
         </div>
-    </transition>
     </div>
 </template>
 

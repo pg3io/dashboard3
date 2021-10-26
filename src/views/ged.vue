@@ -1,6 +1,5 @@
 <template>
     <div class="mt-4">
-        <transition name="slide-fade">
             <b-table
                 v-if="hasFiles && isLoaded && geds"
                 :items="geds"
@@ -24,10 +23,10 @@
                     </b-button>
                 </template>
             </b-table>
-        </transition>
-        <transition name="slide-fade">
-        <h2 style="margin-top: 2%; text-align: center;" v-if="!(hasFiles && geds) && isLoaded">Vous n'avez pas de fichiers dans le GED</h2>
-        </transition>
+            <div class="text-center" v-else>
+                <b-icon style="margin-top: 2%;" icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded || !geds"></b-icon>
+                <h2 style="margin-top: 2%; text-align: center;" v-else>Vous n'avez pas de fichiers dans le GED</h2>
+            </div>
     </div>
 </template>
 

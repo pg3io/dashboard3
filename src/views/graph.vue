@@ -1,60 +1,58 @@
 <template>
-        <div class="mt-4">
-        <transition name="slide-fade">
-            <div class="card" v-if="perms.graph && this.isLoaded">
-                <div class="text-center card-header">
-                    <span class="align-baseline h4">Historique du temps de réponse sur </span>
-                    <b-button-group class="ml-2" size="md">
-                        <b-button v-for="(btn, idx) in buttons" :key="idx"  @click="selectRange(btn, buttons)" :pressed="btn.state" variant="outline-dark">
-                            {{ btn.caption }}
-                        </b-button>
-                    </b-button-group>
-                </div>
-                <div class="card-body">
-                    <transition name="slide-fade">
-                    <b-row class="" v-if="watchedUrls.length > 0 && values.length > 0 && isLoaded">
-                        <line-chart :library='{
-                            "colors": chartColors.colors,
-                            "plotOptions": {
-                                "series": {
-                                    "marker" :{"enabled": false}
-                                }
-                            },
-                            "xAxis": {
-                                "labels" :{
-                                    "style": {"color": chartColors.font}
-                                }
-                            },
-                            "yAxis": {
-                                "labels" :{
-                                    "style": {"color": chartColors.font}
-                                }
-                            },
-                            "tooltip": {
-                                "valueDecimals": 2
-                            },
-                            "chart": {
-                                "backgroundColor": chartColors.bg
-                            },
-                            "legend": {"itemStyle": {"color": chartColors.font}, "itemHoverStyle": {"color": chartColors.font_dark}}
-                        }'
-                        legend="bottom" :data="values" width="100%" height="500px" :min="0" :max="maxValue" suffix="s"/>
-                    </b-row>
-                    </transition>
-                    <h2 style="margin-top: 2%; text-align: center;" v-if="!(watchedUrls.length > 0 && values.length > 0) && isLoaded">Vous n'avez aucun site à monitorer.</h2>
-                </div>
+    <div class="mt-4">
+        <div class="card" v-if="perms.graph && this.isLoaded">
+            <div class="text-center card-header">
+                <span class="align-baseline h4">Historique du temps de réponse sur </span>
+                <b-button-group class="ml-2" size="md">
+                    <b-button v-for="(btn, idx) in buttons" :key="idx"  @click="selectRange(btn, buttons)" :pressed="btn.state" variant="outline-dark">
+                        {{ btn.caption }}
+                    </b-button>
+                </b-button-group>
             </div>
-        </transition>
-        <transition name="slide-fade-up">
-            <div class="card" v-if="perms.backups && this.isLoaded">
-                <div class="card-header">
-                    <h4 class="text-center">Sauvegardes</h4>
-                </div>
-                <div class="card-body">
-                    <BackupTable />
-                </div>
+            <div class="card-body">
+                <b-row class="" v-if="watchedUrls.length > 0 && values.length > 0 && isLoaded">
+                    <line-chart :library='{
+                        "colors": chartColors.colors,
+                        "plotOptions": {
+                            "series": {
+                                "marker" :{"enabled": false}
+                            }
+                        },
+                        "xAxis": {
+                            "labels" :{
+                                "style": {"color": chartColors.font}
+                            }
+                        },
+                        "yAxis": {
+                            "labels" :{
+                                "style": {"color": chartColors.font}
+                            }
+                        },
+                        "tooltip": {
+                            "valueDecimals": 2
+                        },
+                        "chart": {
+                            "backgroundColor": chartColors.bg
+                        },
+                        "legend": {"itemStyle": {"color": chartColors.font}, "itemHoverStyle": {"color": chartColors.font_dark}}
+                    }'
+                    legend="bottom" :data="values" width="100%" height="500px" :min="0" :max="maxValue" suffix="s"/>
+                </b-row>
+                <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-else-if="!isLoaded"></b-icon>
+                <h2 style="margin-top: 2%; text-align: center;" v-else>Vous n'avez aucun site à monitorer.</h2>
             </div>
-        </transition>
+        </div>
+        <div class="text-center mt-3" v-else-if="!isLoaded">
+            <b-icon icon="arrow-clockwise" animation="spin" font-scale="4"></b-icon>
+        </div>
+        <div class="card" v-if="perms.backups && this.isLoaded">
+            <div class="card-header">
+                <h4 class="text-center">Sauvegardes</h4>
+            </div>
+            <div class="card-body">
+                <BackupTable />
+            </div>
+        </div>            
     </div>
 </template>
 
@@ -62,7 +60,7 @@
 import { userId, getEntreprisesTags, getCustoms } from '@/graphql/querys.js';
 import {InfluxDB} from '@influxdata/influxdb-client';
 import gql from 'graphql-tag';
-import BackupTable from '@/components/backupTable.vue'
+import BackupTable from '@/components/backupTable.vue';
 
 let $self;
 

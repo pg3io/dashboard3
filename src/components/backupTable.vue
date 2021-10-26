@@ -14,9 +14,7 @@
             ref="selectableTable">
         </b-table>
         </transition>
-        <transition name="fade">
-            <h2 class="mt-2" v-if="!(hasServers && backups.length > 0) && isLoad">Vous n'avez pas de serveurs à backuper</h2>
-        </transition>
+        <h2 class="mt-2" v-if="!(hasServers && backups.length > 0) && isLoad">Vous n'avez pas de serveurs à backuper</h2>
     </div>
 </template>
 <script>

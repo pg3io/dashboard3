@@ -1,6 +1,5 @@
 <template>
     <div>
-        <transition name="slide-fade">
             <div class="m-2" v-if="hasFactures && isLoaded && factures">
                 <b-table
                     :items="factures"
@@ -25,10 +24,10 @@
                     </template>
                 </b-table>
             </div>
-        </transition>
-        <transition name="slide-fade">
-            <h2 style="margin-top: 2%; text-align: center;" v-if="!(hasFactures && factures) && isLoaded">Vous n'avez pas de factures</h2>
-        </transition>
+            <div class="text-center mt-3" v-else>
+                <b-icon icon="arrow-clockwise" animation="spin" font-scale="4" v-if="!isLoaded || !factures"></b-icon>
+                <h2 style="margin-top: 2%; text-align: center;" v-else>Vous n'avez pas de factures</h2>
+            </div>
     </div>
 </template>
 
