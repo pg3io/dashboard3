@@ -6,5 +6,6 @@ assets/
 docker-compose.yml
 docker.yml
 Dockerfile
+Dockerfile_dev
 LICENSE
 README.md

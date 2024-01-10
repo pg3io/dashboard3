@@ -60,14 +60,12 @@
                     <router-link to="/tickets" class="nav-link link sec-link"  id="ticketLink">
                       <b-icon-bookmarks></b-icon-bookmarks>
                       <span class="ml-3 align-top" style="font-size:1.2rem;">Tickets</span>
-                      <b-badge pill variant="secondary" class="align-center ml-3">beta</b-badge>
                     </router-link>
                   </li>
                   <li class="nav-item graph" v-if="graph || backups">
                     <router-link to="/monitoring" class="nav-link link sec-link"  id="graphLink" style="" >
                       <b-icon-graph-up></b-icon-graph-up>
                       <span class="ml-3 align-top" style="font-size:1.2rem;">Monitoring</span>
-                      <b-badge pill variant="secondary" class="align-center ml-3">beta</b-badge>
                     </router-link>
                   </li>
                 </ul>
@@ -87,7 +85,7 @@
             <footer class="footer py-3 bg-light">
               <div class="container">
                 <span v-html="footerText"></span>
-                <span class="mx-3">Dashboard PG3 - 0.85</span>
+                <span class="mx-3">Dashboard PG3 - 0.86</span>
               </div>
             </footer>
           </b-col>
