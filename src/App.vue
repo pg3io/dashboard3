@@ -85,7 +85,7 @@
             <footer class="footer py-3 bg-light">
               <div class="container">
                 <span v-html="footerText"></span>
-                <span class="mx-3">Dashboard PG3 - 0.86</span>
+                <span class="mx-3">Dashboard PG3 - 0.88</span>
               </div>
             </footer>
           </b-col>
